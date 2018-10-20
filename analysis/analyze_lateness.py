@@ -1,6 +1,6 @@
 import numpy as np
 
-from hub import Hub
+from childeshub.hub import Hub
 
 LATENESS_THR = 0.95
 VERBOSE = False

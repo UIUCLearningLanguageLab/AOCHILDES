@@ -7,7 +7,7 @@ from scipy.spatial.distance import pdist
 from sklearn.preprocessing import normalize
 from itertools import chain
 
-from hub import Hub
+from childeshub.hub import Hub
 
 HUB_MODE = 'sem'
 

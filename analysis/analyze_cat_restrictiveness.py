@@ -3,7 +3,7 @@ import seaborn as sns
 import pyprind
 import numpy as np
 
-from hub import Hub
+from childeshub.hub import Hub
 
 CORPUS_NAME = 'childes-20180315'
 P_NOISE = 'no_0'  # TODO

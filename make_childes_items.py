@@ -1,6 +1,3 @@
-from probestore import ProbeStore
-from options import default_configs_dict
-
 import os
 import csv
 import itertools
@@ -8,9 +5,12 @@ import datetime
 import spacy
 import pyprind
 
+from childeshub.probestore import ProbeStore
+from childeshub.params import default_hub_params
+from childeshub import config
+
 DRY_RUN = True
 
-CSV_DIR_NAME = 'childesr_csvs'
 SORT_CRITERION = 'target_child_age'
 BAD_SPEAKER_ROLES = ['Target_Child', 'Child']
 COLLECTION_NAMES = ['Eng-NA']
@@ -87,7 +87,7 @@ def to_utterance(d):
 def normalize(word, probe_set):
     if len(word.text) <= 2:
         normalized = word.text if not LOWER_CASE else word.text.lower()
-    elif word.text.lower() in probe_set:
+    elif word.text.lower() in probe_set:  # prevent probes from potentially being treated as NEs
         normalized = word.text if not LOWER_CASE else word.text.lower()
     elif word.ent_type_ in BAD_ENT_TYPES:
         normalized = word.text if not LOWER_CASE else word.text.lower()
@@ -104,9 +104,7 @@ def normalize(word, probe_set):
 
 def main():
     # get transcripts
-    csvs_dir = os.path.join(os.path.expanduser('~'), 'Dropbox', CSV_DIR_NAME)
-    csv_paths = sorted([os.path.join(csvs_dir, f_name)
-                        for f_name in os.listdir(csvs_dir) if f_name.endswith('csv')])
+    csv_paths = sorted(config.Dirs.data.glob('*.csv'))  # TODO test
     readers = [csv.DictReader(open(csv_path, 'r')) for csv_path in csv_paths]
     chained_readers = itertools.chain(*readers)
     d_cs, ts = zip(*sorted(
@@ -123,7 +121,7 @@ def main():
 
     # process + export transcripts
     nlp = spacy.load('en_core_web_sm', disable=['parser'])
-    probe_store = ProbeStore(default_configs_dict, hub_mode='sem')
+    probe_store = ProbeStore(default_hub_params)
     num_ts = len(ts)
     print('Processing {} transcripts...'.format(num_ts))
     pbar = pyprind.ProgBar(num_ts)

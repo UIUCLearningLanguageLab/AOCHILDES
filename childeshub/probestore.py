@@ -1,7 +1,7 @@
 from cached_property import cached_property
 from sortedcontainers import SortedSet
 
-from configs import GlobalConfigs
+from childeshub import config
 
 
 class ProbeStore(object):
@@ -9,23 +9,23 @@ class ProbeStore(object):
     Stores probe-related data.
     """
 
-    def __init__(self, configs_dict, hub_mode, term_id_dict=None):
-        print('Initializing probe_store with mode "{}"'.format(hub_mode))
-        self.probes_name = configs_dict['{}_probes_name'.format(hub_mode)]
+    def __init__(self, probes_name, term_id_dict=None):
+        self.probes_name = probes_name
         self.term_id_dict = term_id_dict
+        print('Creating "{}" probe_store'.format(self.probes_name))
 
     @cached_property
     def probe_cat_dict(self):
         probe_cat_dict = {}
-        path = GlobalConfigs.SRC_DIR / 'rnnlab' / 'probes' / '{}.txt'.format(self.probes_name)
-        with path.open('r') as f:
+        p = config.Dirs.probes / '{}.txt'.format(self.probes_name)
+        with p.open('r') as f:
             for line in f:
                 data = line.strip().strip('\n').split()
                 cat = data[0]
                 probe = data[1]
                 if self.term_id_dict is not None:
                     if probe not in self.term_id_dict:
-                        if GlobalConfigs.VERBOSE_PROBE_STORE:
+                        if config.ProbeStore.verbose:
                             print('Probe "{}" not in vocabulary -> Excluded from analysis'.format(probe))
                     else:
                         probe_cat_dict[probe] = cat

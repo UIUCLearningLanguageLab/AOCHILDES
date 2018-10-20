@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from hub import Hub
+from childeshub.hub import Hub
 
 HUB_MODE = 'sem'
 CORPUS_NAME = 'childes-20180319'  # TODO

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-from hub import Hub
+from childeshub.hub import Hub
 
 CORPUS_NAMES = ['childes-20180315', 'childes-20180319']
 WINDOW_SIZE = 2
@@ -24,7 +24,7 @@ ys_list = []
 for corpus_name in CORPUS_NAMES:
     hub = Hub(mode='sem',
               num_parts=2,
-              block_order='inc_age',
+              part_order='inc_age',
               corpus_name=corpus_name,
               p_noise='no_o')
     y1 = calc_num_shared_io_mappings(hub.reordered_partitions[0])

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import pandas as pd
 
-from configs import GlobalConfigs
+from childeshub import config
 
 CORPUS_NAME = 'childes-20180319'
 HUB_MODE = 'sem'
@@ -14,7 +14,7 @@ THRESHOLD = 0.6
 
 # make corr
 rho_mat = np.abs(np.load('rho_mat.npy'))
-pos_list = sorted(GlobalConfigs.POS_TAGS_DICT.keys())
+pos_list = sorted(config.Preprocess.pos2tags.keys())
 names = ['age',
          'lexical diversity'] + \
         ['num {}-grams'.format(n) for n in NGRAM_SIZES] + \

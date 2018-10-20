@@ -3,7 +3,7 @@ import numpy as np
 import seaborn as sns
 from itertools import cycle
 
-from hub import Hub
+from childeshub.hub import Hub
 
 CORPUS_NAME = 'childes-20180319'
 HUB_MODE = 'sem'
@@ -23,14 +23,14 @@ palette = cycle(sns.color_palette("hls", len(BLOCK_ORDERS)))
 for pos in PLOT_POS_LIST:
     # make xys
     xys = []
-    for block_order in BLOCK_ORDERS:
-        reordered_parts = hub.reorder_parts(block_order)
+    for part_order in BLOCK_ORDERS:
+        reordered_parts = hub.reorder_parts(part_order)
         y = hub.roll_mean([hub.calc_num_pos_in_part(pos, part) for part in reordered_parts], SMOOTH)
-        xys.append((y, block_order))
+        xys.append((y, part_order))
     # fig
     fig, ax = plt.subplots(figsize=(10, 4), dpi=DPI)
     plt.title('Approximating age-order')
-    x1 = np.arange(hub.num_parts)
+    x1 = np.arange(hub.params.num_parts)
     ax.set_xlabel('Partitions')
     ax.set_ylabel('Number of {}s in partition\n(+linear smoothing)'.format(pos))
     # plot

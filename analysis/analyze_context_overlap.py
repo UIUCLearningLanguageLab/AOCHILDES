@@ -1,4 +1,4 @@
-from hub import Hub
+from childeshub.hub import Hub
 
 DPI = 192
 HUB_MODE = 'sem'

@@ -59,7 +59,7 @@ class TermStore(object):
         self.num_y = configs_dict['num_y']
         self.p_noise = configs_dict['p_noise']
         self.f_noise = configs_dict['f_noise']
-        self.block_order = configs_dict['block_order']
+        self.part_order = configs_dict['part_order']
         self.num_parts = configs_dict['num_parts']
         self._types = types  # test items must have train types otherwise ids don't match
         self.tokens_no_oov, self.tags_no_oov = self.preprocess(terms, tags)
@@ -104,7 +104,7 @@ class TermStore(object):
     def add_p_noise(self, raw):
         """
         Inserts P_NOISE at periodic intervals. Interval can be set to change gradually over corpus.
-        IMPORTANT: Gradual change is relative to corpus order not block_order.
+        IMPORTANT: Gradual change is relative to corpus order not part_order.
         """
         if 'no' in self.p_noise:
             return raw

@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from hub import Hub
+from childeshub.hub import Hub
 
 NUM_DOCS = 256
 DPI = 192
@@ -9,7 +9,7 @@ FIGSIZE = (10, 5)
 HUB_MODE = 'sem'
 BLOCK_ORDER = 'inc_age'
 
-hub = Hub(mode=HUB_MODE, block_order=BLOCK_ORDER)
+hub = Hub(mode=HUB_MODE, part_order=BLOCK_ORDER)
 
 
 # data
@@ -27,7 +27,7 @@ plt.title(HUB_MODE)
 ax.set_ylabel('Num Probe Occurrences in Part')
 ax.set_xlabel('Partition')
 # plot
-x = np.arange(hub.num_parts)
+x = np.arange(hub.params.num_parts)
 ax.plot(x, y, '-', alpha=0.5)
 y_fitted = hub.fit_line(x, y)
 ax.plot(x, y_fitted, '-')

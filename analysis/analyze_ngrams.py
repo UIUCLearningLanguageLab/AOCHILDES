@@ -1,8 +1,8 @@
 
-from hub import Hub
+from childeshub.hub import Hub
 
 CORPUS_NAME = 'childes-20171212'
-PROBES_NAME = 'semantic-raw'
+SEM_PROBES_NAME = 'semantic-raw'
 
 NUM_SPLITS = 8
 NGRAM_RANGE = (2, 3)
@@ -11,7 +11,7 @@ HUB_MODE = 'sem'
 print('N-gram Range: {}'.format(NGRAM_RANGE))
 print()
 
-hub = Hub(mode=HUB_MODE, corpus_name=CORPUS_NAME, probes_name=PROBES_NAME)
+hub = Hub(mode=HUB_MODE, corpus_name=CORPUS_NAME, sem_probes_name=SEM_PROBES_NAME)
 
 idx = hub.train_terms.num_tokens // NUM_SPLITS
 tokens_early = hub.reordered_token_ids[:idx]

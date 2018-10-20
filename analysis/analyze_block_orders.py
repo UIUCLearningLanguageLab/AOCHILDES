@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import spearmanr
 
-from hub import Hub
+from childeshub.hub import Hub
+
 
 CORPUS_NAME = 'childes-20180319'
 HUB_MODE = 'sem'

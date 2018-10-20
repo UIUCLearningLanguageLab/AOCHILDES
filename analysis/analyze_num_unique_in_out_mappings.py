@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-from hub import Hub
+from childeshub.hub import Hub
 
 # CORPUS_NAMES = ['childes-20180315', 'childes-20180319']
 P_NOISES = ['no_o', 'all_1', 'all_2', 'all_3', 'all_4']
@@ -22,7 +22,7 @@ ys_list = []
 for p_noise in P_NOISES:
     hub = Hub(mode='sem',
               num_parts=2,
-              block_order='inc_age',
+              part_order='inc_age',
               corpus_name='childes-20180315',
               p_noise=p_noise)
     y0 = calc_num_io_mappings(hub.reordered_partitions[0])

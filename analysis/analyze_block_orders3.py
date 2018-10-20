@@ -4,7 +4,7 @@ import seaborn as sns
 from scipy.stats import spearmanr
 import pandas as pd
 
-from hub import Hub
+from childeshub.hub import Hub
 
 CORPUS_NAME = 'childes-20180319'
 HUB_MODE = 'sem'
@@ -35,7 +35,7 @@ BLOCK_ORDERS += ['dec_noun',
 
 order_features = [bo.split('_')[-1] for bo in BLOCK_ORDERS]
 num_order_features = len(order_features)
-num_block_orders = len(BLOCK_ORDERS)
+num_part_orders = len(BLOCK_ORDERS)
 
 
 def make_features_mat(parts):
@@ -53,10 +53,10 @@ hub = Hub(mode=HUB_MODE, num_parts=NUM_PARTS, corpus_name=CORPUS_NAME, block_ord
 ao_feature_mat = make_features_mat(hub.reordered_partitions)
 
 # make corr_mat
-corr_mat = np.zeros((num_block_orders, num_order_features))  # TODO paralellize algorithm?
-for row_id, block_order in enumerate(BLOCK_ORDERS):
-    print(block_order, '\n/////////////////////////////////////////')
-    reordered_partitions = hub.reorder_parts(block_order)
+corr_mat = np.zeros((num_part_orders, num_order_features))  # TODO paralellize algorithm?
+for row_id, part_order in enumerate(BLOCK_ORDERS):
+    print(part_order, '\n/////////////////////////////////////////')
+    reordered_partitions = hub.reorder_parts(part_order)
     bo_feature_mat = make_features_mat(reordered_partitions)
     row = [spearmanr(ao_feats, bo_feats)[0]  # rho
            for ao_feats, bo_feats in zip(ao_feature_mat.T, bo_feature_mat.T)]
@@ -81,7 +81,7 @@ plt.show()
 
 # fig - clustered
 df = pd.DataFrame(corr_mat, columns=order_features, index=BLOCK_ORDERS)
-print('which block_orders have best correlation?')
+print('which part_orders have best correlation?')
 print(df.mean(axis=1).sort_values())
 df.drop([f for f in order_features if '+' in f], axis=1, inplace=True)
 # df.drop(['inc_probes-spread-stdlocs', 'inc_probes-context-entropy-1-left'], axis=0, inplace=True)

@@ -9,71 +9,70 @@ from scipy.stats import linregress
 import pandas as pd
 import random
 import scipy.stats
+import string
 
-from probestore import ProbeStore
-from termstore import make_terms
-from options import default_configs_dict
-from configs import GlobalConfigs
+from childeshub.probestore import ProbeStore
+from childeshub.termstore import make_terms
+from childeshub.params import default_hub_params
+from childeshub import config
 
 
-class cached_property_using_probe_store(object):
-
+class CachedAndModeSwitchable(object):
     def __init__(self, func):
         self.__doc__ = getattr(func, '__doc__')
         self.func = func
 
-    def __get__(self, obj, cls):
-        obj.attrs_using_probe_store.append(self.func.__name__)
-        value = obj.__dict__[self.func.__name__] = self.func(obj)
+    def __get__(self, hub, cls):
+        hub.cached_property_names.append(self.func.__name__)
+        value = hub.__dict__[self.func.__name__] = self.func(hub)
         return value
 
 
 class Hub(object):
-    def __init__(self, mode=GlobalConfigs.HUB_MODES[0], terms=(None, None), **kwargs):
-        self.configs_dict = self.make_configs_dict(kwargs)
-        self.bptt_steps = self.configs_dict['bptt_steps']
-        self.mb_size = self.configs_dict['mb_size']
-        self.num_parts = self.configs_dict['num_parts']
-        self.num_iterations = self.configs_dict['num_iterations']
-        self.num_y = self.configs_dict['num_y']
-        self.num_saves = self.configs_dict['num_saves']
-        self.block_order = self.configs_dict['block_order']
+    def __init__(self, mode='sem', terms=(None, None), **kwargs):
         self.mode = mode
+        self.params = self.make_params(kwargs)
         self._terms = terms
-        self.attrs_using_probe_store = []  # stores attr if decorated with "cached_property_using_probe_store"
+        self.cached_property_names = []  # names of cached properties that need to be invalidated after mode switching
 
     # ////////////////////////////////////////////// init
 
     @cached_property
     def train_terms(self):
-        result = self._terms[0] or make_terms(self.configs_dict)[0]
+        result = self._terms[0] or make_terms(self.params)[0]
         return result
 
     @cached_property
     def test_terms(self):
-        result = self._terms[1] or make_terms(self.configs_dict)[1]
+        result = self._terms[1] or make_terms(self.params)[1]
         return result
 
-    @cached_property_using_probe_store
+    @CachedAndModeSwitchable
     def probe_store(self):
-        result = ProbeStore(self.configs_dict, self.mode, self.train_terms.term_id_dict)
+        if self.mode == 'sem':
+            probes_name = self.params.sem_probes_name
+        elif self.mode == 'syn':
+            probes_name = self.params.syn_probes_name
+        else:
+            raise AttributeError('Invalid arg to "mode".')
+        result = ProbeStore(probes_name, self.train_terms.term_id_dict)
         return result
 
     @staticmethod
-    def make_configs_dict(kwargs=None, verbose=False):
-        configs_dict = default_configs_dict.copy()
+    def make_params(kwargs=None, verbose=False):
+        res = default_hub_params.copy()
         for k, v in kwargs.items():
             if kwargs is not None and verbose:
                 print('Hub: Setting "{}" to "{}"'.format(k, v))
-            if k not in configs_dict:
-                print('"{}" not a valid config'.format(k))
-            configs_dict[k] = v
-        return configs_dict
+            if k not in res:
+                print('"{}" not a valid param'.format(k))
+            res[k] = v
+        return res
 
     def switch_mode(self, mode):
         # invalidate cached properties
         for attr_name in sorted(self.__dict__.keys()):
-            if attr_name in self.attrs_using_probe_store:
+            if attr_name in self.cached_property_names:
                 del self.__dict__[attr_name]
                 print('Deleted cached "{}"'.format(attr_name))
         # switch mode
@@ -84,29 +83,29 @@ class Hub(object):
 
     @cached_property
     def num_mbs_in_part(self):
-        result = self.num_windows_in_part / self.mb_size
+        result = self.num_windows_in_part / self.params.mb_size
         assert result.is_integer()
         return int(result)
 
     @cached_property
     def num_mbs_in_test(self):
-        result = self.num_windows_in_test / self.mb_size
+        result = self.num_windows_in_test / self.params.mb_size
         assert result.is_integer()
         return int(result)
 
     @cached_property
     def num_mbs_in_block(self):
-        result = self.num_mbs_in_part * self.num_iterations
+        result = self.num_mbs_in_part * self.params.num_iterations
         return result
 
     @cached_property
     def num_mbs_in_token_ids(self):
-        result = self.num_mbs_in_part * self.num_parts
+        result = self.num_mbs_in_part * self.params.num_parts
         return int(result)
 
     @cached_property
     def num_items_in_window(self):
-        num_items_in_window = self.bptt_steps + self.num_y
+        num_items_in_window = self.params.bptt_steps + self.params.num_y
         return num_items_in_window
 
     @cached_property
@@ -121,19 +120,19 @@ class Hub(object):
 
     @cached_property
     def num_items_in_part(self):
-        result = self.train_terms.num_tokens / self.num_parts
+        result = self.train_terms.num_tokens / self.params.num_parts
         assert float(result).is_integer()
         return int(result)
 
     @cached_property
     def stop_mb(self):
-        stop_mb = self.num_parts * self.num_mbs_in_block
+        stop_mb = self.params.num_parts * self.num_mbs_in_block
         return stop_mb
 
     @cached_property
     def data_mbs(self):
-        mbs_in_timepoint = int(self.stop_mb / self.num_saves)
-        end = mbs_in_timepoint * self.num_saves + mbs_in_timepoint
+        mbs_in_timepoint = int(self.stop_mb / self.params.num_saves)
+        end = mbs_in_timepoint * self.params.num_saves + mbs_in_timepoint
         data_mbs = list(range(0, end, mbs_in_timepoint))
         return data_mbs
 
@@ -147,8 +146,8 @@ class Hub(object):
 
     def order_pseudo_randomly(self, parts):
         idx = []
-        for i, j in zip(np.roll(np.arange(self.num_parts), self.num_parts // 2)[::2],
-                        np.roll(np.arange(self.num_parts), self.num_parts // 2)[::-2]):
+        for i, j in zip(np.roll(np.arange(self.params.num_parts), self.params.num_parts // 2)[::2],
+                        np.roll(np.arange(self.params.num_parts), self.params.num_parts // 2)[::-2]):
             idx += [i, j]
         assert len(set(idx)) == len(parts)
         res = [parts[i] for i in idx]
@@ -158,7 +157,7 @@ class Hub(object):
     def calc_num_pos_in_part(self, pos, part, num_pos=1024):
         assert isinstance(part[0], int)
         # make pos_term_ids
-        if pos in GlobalConfigs.POS_TAGS_DICT.keys():
+        if pos in config.Preprocess.pos2tags.keys():
             pos_term_ids = [self.train_terms.term_id_dict[term] for term in getattr(self, pos + 's')][:num_pos]
         elif '+' in pos:
             pos_term_ids = []
@@ -243,7 +242,7 @@ class Hub(object):
         for part_id, part in enumerate(parts):
             if sort_by == 'age':
                 sort_stat = part_id  # TODO test
-            elif '+' in sort_by or sort_by in GlobalConfigs.POS_TAGS_DICT.keys():
+            elif '+' in sort_by or sort_by in config.Preprocess.pos2tags.keys():
                 sort_stat = self.calc_num_pos_in_part(sort_by, part)
             elif sort_by == 'entropy':
                 sort_stat = self.calc_entropy(part)
@@ -265,14 +264,14 @@ class Hub(object):
         result = self.reorder_parts()
         return result
 
-    def reorder_parts(self, block_order=None, num_mid_parts=GlobalConfigs.NUM_MID_PARTS):
+    def reorder_parts(self, part_order=None):
         partitions = self.partition(self.train_terms.token_ids)
         if len(partitions) == 1:  # test set
             return partitions
-        if block_order is None:
-            block_order = self.block_order
+        if part_order is None:
+            part_order = self.params.part_order
         # sort
-        order_by, sort_by = block_order.split('_')
+        order_by, sort_by = part_order.split('_')
         print('Sorting partitions by "{}" and ordering by "{}"...'.format(sort_by, order_by))
         sort_d = self.calc_part_id_sort_stat_dict(partitions, sort_by)
         sorted_partitions = list(list(zip(*sorted(enumerate(partitions),
@@ -289,13 +288,15 @@ class Hub(object):
         elif order_by == 'dec':
             result = sorted_partitions[::-1]
         elif order_by == 'middec':
-            start = (self.num_parts // 2) - (num_mid_parts // 2)
+            num_mid_parts = self.params.num_parts // 3
+            start = (self.params.num_parts // 2) - (num_mid_parts // 2)
             end = start + num_mid_parts
             mid_parts = sorted_partitions[start: end]
             remaining_parts = sorted_partitions[:start] + sorted_partitions[end:]
             result = mid_parts + remaining_parts[::-1]
         elif order_by == 'midinc':
-            start = (self.num_parts // 2) - (num_mid_parts // 2)
+            num_mid_parts = self.params.num_parts // 3
+            start = (self.params.num_parts // 2) - (num_mid_parts // 2)
             end = start + num_mid_parts
             mid_parts = sorted_partitions[start: end]
             remaining_parts = sorted_partitions[:start] + sorted_partitions[end:]
@@ -346,11 +347,11 @@ class Hub(object):
             num_mbs_in_part = self.num_mbs_in_test
             num_windows = self.num_windows_in_test
         if not num_iterations:
-            num_iterations = self.num_iterations
+            num_iterations = self.params.num_iterations
         # generate
         for part_id, part in enumerate(parts):
             windows_mat = self.make_windows_mat(part, num_windows)
-            windows_mat_x, windows_mat_y = np.split(windows_mat, [self.bptt_steps], axis=1)
+            windows_mat_x, windows_mat_y = np.split(windows_mat, [self.params.bptt_steps], axis=1)
             for _ in range(num_iterations):
                 for x, y in zip(np.vsplit(windows_mat_x, num_mbs_in_part),
                                 np.vsplit(windows_mat_y, num_mbs_in_part)):
@@ -380,11 +381,11 @@ class Hub(object):
     def get_term_id_windows(self, term, roll_left=False, num_samples=64):
         locs = random.sample(self.term_unordered_locs_dict[term], num_samples)
         if not roll_left:  # includes term in window
-            result = [self.train_terms.token_ids[loc - self.bptt_steps + 1: loc + 1]
-                      for loc in locs if loc > self.bptt_steps]
+            result = [self.train_terms.token_ids[loc - self.params.bptt_steps + 1: loc + 1]
+                      for loc in locs if loc > self.params.bptt_steps]
         else:
-            result = [self.train_terms.token_ids[loc - self.bptt_steps + 0: loc + 0]
-                      for loc in locs if loc > self.bptt_steps]
+            result = [self.train_terms.token_ids[loc - self.params.bptt_steps + 0: loc + 0]
+                      for loc in locs if loc > self.params.bptt_steps]
         return result
 
     @staticmethod
@@ -412,7 +413,7 @@ class Hub(object):
         return result
 
     @staticmethod
-    def make_sentence_length_stat(items, is_avg):
+    def make_sentence_length_stat(items, is_avg, w_size=10000):
         # make sent_lengths
         last_period = 0
         sent_lengths = []
@@ -425,10 +426,10 @@ class Hub(object):
         df = pd.Series(sent_lengths)
         if is_avg:
             print('Making sentence length rolling average...')
-            result = df.rolling(GlobalConfigs.SENT_LEN_WINDOW_SIZE).std().values
+            result = df.rolling(w_size).std().values
         else:
             print('Making sentence length rolling std...')
-            result = df.rolling(GlobalConfigs.SENT_LEN_WINDOW_SIZE).mean().values
+            result = df.rolling(w_size).mean().values
         return result
 
     # ////////////////////////////////////////////// cached
@@ -436,7 +437,7 @@ class Hub(object):
     @cached_property
     def term_part_freq_dict(self):
         print('Making term_doc_freq_dict...')
-        result = {term: [0] * self.configs_dict['num_parts'] for term in self.train_terms.types}
+        result = {term: [0] * self.params.num_parts for term in self.train_terms.types}
         for part_id, part in enumerate(self.reordered_partitions):
             count_dict = Counter(part)
             for term_id, freq in count_dict.items():
@@ -459,8 +460,8 @@ class Hub(object):
         result = a(' '.join(tokens))  # requires string
         return result
 
-    @cached_property_using_probe_store
-    def probe_x_mats(self, max_locs=GlobalConfigs.MAX_EXEMPLARS, seed=GlobalConfigs.NUMPY_RANDOM_SEED):
+    @CachedAndModeSwitchable
+    def probe_x_mats(self, max_locs=2048, seed=config.Hub.random_seed):
         np.random.seed(seed=seed)
         result = []
         for probe in self.probe_store.types:
@@ -468,13 +469,13 @@ class Hub(object):
                 locs = np.random.choice(self.term_unordered_locs_dict[probe], max_locs, replace=False)
             except ValueError:  # if replace=False and the sample size is greater than the population size
                 locs = self.term_unordered_locs_dict[probe]
-            probe_x_mat = np.asarray([self.train_terms.token_ids[loc + 1 - self.bptt_steps: loc + 1]
-                                      for loc in locs if self.train_terms.num_tokens - 1 > loc >= self.bptt_steps])
+            probe_x_mat = np.asarray([self.train_terms.token_ids[loc + 1 - self.params.bptt_steps: loc + 1]
+                                      for loc in locs if self.train_terms.num_tokens - 1 > loc >= self.params.bptt_steps])
             result.append(probe_x_mat)
         return result
 
-    @cached_property_using_probe_store
-    def probe_y_mats(self, max_locs=GlobalConfigs.MAX_EXEMPLARS, seed=GlobalConfigs.NUMPY_RANDOM_SEED):
+    @CachedAndModeSwitchable
+    def probe_y_mats(self, max_locs=2048, seed=config.Hub.random_seed):
         np.random.seed(seed=seed)
         result = []
         for probe in self.probe_store.types:
@@ -483,11 +484,11 @@ class Hub(object):
             except ValueError:  # if replace=False and the sample size is greater than the population size
                 locs = self.term_unordered_locs_dict[probe]
             probe_y_mat = np.asarray([[self.train_terms.token_ids[loc + 1]]
-                                      for loc in locs if self.train_terms.num_tokens - 1 > loc >= self.bptt_steps])
+                                      for loc in locs if self.train_terms.num_tokens - 1 > loc >= self.params.bptt_steps])
             result.append(probe_y_mat)
         return result
 
-    @cached_property_using_probe_store
+    @CachedAndModeSwitchable
     def probe_num_periods_in_context_list(self):
         result = []
         for probe in self.probe_store.types:
@@ -495,7 +496,7 @@ class Hub(object):
             result.append(num_periods / len(self.probe_context_terms_dict[probe]))
         return result
 
-    @cached_property_using_probe_store
+    @CachedAndModeSwitchable
     def probe_tag_entropy_list(self):
         result = []
         for probe in self.probe_store.types:
@@ -503,7 +504,7 @@ class Hub(object):
             result.append(tag_entropy)
         return result
 
-    @cached_property_using_probe_store
+    @CachedAndModeSwitchable
     def probe_context_overlap_list(self):  # TODO use
         # probe_context_set_d
         probe_context_set_d = {probe: set() for probe in self.probe_store.types}
@@ -521,13 +522,13 @@ class Hub(object):
             result.append(probe_overlap)
         return result
 
-    @cached_property_using_probe_store
+    @CachedAndModeSwitchable
     def probe_context_terms_dict(self):
         print('Making probe_context_terms_dict...')
         result = {probe: [] for probe in self.probe_store.types}
         for n, t in enumerate(self.train_terms.tokens):
             if t in self.probe_store.types:
-                context = [term for term in self.train_terms.tokens[n - self.bptt_steps:n]]
+                context = [term for term in self.train_terms.tokens[n - self.params.bptt_steps:n]]
                 result[t] += context
         return result
 
@@ -541,7 +542,7 @@ class Hub(object):
         cat_probes = self.probe_store.cat_probe_list_dict[cat]
         term_hit_dict = {term: 0 for term in self.train_terms.types}
         for n, term in enumerate(self.train_terms.tokens):
-            loc = max(0, n - self.configs_dict['bptt_steps'])
+            loc = max(0, n - self.params.bptt_steps)
             if any([term in cat_probes for term in self.train_terms.tokens[loc: n]]):
                 term_hit_dict[term] += 1
         result = list(zip(*sorted(term_hit_dict.items(),
@@ -570,7 +571,7 @@ class Hub(object):
                 pass
         return result
 
-    @cached_property_using_probe_store
+    @CachedAndModeSwitchable
     def cat_common_successors_dict(self, num_most_common=60):  # TODO vary num_most_common
         cat_successors_dict = {cat: [] for cat in self.probe_store.cats}
         for cat, cat_probes in self.probe_store.cat_probe_list_dict.items():
@@ -582,7 +583,7 @@ class Hub(object):
                   for cat, cat_successors in cat_successors_dict.items()}
         return result
 
-    @cached_property_using_probe_store
+    @CachedAndModeSwitchable
     def probes_common_successors_dict(self, num_most_common=60):  # TODO vary num_most_common
         probes_successors = []
         for probe in self.probe_store.types:
@@ -597,8 +598,8 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in GlobalConfigs.POS_TAGS_DICT['noun']\
-                    and term not in GlobalConfigs.SPECIAL_SYMBOLS + GlobalConfigs.SINGLE_LETTER_TERMS:
+            if tag in config.Preprocess.pos2tags['noun']\
+                    and term not in config.Preprocess.SPECIAL_SYMBOLS + string.ascii_letters:
                 result.append(term)
         return result
 
@@ -607,8 +608,8 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in GlobalConfigs.POS_TAGS_DICT['adjective']\
-                    and term not in GlobalConfigs.SPECIAL_SYMBOLS + GlobalConfigs.SINGLE_LETTER_TERMS:
+            if tag in config.Preprocess.pos2tags['adjective']\
+                    and term not in config.Preprocess.SPECIAL_SYMBOLS + string.ascii_letters:
                 result.append(term)
         return result
 
@@ -617,8 +618,8 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in GlobalConfigs.POS_TAGS_DICT['verb']\
-                    and term not in GlobalConfigs.SPECIAL_SYMBOLS + GlobalConfigs.SINGLE_LETTER_TERMS:
+            if tag in config.Preprocess.pos2tags['verb']\
+                    and term not in config.Preprocess.SPECIAL_SYMBOLS + string.ascii_letters:
                 result.append(term)
         return result
 
@@ -627,8 +628,8 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in GlobalConfigs.POS_TAGS_DICT['adverb']\
-                    and term not in GlobalConfigs.SPECIAL_SYMBOLS + GlobalConfigs.SINGLE_LETTER_TERMS:
+            if tag in config.Preprocess.pos2tags['adverb']\
+                    and term not in config.Preprocess.SPECIAL_SYMBOLS + string.ascii_letters:
                 result.append(term)
         return result
 
@@ -637,8 +638,8 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in GlobalConfigs.POS_TAGS_DICT['pronoun']\
-                    and term not in GlobalConfigs.SPECIAL_SYMBOLS + GlobalConfigs.SINGLE_LETTER_TERMS:
+            if tag in config.Preprocess.pos2tags['pronoun']\
+                    and term not in config.Preprocess.SPECIAL_SYMBOLS + string.ascii_letters:
                 result.append(term)
         return result
 
@@ -647,8 +648,8 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in GlobalConfigs.POS_TAGS_DICT['preposition']\
-                    and term not in GlobalConfigs.SPECIAL_SYMBOLS + GlobalConfigs.SINGLE_LETTER_TERMS:
+            if tag in config.Preprocess.pos2tags['preposition']\
+                    and term not in config.Preprocess.SPECIAL_SYMBOLS + string.ascii_letters:
                 result.append(term)
         return result
 
@@ -657,8 +658,8 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in GlobalConfigs.POS_TAGS_DICT['conjunction']\
-                    and term not in GlobalConfigs.SPECIAL_SYMBOLS + GlobalConfigs.SINGLE_LETTER_TERMS:
+            if tag in config.Preprocess.pos2tags['conjunction']\
+                    and term not in config.Preprocess.SPECIAL_SYMBOLS + string.ascii_letters:
                 result.append(term)
         return result
 
@@ -667,8 +668,8 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in GlobalConfigs.POS_TAGS_DICT['interjection']\
-                    and term not in GlobalConfigs.SPECIAL_SYMBOLS + GlobalConfigs.SINGLE_LETTER_TERMS:
+            if tag in config.Preprocess.pos2tags['interjection']\
+                    and term not in config.Preprocess.SPECIAL_SYMBOLS + string.ascii_letters:
                 result.append(term)
         return result
 
@@ -677,8 +678,8 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in GlobalConfigs.POS_TAGS_DICT['determiner']\
-                    and term not in GlobalConfigs.SPECIAL_SYMBOLS + GlobalConfigs.SINGLE_LETTER_TERMS:
+            if tag in config.Preprocess.pos2tags['determiner']\
+                    and term not in config.Preprocess.SPECIAL_SYMBOLS + string.ascii_letters:
                 result.append(term)
         return result
 
@@ -687,8 +688,8 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in GlobalConfigs.POS_TAGS_DICT['particle']\
-                    and term not in GlobalConfigs.SPECIAL_SYMBOLS + GlobalConfigs.SINGLE_LETTER_TERMS:
+            if tag in config.Preprocess.pos2tags['particle']\
+                    and term not in config.Preprocess.SPECIAL_SYMBOLS + string.ascii_letters:
                 result.append(term)
         return result
 
@@ -697,14 +698,14 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in GlobalConfigs.POS_TAGS_DICT['punctuation']\
-                    and term not in GlobalConfigs.SPECIAL_SYMBOLS + GlobalConfigs.SINGLE_LETTER_TERMS:
+            if tag in config.Preprocess.pos2tags['punctuation']\
+                    and term not in config.Preprocess.SPECIAL_SYMBOLS + string.ascii_letters:
                 result.append(term)
         return result
 
     @cached_property
     def specials(self):
-        result = [symbol for symbol in GlobalConfigs.SPECIAL_SYMBOLS
+        result = [symbol for symbol in config.Preprocess.SPECIAL_SYMBOLS
                   if symbol in self.train_terms.types]
         return result
 
@@ -757,7 +758,7 @@ class Hub(object):
         result = round(fn(term) / ref_loc, 2)
         return result
 
-    @cached_property_using_probe_store
+    @CachedAndModeSwitchable
     def probe_lateness_dict(self):
         print('Making probe_lateness_dict...')
         probe_latenesses = []
@@ -768,7 +769,7 @@ class Hub(object):
                   for probe_lateness, probe in zip(probe_latenesses, self.probe_store.types)}
         return result
 
-    @cached_property_using_probe_store
+    @CachedAndModeSwitchable
     def probes_reordered_loc(self):
         n_sum = 0
         num_ns = 0
@@ -779,7 +780,7 @@ class Hub(object):
         result = n_sum / num_ns
         return result
 
-    @cached_property_using_probe_store
+    @CachedAndModeSwitchable
     def probes_unordered_loc(self):
         loc_sum = 0
         num_locs = 0
@@ -829,9 +830,9 @@ class Hub(object):
     def make_term_cgs(self, term):  # this is fastest implementation
         result = []
         for term_loc in self.term_reordered_locs_dict[term]:
-            term_loc = max(self.bptt_steps, term_loc)
+            term_loc = max(self.params.bptt_steps, term_loc)
             context_cf_sum = 0
-            for loc in range(term_loc - self.bptt_steps, term_loc):
+            for loc in range(term_loc - self.params.bptt_steps, term_loc):
                 context_cf_sum += self.loc_cf_dict[loc]
             cg = context_cf_sum / term_loc
             result.append(cg)
@@ -839,7 +840,7 @@ class Hub(object):
 
     # ////////////////////////////////////////////// context diversity
 
-    @cached_property_using_probe_store
+    @CachedAndModeSwitchable
     def probe_cds_dict(self):
         result = {}
         print('Making probe_cds_dict...')
@@ -852,7 +853,7 @@ class Hub(object):
         co_occurence_dict = {term: set()}
         for n, term_ in enumerate(self.reordered_tokens):
             if term_ == term:
-                for context_term in self.reordered_tokens[n - self.bptt_steps:n]:
+                for context_term in self.reordered_tokens[n - self.params.bptt_steps:n]:
                     co_occurence_dict[term_].add(context_term)
                 num_term_co_occurences = len(list(co_occurence_dict[term_]))
                 context_diversity = num_term_co_occurences / self.train_terms.num_types

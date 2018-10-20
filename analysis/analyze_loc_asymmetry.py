@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-from hub import Hub
+from childeshub.hub import Hub
 
 HUB_MODE = 'sem'
 

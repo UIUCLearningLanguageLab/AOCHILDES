@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pyprind
 
-from hub import Hub
+from childeshub.hub import Hub
 
 HUB_MODE = 'syn'
 BLOCK_ORDER = 'inc_age'
@@ -12,7 +12,7 @@ IS_REORDERED = False  # true if lateness of probes is determined after partition
 
 CONTEXT_DIST = 3
 
-hub = Hub(mode=HUB_MODE, num_parts=NUM_PARTS, block_order=BLOCK_ORDER)
+hub = Hub(mode=HUB_MODE, num_parts=NUM_PARTS, part_order=BLOCK_ORDER)
 
 # contexts
 context_loc_d = {}

@@ -3,7 +3,7 @@ from collections import Counter
 import matplotlib.pyplot as plt
 from scipy import optimize
 
-from hub import Hub
+from childeshub.hub import Hub
 
 HUB_MODE = 'sem'
 NUM_PARTS = 4

@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from hub import Hub
-from configs import GlobalConfigs
+from childeshub.hub import Hub
+from childeshub import config
 
 HUB_MODE = 'sem'
 NUM_PARTS = 8
@@ -15,7 +15,7 @@ def calc_y():
     result = []
     for part in hub.reordered_partitions:
         terms = [hub.train_terms.types[term_id] for term_id in part]
-        num_oovs = np.sum([1 if term == GlobalConfigs.OOV_SYMBOL else 0 for term in terms])
+        num_oovs = np.sum([1 if term == config.Preprocess.OOV_SYMBOL else 0 for term in terms])
         result.append(num_oovs)
     return result
 

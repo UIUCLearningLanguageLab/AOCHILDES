@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
 
-from hub import Hub
+from childeshub.hub import Hub
 
 DPI = 196
 NUM_PARTITIONS = 8

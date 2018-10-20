@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from hub import Hub
+from childeshub.hub import Hub
 from matplotlib.ticker import FormatStrFormatter
 
 HUB_MODE = 'sem'

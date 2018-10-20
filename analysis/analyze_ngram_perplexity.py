@@ -4,9 +4,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from itertools import cycle
+from pathlib import Path
 
-from configs import GlobalConfigs
-from hub import Hub
+from childeshub import config
+from childeshub.hub import Hub
 
 NGRAM_SIZES = [4, 5, 6]  # 2 and 3 expand y axis too much
 NUM_TYPES_LIST = [4096, 23 * 1000]
@@ -16,9 +17,9 @@ MODEL_EXTENSION = 'klm'  # 'klm' is faster than 'arpa'
 CORPUS_NAME = 'childes-20180319'
 DELETE_PREVIOUS_MODELS = True
 
-NGRAMS_MODEL_DIR = GlobalConfigs.NGRAM_MODELS_DIR
+NGRAMS_MODEL_DIR = 'home/ph/ngram_models'
 
-for f in NGRAMS_MODEL_DIR.glob('*'):
+for f in Path(NGRAMS_MODEL_DIR).glob('*'):
     f.unlink()
 
 
@@ -26,12 +27,12 @@ def calc_pps(str1, str2):
     result = []
     for s1, s2 in [(str1, str1), (str2, str2)]:
         # train n-gram model
-        p_in = GlobalConfigs.SRC_DIR / 'rnnlab' / 'ngram_models' / 'temp.txt'
+        p_in = config.Dirs.src / 'rnnlab' / 'ngram_models' / 'temp.txt'
         p_in.write_text(s1)
         p = Popen([LMPLZ_PATH, '-o', str(ngram_size)], stdin=p_in.open(), stdout=PIPE)
         p_in.unlink()
         # save model
-        p_out = NGRAMS_MODEL_DIR / '{}_{}-grams.arpa'.format(CORPUS_NAME, ngram_size)
+        p_out = Path(NGRAMS_MODEL_DIR) / '{}_{}-grams.arpa'.format(CORPUS_NAME, ngram_size)
         if not p_out.exists():
             p_out.touch()
         arpa_file_bytes = p.stdout.read()

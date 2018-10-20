@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from hub import Hub
-from configs import GlobalConfigs
+from childeshub.hub import Hub
+from childeshub import config
 
 CORPUS_NAME = 'childes-20180319'
 BLOCK_ORDER = 'inc_context-entropy'
@@ -11,7 +11,7 @@ HUB_MODE = 'sem'
 
 hub = Hub(mode=HUB_MODE, corpus_name=CORPUS_NAME, block_order=BLOCK_ORDER)
 
-for pos in ANALYZE_POS or sorted(GlobalConfigs.POS_TAGS_DICT.keys()):
+for pos in ANALYZE_POS or sorted(config.Preprocess.pos2tags.keys()):
     # data
     y = []
     part_id = 0
@@ -30,7 +30,7 @@ for pos in ANALYZE_POS or sorted(GlobalConfigs.POS_TAGS_DICT.keys()):
     ax.set_xlabel('Partition')
     plt.title(BLOCK_ORDER)
     # plot
-    x = np.arange(hub.num_parts)
+    x = np.arange(hub.params.num_parts)
     ax.plot(x, y, '-', alpha=0.5)
     y_fitted = hub.fit_line(x, y)
     ax.plot(x, y_fitted, '-')

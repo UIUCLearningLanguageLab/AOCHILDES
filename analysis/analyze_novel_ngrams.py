@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 from matplotlib.ticker import FormatStrFormatter
 
-from hub import Hub
-from figutils import human_format
+from childeshub.hub import Hub
+
 
 NUM_BINS = 64
 NGRAM_SIZES = [1, 2, 3, 6]
@@ -24,6 +24,13 @@ WPAD = 0.0
 HPAD = 0.0
 PAD = 0.2
 
+
+def human_format(num, pos):  # pos is required
+    magnitude = 0
+    while abs(num) >= 1000:
+        magnitude += 1
+        num /= 1000.0
+    return '{}{}'.format(num, ['', 'K', 'M', 'G', 'T', 'P'][magnitude])
 
 def make_novel_xys(ngrams_list, num_bins=NUM_BINS):
     """
@@ -61,8 +68,8 @@ num_ngram_sizes = len(NGRAM_SIZES)
 
 # make size_ngrams_list_dict
 size_ngrams_list_dict = {ngram_size: [] for ngram_size in NGRAM_SIZES}
-for block_order in BLOCK_ORDERS:
-    hub.block_order = block_order
+for part_order in BLOCK_ORDERS:
+    hub.part_order = part_order
     for ngram_size in NGRAM_SIZES:
         ngram_range = (ngram_size, ngram_size)
         ngrams = hub.get_ngrams(ngram_range, hub.reordered_tokens)
@@ -74,7 +81,7 @@ for block_order in BLOCK_ORDERS:
 # make xys
 xys_list = []
 for ngram_size in NGRAM_SIZES:
-    ngrams_list = size_ngrams_list_dict[ngram_size]  # ngrams_list contains ngrams for each block_order
+    ngrams_list = size_ngrams_list_dict[ngram_size]  # ngrams_list contains ngrams for each part_order
     xys = make_novel_xys(ngrams_list)
     xys_list.append(xys)
 
