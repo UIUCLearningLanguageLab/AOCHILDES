@@ -4,6 +4,7 @@ setup(
     name='CHILDESHub',
     version='0.1dev',
     packages=['childeshub', 'analysis'],
+    include_package_data=True,
     install_requires=['cached_property',
                       'pandas',
                       'scipy',
@@ -20,3 +21,4 @@ setup(
 )
 
 
+# TODO how to include terms and probes in childeshub installation?
