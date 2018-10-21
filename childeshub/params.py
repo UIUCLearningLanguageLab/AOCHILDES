@@ -1,6 +1,3 @@
-import numpy as np
-from itertools import cycle
-
 
 class ObjectView(object):
     def __init__(self, d):
@@ -19,4 +16,4 @@ class HubParams:
     syn_probes_name = 'syntactic-mcdi'
 
 
-default_hub_params = ObjectView(vars(HubParams))
+default_hub_params = ObjectView({k: v for k, v in HubParams.__dict__.items() if not k.startswith('_')})

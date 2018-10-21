@@ -19,6 +19,3 @@ setup(
     author_email='info@philhuebner.com',
     description='Create and analyze variants of American-English CHILDES corpus'
 )
-
-
-# TODO how to include terms and probes in childeshub installation?

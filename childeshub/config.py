@@ -9,11 +9,13 @@ class Dirs:
     probes = src / 'probes'
 
 
-class ProbeStore:
+class Probes:
     verbose = False
 
 
-class Preprocess:
+class Terms:
+    NUM_TEST_LINES = 100
+    MAX_NUM_DOCS = 2048
     OOV_SYMBOL = 'OOV'
     F_NOISE_SYMBOL = 'F_NOISE'
     P_NOISE_SYMBOL = 'P_NOISE'

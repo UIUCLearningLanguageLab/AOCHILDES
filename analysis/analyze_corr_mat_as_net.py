@@ -14,7 +14,7 @@ THRESHOLD = 0.6
 
 # make corr
 rho_mat = np.abs(np.load('rho_mat.npy'))
-pos_list = sorted(config.Preprocess.pos2tags.keys())
+pos_list = sorted(config.Terms.pos2tags.keys())
 names = ['age',
          'lexical diversity'] + \
         ['num {}-grams'.format(n) for n in NGRAM_SIZES] + \

@@ -6,12 +6,12 @@ from itertools import islice
 import random
 from itertools import chain
 
-from configs import GlobalConfigs
+from childeshub import config
 
 
 def make_terms(configs_dict):
     def load_lines(item_name):
-        f = GlobalConfigs.SRC_DIR / 'rnnlab' / 'items' / '{}_{}.txt'.format(configs_dict['corpus_name'], item_name)
+        f = config.Dirs.items / '{}_{}.txt'.format(configs_dict['corpus_name'], item_name)
         res = f.open('r').readlines()
         return res
 
@@ -29,15 +29,15 @@ def make_terms(configs_dict):
     test_raws = {}
     for name in ['terms', 'tags']:
         lines = load_lines(name)
-        num_test_line_ids = len(lines) - GlobalConfigs.NUM_TEST_LINES  # adjust because of popping
+        num_test_line_ids = len(lines) - config.Terms.NUM_TEST_LINES  # adjust because of popping
         random.seed(3)
-        test_line_ids = random.sample(range(num_test_line_ids), GlobalConfigs.NUM_TEST_LINES)
+        test_line_ids = random.sample(range(num_test_line_ids), config.Terms.NUM_TEST_LINES)
         train_raw, test_raw = split_lines(lines, test_line_ids)
         # oov
         train_set = set(train_raw)
         for n, item in enumerate(test_raw):
             if item not in train_set:
-                test_raw[n] = GlobalConfigs.OOV_SYMBOL
+                test_raw[n] = config.Terms.OOV_SYMBOL
         train_raws[name] = train_raw
         test_raws[name] = test_raw
     # terms
@@ -75,7 +75,7 @@ class TermStore(object):
         result = list(zip(*items))
         return result
 
-    def make_item_length(self, num_raw, max_num_docs=GlobalConfigs.MAX_NUM_DOCS):
+    def make_item_length(self, num_raw):
         """
         Find length by which to prune items such that result is divisible by num_docs and
         such that the result of this division must be divisible by mb_size
@@ -87,7 +87,7 @@ class TermStore(object):
         """
         # factor
         num_items_in_window = self.bptt_steps + self.num_y
-        factor = self.mb_size * (max_num_docs if self._types is None else 1) + num_items_in_window
+        factor = self.mb_size * (config.Terms.MAX_NUM_DOCS if self._types is None else 1) + num_items_in_window
         # make divisible
         num_factors = num_raw // factor
         result = num_factors * factor - ((num_factors - (self.num_parts if self._types is None else 1))
@@ -124,7 +124,7 @@ class TermStore(object):
         result = []
         for item, prob in zip(raw, probs):
             if random.random() < prob:
-                result.append((GlobalConfigs.P_NOISE_SYMBOL, GlobalConfigs.P_NOISE_SYMBOL))
+                result.append((config.Terms.P_NOISE_SYMBOL, config.Terms.P_NOISE_SYMBOL))
             result.append(item)
         return result
 
@@ -138,7 +138,7 @@ class TermStore(object):
                 if freq_d[item] >= self.f_noise:
                     result.append(item)
                 else:
-                    result.append((GlobalConfigs.F_NOISE_SYMBOL, GlobalConfigs.F_NOISE_SYMBOL))
+                    result.append((config.Terms.F_NOISE_SYMBOL, config.Terms.F_NOISE_SYMBOL))
                     freq_d[item] += 1
             return result
 
@@ -155,7 +155,7 @@ class TermStore(object):
     def types(self):
         if self._types is None:
             most_freq_items = list(islice(self.type_freq_dict_no_oov.keys(), 0, self.num_types))
-            sorted_items = sorted(most_freq_items[:-1] + [GlobalConfigs.OOV_SYMBOL])
+            sorted_items = sorted(most_freq_items[:-1] + [config.Terms.OOV_SYMBOL])
             result = SortedSet(sorted_items)
         else:
             result = self._types
@@ -173,7 +173,7 @@ class TermStore(object):
             if token in self.term_id_dict:
                 result.append(token)
             else:
-                result.append(GlobalConfigs.OOV_SYMBOL)
+                result.append(config.Terms.OOV_SYMBOL)
         return result
 
     @cached_property
@@ -183,7 +183,7 @@ class TermStore(object):
 
     @cached_property
     def oov_id(self):
-        result = self.term_id_dict[GlobalConfigs.OOV_SYMBOL]
+        result = self.term_id_dict[config.Terms.OOV_SYMBOL]
         return result
 
     @cached_property

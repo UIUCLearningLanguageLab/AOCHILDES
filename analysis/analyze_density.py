@@ -11,7 +11,7 @@ HUB_MODE = 'sem'
 
 hub = Hub(mode=HUB_MODE, corpus_name=CORPUS_NAME, block_order=BLOCK_ORDER)
 
-for pos in ANALYZE_POS or sorted(config.Preprocess.pos2tags.keys()):
+for pos in ANALYZE_POS or sorted(config.Terms.pos2tags.keys()):
     # data
     y = []
     part_id = 0

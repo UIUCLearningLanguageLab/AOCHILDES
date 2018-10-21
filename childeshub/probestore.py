@@ -25,7 +25,7 @@ class ProbeStore(object):
                 probe = data[1]
                 if self.term_id_dict is not None:
                     if probe not in self.term_id_dict:
-                        if config.ProbeStore.verbose:
+                        if config.Probes.verbose:
                             print('Probe "{}" not in vocabulary -> Excluded from analysis'.format(probe))
                     else:
                         probe_cat_dict[probe] = cat
