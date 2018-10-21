@@ -9,9 +9,9 @@ from itertools import chain
 from childeshub import config
 
 
-def make_terms(configs_dict):
+def make_terms(params):
     def load_lines(item_name):
-        f = config.Dirs.items / '{}_{}.txt'.format(configs_dict['corpus_name'], item_name)
+        f = config.Dirs.items / '{}_{}.txt'.format(params.corpus_name, item_name)
         res = f.open('r').readlines()
         return res
 
@@ -41,8 +41,8 @@ def make_terms(configs_dict):
         train_raws[name] = train_raw
         test_raws[name] = test_raw
     # terms
-    train_terms = TermStore(train_raws['terms'], train_raws['tags'], configs_dict)
-    test_terms = TermStore(test_raws['terms'], test_raws['tags'], configs_dict, types=train_terms.types)
+    train_terms = TermStore(train_raws['terms'], train_raws['tags'], params)
+    test_terms = TermStore(test_raws['terms'], test_raws['tags'], params, types=train_terms.types)
     result = train_terms, test_terms
     return result
 
@@ -52,15 +52,8 @@ class TermStore(object):
     Stores terms.
     """
 
-    def __init__(self, terms, tags, configs_dict, types=None):
-        self.num_types = configs_dict['num_types']
-        self.mb_size = configs_dict['mb_size']
-        self.bptt_steps = configs_dict['bptt_steps']
-        self.num_y = configs_dict['num_y']
-        self.p_noise = configs_dict['p_noise']
-        self.f_noise = configs_dict['f_noise']
-        self.part_order = configs_dict['part_order']
-        self.num_parts = configs_dict['num_parts']
+    def __init__(self, terms, tags, params, types=None):
+        self.params = params
         self._types = types  # test items must have train types otherwise ids don't match
         self.tokens_no_oov, self.tags_no_oov = self.preprocess(terms, tags)
 
@@ -86,11 +79,11 @@ class TermStore(object):
         should only be added once only to each document
         """
         # factor
-        num_items_in_window = self.bptt_steps + self.num_y
-        factor = self.mb_size * (config.Terms.MAX_NUM_DOCS if self._types is None else 1) + num_items_in_window
+        num_items_in_window = self.params.bptt_steps + self.params.num_y
+        factor = self.params.mb_size * (config.Terms.MAX_NUM_DOCS if self._types is None else 1) + num_items_in_window
         # make divisible
         num_factors = num_raw // factor
-        result = num_factors * factor - ((num_factors - (self.num_parts if self._types is None else 1))
+        result = num_factors * factor - ((num_factors - (self.params.num_parts if self._types is None else 1))
                                          * num_items_in_window)
         return result
 
@@ -106,17 +99,17 @@ class TermStore(object):
         Inserts P_NOISE at periodic intervals. Interval can be set to change gradually over corpus.
         IMPORTANT: Gradual change is relative to corpus order not part_order.
         """
-        if 'no' in self.p_noise:
+        if 'no' in self.params.p_noise:
             return raw
         #
-        interval = int(self.p_noise.split('_')[-1])
+        interval = int(self.params.p_noise.split('_')[-1])
         num_pruned = len(raw)
         probs = np.zeros(num_pruned)
-        if 'late' in self.p_noise:
+        if 'late' in self.params.p_noise:
             probs[::interval] = np.linspace(0.0, 1.0, 1 + (num_pruned - 1) // interval)
-        elif 'early' in self.p_noise:
+        elif 'early' in self.params.p_noise:
             probs[::interval] = np.linspace(1.0, 0.0, 1 + (num_pruned - 1) // interval)
-        elif 'all' in self.p_noise:
+        elif 'all' in self.params.p_noise:
             probs[::interval] = np.linspace(0.5, 0.5, 1 + (num_pruned - 1) // interval)
         else:
             raise AttributeError('rnnlab: Did not recognize arg to "p_noise".')
@@ -129,13 +122,13 @@ class TermStore(object):
         return result
 
     def add_f_noise(self, p_noised):
-        if self.f_noise == 0:
+        if self.params.f_noise == 0:
             return p_noised
         else:
             freq_d = {item: 0 for item in set(p_noised)}
             result = []
             for item in p_noised:
-                if freq_d[item] >= self.f_noise:
+                if freq_d[item] >= self.params.f_noise:
                     result.append(item)
                 else:
                     result.append((config.Terms.F_NOISE_SYMBOL, config.Terms.F_NOISE_SYMBOL))
@@ -154,7 +147,7 @@ class TermStore(object):
     @cached_property
     def types(self):
         if self._types is None:
-            most_freq_items = list(islice(self.type_freq_dict_no_oov.keys(), 0, self.num_types))
+            most_freq_items = list(islice(self.type_freq_dict_no_oov.keys(), 0, self.params.num_types))
             sorted_items = sorted(most_freq_items[:-1] + [config.Terms.OOV_SYMBOL])
             result = SortedSet(sorted_items)
         else:

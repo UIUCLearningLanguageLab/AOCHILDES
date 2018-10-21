@@ -13,7 +13,7 @@ import string
 
 from childeshub.probestore import ProbeStore
 from childeshub.termstore import make_terms
-from childeshub.params import default_hub_params
+from childeshub.params import Params
 from childeshub import config
 
 
@@ -59,22 +59,23 @@ class Hub(object):
         return result
 
     @staticmethod
-    def make_params(kwargs=None, verbose=False):
-        res = default_hub_params.copy()
+    def make_params(kwargs=None, verbose=False):  # TODO this doesn't return objdict
+        res = Params()
         for k, v in kwargs.items():
-            if kwargs is not None and verbose:
-                print('Hub: Setting "{}" to "{}"'.format(k, v))
             if k not in res:
                 print('"{}" not a valid param'.format(k))
-            res[k] = v
+            else:
+                if kwargs is not None and verbose:
+                    print('Hub: Setting "{}" to "{}"'.format(k, v))
+                    res.params[k] = v
         return res
 
     def switch_mode(self, mode):
         # invalidate cached properties
-        for attr_name in sorted(self.__dict__.keys()):
-            if attr_name in self.cached_property_names:
-                del self.__dict__[attr_name]
-                print('Deleted cached "{}"'.format(attr_name))
+        for property_name in sorted(self.__dict__.keys()):
+            if property_name in self.cached_property_names:
+                del self.__dict__[property_name]
+                print('Deleted cached "{}"'.format(property_name))
         # switch mode
         self.mode = mode
         print('Switched hub mode to "{}"'.format(mode))
