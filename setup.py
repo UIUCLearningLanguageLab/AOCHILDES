@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='CHILDESHub',
     version='0.1dev',
-    packages=['childeshub', 'analysis'],
+    packages=['childeshub'],
     include_package_data=True,
     install_requires=['cached_property',
                       'pandas',
@@ -16,7 +16,7 @@ setup(
     url='https://github.com/phueb/CHILDESHub',
     license='',
     author='Philip Huebner',
-    author_email='',
+    author_email='info@philhuebner.com',
     description='Create and analyze variants of American-English CHILDES corpus'
 )
 

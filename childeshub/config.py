@@ -5,8 +5,8 @@ class Dirs:
     src = Path(__file__).parent
     analysis = src.parent / 'analysis'
     data = src.parent / 'data'
-    items = src.parent / 'items'
-    probes = src.parent / 'probes'
+    items = src / 'items'
+    probes = src / 'probes'
 
 
 class ProbeStore:
