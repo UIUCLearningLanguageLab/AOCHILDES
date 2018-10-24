@@ -49,7 +49,7 @@ def make_features_mat(parts):
     return result
 
 
-hub = Hub(mode=HUB_MODE, num_parts=NUM_PARTS, corpus_name=CORPUS_NAME, block_order='inc_age')
+hub = Hub(mode=HUB_MODE, num_parts=NUM_PARTS, corpus_name=CORPUS_NAME, part_order='inc_age')
 ao_feature_mat = make_features_mat(hub.reordered_partitions)
 
 # make corr_mat

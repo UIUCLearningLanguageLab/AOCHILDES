@@ -15,7 +15,7 @@ DPI = 192
 SMOOTH = 20
 PLOT_POS_LIST = ['noun']
 
-hub = Hub(mode=HUB_MODE, num_parts=NUM_PARTS, corpus_name=CORPUS_NAME, block_order='inc_age')
+hub = Hub(mode=HUB_MODE, num_parts=NUM_PARTS, corpus_name=CORPUS_NAME, part_order='inc_age')
 ao_partitions = hub.reordered_partitions
 
 # figs

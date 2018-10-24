@@ -9,7 +9,7 @@ BLOCK_ORDER = 'inc_context-entropy'
 ANALYZE_POS = []
 HUB_MODE = 'sem'
 
-hub = Hub(mode=HUB_MODE, corpus_name=CORPUS_NAME, block_order=BLOCK_ORDER)
+hub = Hub(mode=HUB_MODE, corpus_name=CORPUS_NAME, part_order=BLOCK_ORDER)
 
 for pos in ANALYZE_POS or sorted(config.Terms.pos2tags.keys()):
     # data

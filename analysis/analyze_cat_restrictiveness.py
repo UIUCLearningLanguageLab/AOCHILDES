@@ -65,7 +65,7 @@ def calc_kl_divergence(p, q, epsilon=0.00001):
 
 # y_locs_dict
 y_locs_dicts = []
-hub = Hub(mode=HUB_MODE, block_order='inc_age', corpus_name=CORPUS_NAME, p_noise=P_NOISE)
+hub = Hub(mode=HUB_MODE, part_order='inc_age', corpus_name=CORPUS_NAME, p_noise=P_NOISE)
 for context_dist in CONTEXT_DISTS:
     y_locs_dict = mkae_y_locs_dict(hub, hub.reordered_tokens, context_dist)
     y_locs_dicts.append(y_locs_dict)

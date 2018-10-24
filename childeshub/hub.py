@@ -29,9 +29,9 @@ class CachedAndModeSwitchable(object):
 
 
 class Hub(object):
-    def __init__(self, mode='sem', terms=(None, None), **kwargs):
+    def __init__(self, mode='sem', terms=(None, None), params=None, **kwargs):
         self.mode = mode
-        self.params = self.make_params(kwargs)
+        self.params = params or self.make_params(kwargs)
         self._terms = terms
         self.cached_property_names = []  # names of cached properties that need to be invalidated after mode switching
 
@@ -59,15 +59,15 @@ class Hub(object):
         return result
 
     @staticmethod
-    def make_params(kwargs=None, verbose=False):  # TODO this doesn't return objdict
+    def make_params(kwargs):
+        if kwargs is None:
+            raise RuntimeError('No params passed to hub.')
         res = Params()
         for k, v in kwargs.items():
-            if k not in res:
-                print('"{}" not a valid param'.format(k))
+            if k not in res.params:
+                raise KeyError('"{}" not in Hub Params.'.format(k))
             else:
-                if kwargs is not None and verbose:
-                    print('Hub: Setting "{}" to "{}"'.format(k, v))
-                    res.params[k] = v
+                res.params[k] = v
         return res
 
     def switch_mode(self, mode):
@@ -437,7 +437,7 @@ class Hub(object):
 
     @cached_property
     def term_part_freq_dict(self):
-        print('Making term_doc_freq_dict...')
+        print('Making term_part_freq_dict...')
         result = {term: [0] * self.params.num_parts for term in self.train_terms.types}
         for part_id, part in enumerate(self.reordered_partitions):
             count_dict = Counter(part)

@@ -27,7 +27,7 @@ ORDER_FEATURES = ['age',  # need to have age in there
                   'pronoun+preposition']
 
 num_order_features = len(ORDER_FEATURES)
-hub = Hub(mode=HUB_MODE, num_parts=NUM_PARTS, corpus_name=CORPUS_NAME, block_order='inc_age')
+hub = Hub(mode=HUB_MODE, num_parts=NUM_PARTS, corpus_name=CORPUS_NAME, part_order='inc_age')
 
 
 def make_features_mat(parts):

@@ -1,7 +1,6 @@
 
-class Params(dict):
+class Params:
     def __init__(self):
-        super().__init__()
         self.params = {'mb_size': 64,
                        'num_iterations': 20,
                        'num_parts': 2,

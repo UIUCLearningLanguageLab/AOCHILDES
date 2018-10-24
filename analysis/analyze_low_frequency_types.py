@@ -41,7 +41,7 @@ ax.tick_params(axis='both', which='both', top='off', right='off')
 ax.yaxis.grid(True)
 colors = sns.color_palette("hls", len(BLOCK_ORDERS))
 for c, bo in zip(colors, BLOCK_ORDERS):
-    hub = Hub(mode=HUB_MODE, num_types=NUM_TYPES, corpus_name=CORPUS_NAME, num_parts=NUM_PARTS, block_order=bo)
+    hub = Hub(mode=HUB_MODE, num_types=NUM_TYPES, corpus_name=CORPUS_NAME, num_parts=NUM_PARTS, part_order=bo)
     # for k, v in sorted(hub.train_terms.term_freq_dict.items(), key=lambda i: i[1]):
     #     print(k, v)
     for f in FREQUENCIES:
