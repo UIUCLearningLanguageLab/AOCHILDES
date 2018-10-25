@@ -3,6 +3,9 @@ from childeshub.hub import Hub
 DPI = 192
 HUB_MODE = 'sem'
 
+MAX_NUM_CONTEXTS = 10
+CONTEXT_SIZE = 3
+
 
 hub = Hub(mode=HUB_MODE)
 
@@ -17,7 +20,7 @@ for probe, set_a in probe_context_set_d.items():
     for set_b in probe_context_set_d.values():
         num_overlap += len(set_a & set_b)
     probe_num_overlap_d[probe] = num_overlap / len(hub.probe_context_terms_dict[probe])
-    print(probe, num_overlap)
+    # print(probe, num_overlap)
 
 sorted_by_overlap = sorted(hub.probe_store.types, key=probe_num_overlap_d.get)
 print(sorted_by_overlap)

@@ -239,7 +239,3 @@ if SHOW_PLOTS:
         cat_prototypes2 = sorted([p for p in hub.probe_store.cat_probe_list_dict[cat] if p in protos2])
         info = '{} -> {}'.format(cat_prototypes1, cat_prototypes2)
         print('{:<12} prototypes: {}'.format(cat, info if cat_prototypes1 or cat_prototypes2 else ''))
-
-
-# TODO hypothesis: balAcc (when age-reversed) is worse for categories where prototypes change over time
-# TODO and balAcc difference (between age conditions) should be minimal when protoytpes are symmetric

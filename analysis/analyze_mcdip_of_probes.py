@@ -9,12 +9,13 @@ from scipy.stats import linregress
 from childeshub.hub import Hub
 # pip install git+https://github.com/phueb/CHILDESHub.git
 
+HUB_MODE = 'syn'
 
 CORPUS_NAME = 'childes-20180319'
 MCDIP_PATH = 'mcdip.csv'
 CONTEXT_SIZE = 7  # backwards only
 
-hub = Hub(corpus_name=CORPUS_NAME, part_order='inc_age', num_types=10000)
+hub = Hub(mode=HUB_MODE, corpus_name=CORPUS_NAME, part_order='inc_age', num_types=10000)
 
 # t2mcdip (map target to its mcdip value)
 df = pd.read_csv(MCDIP_PATH, index_col=False)
@@ -28,22 +29,17 @@ targets = df['target'].values
 mcdips = df['MCDIp'].values
 t2mcdip = {t: mcdip for t, mcdip in zip(targets, mcdips)}
 
-# collect context words of targets
-print('Collecting context words...')
-target2context_tokens = {t: [] for t in targets}
-pbar = pyprind.ProgBar(hub.train_terms.num_tokens, stream=sys.stdout)
-for n, t in enumerate(hub.reordered_tokens):
-    pbar.update()
-    if t in targets:
-        context = [ct for ct in hub.reordered_tokens[n - CONTEXT_SIZE: n] if ct in targets]
-        target2context_tokens[t] += context
+# collect context words of probes (if they are targets)
+probe2context_tokens = {}
+for p, cts in hub.probe_context_terms_dict.items():
+    probe2context_tokens[p] = [ct for ct in cts if ct in targets]
 
-# calculate result for each target (average mcdip of context words weighted by number of times in target context)
-res = {t: 0 for t in targets}
-for t, cts in target2context_tokens.items():
+# calculate result for each probe (average mcdip of context words weighted by number of times in target context)
+res = {p: 0 for p in hub.probe_store.types}
+for p, cts in probe2context_tokens.items():
     counter = Counter(cts)
     total_f = len(cts)
-    res[t] = np.average([t2mcdip[ct] for ct in cts], weights=[counter[ct] / total_f for ct in cts])
+    res[p] = np.average([t2mcdip[ct] for ct in cts], weights=[counter[ct] / total_f for ct in cts])
 
 
 def plot(xs, ys, xlabel, ylabel, annotations=None):
@@ -91,19 +87,15 @@ def plot_best_fit_line(ax, xys, fontsize, color='red', zorder=3, x_pos=0.95, y_p
         ax.text(x_pos, y_pos - 0.05, 'p = {}'.format(p), transform=ax.transAxes, fontsize=fontsize - 2)
 
 
-target_weighted_context_mcdip = [res[t] for t in targets]
-target_median_cgs = [hub.calc_median_term_cg(t) for t in targets]
-target_mcdips = [t2mcdip[t] for t in targets]
-target_freqs = [hub.train_terms.term_freq_dict[t] for t in targets]
+probe_weighted_context_mcdip = [res[p] for p in hub.probe_store.types]
+probe_median_cgs = [hub.calc_median_term_cg(p) for p in hub.probe_store.types]
+probe_freqs = [hub.train_terms.term_freq_dict[p] for p in hub.probe_store.types]
 
-plot(target_median_cgs, np.log(target_freqs),
-     'target_median_cgs', 'target_freqs')
+plot(probe_median_cgs, np.log(probe_freqs),
+     'probe_median_cgs', 'log probe_freqs')
 
-plot(target_weighted_context_mcdip, np.log(target_freqs),
-     'target_weighted_context_mcdip', 'target_freqs')
+plot(probe_weighted_context_mcdip, np.log(probe_freqs),
+     'probe_weighted_context_mcdip', 'log probe_freqs', annotations=hub.probe_store.types)
 
-plot(target_mcdips, np.log(target_freqs),
-     'target_mcdips', ' log target_freqs')
-
-plot(target_weighted_context_mcdip, target_median_cgs,
-     'target_weighted_context_mcdip', 'target_median_cgs')
+plot(probe_weighted_context_mcdip, probe_median_cgs,
+     'probe_weighted_context_mcdip', 'probe_median_cgs', annotations=hub.probe_store.types)
