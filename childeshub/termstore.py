@@ -1,7 +1,6 @@
 from collections import Counter, OrderedDict
 from cached_property import cached_property
 from sortedcontainers import SortedSet
-import numpy as np
 from itertools import islice
 import random
 from itertools import chain
@@ -62,7 +61,7 @@ class TermStore(object):
     def preprocess(self, terms, tags):
         raw_items = list(zip(terms, tags))
         if self._types is None:
-            items = self.add_f_noise(self.prune(self.add_p_noise(raw_items)))  # train
+            items = self.prune(raw_items)  # train preprocessing might be a bit different
         else:
             items = self.prune(raw_items)  # test
         result = list(zip(*items))
@@ -87,53 +86,12 @@ class TermStore(object):
                                          * num_items_in_window)
         return result
 
-    def prune(self, p_noised):
-        num_p_noised = len(p_noised)
-        item_length = self.make_item_length(num_p_noised)
-        pruned = p_noised[:item_length]
-        print('Pruned {:,} total items to {:,}'.format(num_p_noised, item_length))
+    def prune(self, raw):
+        num_raw = len(raw)
+        item_length = self.make_item_length(num_raw)
+        pruned = raw[:item_length]
+        print('Pruned {:,} total items to {:,}'.format(num_raw, item_length))
         return pruned
-
-    def add_p_noise(self, raw):
-        """
-        Inserts P_NOISE at periodic intervals. Interval can be set to change gradually over corpus.
-        IMPORTANT: Gradual change is relative to corpus order not part_order.
-        """
-        if 'no' in self.params.p_noise:
-            return raw
-        #
-        interval = int(self.params.p_noise.split('_')[-1])
-        num_pruned = len(raw)
-        probs = np.zeros(num_pruned)
-        if 'late' in self.params.p_noise:
-            probs[::interval] = np.linspace(0.0, 1.0, 1 + (num_pruned - 1) // interval)
-        elif 'early' in self.params.p_noise:
-            probs[::interval] = np.linspace(1.0, 0.0, 1 + (num_pruned - 1) // interval)
-        elif 'all' in self.params.p_noise:
-            probs[::interval] = np.linspace(0.5, 0.5, 1 + (num_pruned - 1) // interval)
-        else:
-            raise AttributeError('rnnlab: Did not recognize arg to "p_noise".')
-        # insert p_noise
-        result = []
-        for item, prob in zip(raw, probs):
-            if random.random() < prob:
-                result.append((config.Terms.P_NOISE_SYMBOL, config.Terms.P_NOISE_SYMBOL))
-            result.append(item)
-        return result
-
-    def add_f_noise(self, p_noised):
-        if self.params.f_noise == 0:
-            return p_noised
-        else:
-            freq_d = {item: 0 for item in set(p_noised)}
-            result = []
-            for item in p_noised:
-                if freq_d[item] >= self.params.f_noise:
-                    result.append(item)
-                else:
-                    result.append((config.Terms.F_NOISE_SYMBOL, config.Terms.F_NOISE_SYMBOL))
-                    freq_d[item] += 1
-            return result
 
     # /////////////////////////////////////////////////// terms
 
