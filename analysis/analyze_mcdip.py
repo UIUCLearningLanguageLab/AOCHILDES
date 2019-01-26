@@ -12,7 +12,7 @@ from childeshub.hub import Hub
 
 CORPUS_NAME = 'childes-20180319'
 MCDIP_PATH = 'mcdip.csv'
-CONTEXT_SIZE = 7  # backwards only
+CONTEXT_SIZE = 16  # bidirectional
 
 hub = Hub(corpus_name=CORPUS_NAME, part_order='inc_age', num_types=10000)
 
@@ -35,8 +35,9 @@ pbar = pyprind.ProgBar(hub.train_terms.num_tokens, stream=sys.stdout)
 for n, t in enumerate(hub.reordered_tokens):
     pbar.update()
     if t in targets:
-        context = [ct for ct in hub.reordered_tokens[n - CONTEXT_SIZE: n] if ct in targets]
-        target2context_tokens[t] += context
+        context_left = [ct for ct in hub.reordered_tokens[n - CONTEXT_SIZE: n] if ct in targets]
+        context_right = [ct for ct in hub.reordered_tokens[n + 1: n + 1 + CONTEXT_SIZE] if ct in targets]
+        target2context_tokens[t] += context_left + context_right
 
 # calculate result for each target (average mcdip of context words weighted by number of times in target context)
 res = {t: 0 for t in targets}
@@ -66,7 +67,7 @@ def plot(xs, ys, xlabel, ylabel, annotations=None):
     plt.show()
 
 
-def plot_best_fit_line(ax, xys, fontsize, color='red', zorder=3, x_pos=0.95, y_pos=0.1, plot_p=True):
+def plot_best_fit_line(ax, xys, fontsize, color='red', zorder=3, x_pos=0.85, y_pos=0.1, plot_p=True):
     x, y = zip(*xys)
     try:
         best_fit_fxn = np.polyfit(x, y, 1, full=True)
@@ -95,6 +96,9 @@ target_weighted_context_mcdip = [res[t] for t in targets]
 target_median_cgs = [hub.calc_median_term_cg(t) for t in targets]
 target_mcdips = [t2mcdip[t] for t in targets]
 target_freqs = [hub.train_terms.term_freq_dict[t] for t in targets]
+
+plot(target_weighted_context_mcdip, target_mcdips,
+     'KWOOC', 'MCDIp')
 
 plot(target_median_cgs, np.log(target_freqs),
      'target_median_cgs', 'target_freqs')
