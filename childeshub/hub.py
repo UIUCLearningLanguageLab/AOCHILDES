@@ -50,13 +50,12 @@ class Hub(object):
     @CachedAndModeSwitchable
     def probe_store(self):
         if self.mode == 'sem':
-            probes_name = self.params.sem_probes_name
+            return ProbeStore(self.mode, self.params.sem_probes_name, self.train_terms.term_id_dict)
         elif self.mode == 'syn':
-            probes_name = self.params.syn_probes_name
+            return ProbeStore(self.mode, self.params.syn_probes_name, self.train_terms.term_id_dict)
         else:
             raise AttributeError('Invalid arg to "mode".')
-        result = ProbeStore(probes_name, self.train_terms.term_id_dict)
-        return result
+
 
     @staticmethod
     def make_params(kwargs):

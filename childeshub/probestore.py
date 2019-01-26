@@ -9,7 +9,8 @@ class ProbeStore(object):
     Stores probe-related data.
     """
 
-    def __init__(self, probes_name, term_id_dict=None):
+    def __init__(self, hub_mode, probes_name, term_id_dict=None):
+        self.hub_mode = hub_mode
         self.probes_name = probes_name
         self.term_id_dict = term_id_dict
         print('Creating "{}" probe_store'.format(self.probes_name))
@@ -17,12 +18,12 @@ class ProbeStore(object):
     @cached_property
     def probe_cat_dict(self):
         probe_cat_dict = {}
-        p = config.Dirs.probes / '{}.txt'.format(self.probes_name)
+        p = config.Dirs.probes / self.hub_mode / '{}.txt'.format(self.probes_name)
         with p.open('r') as f:
             for line in f:
                 data = line.strip().strip('\n').split()
-                cat = data[0]
-                probe = data[1]
+                probe = data[0]
+                cat = data[1]
                 if self.term_id_dict is not None:
                     if probe not in self.term_id_dict:
                         if config.Probes.verbose:

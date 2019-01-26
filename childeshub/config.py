@@ -10,7 +10,7 @@ class Dirs:
 
 
 class Probes:
-    verbose = False
+    verbose = True
 
 
 class Terms:
