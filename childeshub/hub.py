@@ -272,7 +272,6 @@ class Hub(object):
             part_order = self.params.part_order
         # sort
         order_by, sort_by = part_order.split('_')
-        print('Sorting partitions by "{}" and ordering by "{}"...'.format(sort_by, order_by))
         sort_d = self.calc_part_id_sort_stat_dict(partitions, sort_by)
         sorted_partitions = list(list(zip(*sorted(enumerate(partitions),
                                                   key=lambda i: sort_d[i[0]])))[1])  # need list not tuple

@@ -9,8 +9,8 @@ class Params:
                        'part_order': 'inc_age',
                        'num_types': 4096,
                        'corpus_name': 'childes-20180319',
-                       'sem_probes_name': 'semantic-raw',
-                       'syn_probes_name': 'syntactic-mcdi'}  # TODO use JW list - use date naming convention
+                       'sem_probes_name': 'childes-20180319_4096',
+                       'syn_probes_name': 'childes-20180319_4096'}  # TODO use JW list - use date naming convention
 
     def __getattr__(self, name):
         if name in self.params:

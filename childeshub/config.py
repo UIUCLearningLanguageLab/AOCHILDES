@@ -10,7 +10,7 @@ class Dirs:
 
 
 class Probes:
-    verbose = True
+    verbose = False  # print probes not in vocab
 
 
 class Terms:
