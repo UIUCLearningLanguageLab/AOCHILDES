@@ -13,7 +13,7 @@ class ProbeStore(object):
         self.hub_mode = hub_mode
         self.probes_name = probes_name
         self.term_id_dict = term_id_dict
-        print('Creating "{}" probe_store'.format(self.probes_name))
+        print('Creating "{}" "{}" probe_store'.format(self.hub_mode, self.probes_name))
 
     @cached_property
     def probe_cat_dict(self):

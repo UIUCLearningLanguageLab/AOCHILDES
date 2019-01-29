@@ -34,6 +34,7 @@ class Hub(object):
         self.params = params or self.make_params(kwargs)
         self._terms = terms
         self.cached_property_names = []  # names of cached properties that need to be invalidated after mode switching
+        self.mode2probestore = {}
 
     # ////////////////////////////////////////////// init
 
@@ -49,12 +50,12 @@ class Hub(object):
 
     @CachedAndModeSwitchable
     def probe_store(self):
-        if self.mode == 'sem':
-            return ProbeStore(self.mode, self.params.sem_probes_name, self.train_terms.term_id_dict)
-        elif self.mode == 'syn':
-            return ProbeStore(self.mode, self.params.syn_probes_name, self.train_terms.term_id_dict)
-        else:
-            raise AttributeError('Invalid arg to "mode".')
+        try:
+            return self.mode2probestore[self.mode]
+        except KeyError:
+            res = ProbeStore(self.mode, self.params.probes_name, self.train_terms.term_id_dict)
+            self.mode2probestore[self.mode] = res
+            return res
 
     @staticmethod
     def make_params(kwargs):
