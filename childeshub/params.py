@@ -4,6 +4,7 @@ class Params:
         self.params = {'mb_size': 64,
                        'num_iterations_start': 20,
                        'num_iterations_end': 20,
+                       'embed_size': 512,
                        'num_parts': 2,
                        'bptt_steps': 7,
                        'num_saves': 10,
