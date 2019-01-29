@@ -356,7 +356,7 @@ class Hub(object):
             num_mbs_in_part = self.num_mbs_in_test
             num_windows = self.num_windows_in_test
         if not num_iterations_list:
-            num_iterations_list = self.params.num_iterations_list
+            num_iterations_list = self.num_iterations_list
         # generate
         for part_id, part in enumerate(parts):
             windows_mat = self.make_windows_mat(part, num_windows)
