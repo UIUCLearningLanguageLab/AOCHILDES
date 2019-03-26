@@ -95,7 +95,7 @@ class Hub(object):
 
     @cached_property
     def num_iterations_list(self):
-        result = np.linspace(self.params.num_iterations_start, self.params.num_iterations_end,
+        result = np.linspace(self.params.num_iterations[0], self.params.num_iterations[1],
                              num=self.params.num_parts, dtype=np.int)
         return result
 
@@ -611,7 +611,7 @@ class Hub(object):
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
             if tag in config.Terms.pos2tags['noun']\
-                    and term not in config.Terms.SPECIAL_SYMBOLS + string.ascii_letters:
+                    and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
 
@@ -621,7 +621,7 @@ class Hub(object):
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
             if tag in config.Terms.pos2tags['adjective']\
-                    and term not in config.Terms.SPECIAL_SYMBOLS + string.ascii_letters:
+                    and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
 
@@ -631,7 +631,7 @@ class Hub(object):
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
             if tag in config.Terms.pos2tags['verb']\
-                    and term not in config.Terms.SPECIAL_SYMBOLS + string.ascii_letters:
+                    and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
 
@@ -641,7 +641,7 @@ class Hub(object):
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
             if tag in config.Terms.pos2tags['adverb']\
-                    and term not in config.Terms.SPECIAL_SYMBOLS + string.ascii_letters:
+                    and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
 
@@ -651,7 +651,7 @@ class Hub(object):
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
             if tag in config.Terms.pos2tags['pronoun']\
-                    and term not in config.Terms.SPECIAL_SYMBOLS + string.ascii_letters:
+                    and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
 
@@ -661,7 +661,7 @@ class Hub(object):
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
             if tag in config.Terms.pos2tags['preposition']\
-                    and term not in config.Terms.SPECIAL_SYMBOLS + string.ascii_letters:
+                    and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
 
@@ -671,7 +671,7 @@ class Hub(object):
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
             if tag in config.Terms.pos2tags['conjunction']\
-                    and term not in config.Terms.SPECIAL_SYMBOLS + string.ascii_letters:
+                    and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
 
@@ -681,7 +681,7 @@ class Hub(object):
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
             if tag in config.Terms.pos2tags['interjection']\
-                    and term not in config.Terms.SPECIAL_SYMBOLS + string.ascii_letters:
+                    and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
 
@@ -691,7 +691,7 @@ class Hub(object):
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
             if tag in config.Terms.pos2tags['determiner']\
-                    and term not in config.Terms.SPECIAL_SYMBOLS + string.ascii_letters:
+                    and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
 
@@ -701,7 +701,7 @@ class Hub(object):
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
             if tag in config.Terms.pos2tags['particle']\
-                    and term not in config.Terms.SPECIAL_SYMBOLS + string.ascii_letters:
+                    and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
 
@@ -711,7 +711,7 @@ class Hub(object):
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
             if tag in config.Terms.pos2tags['punctuation']\
-                    and term not in config.Terms.SPECIAL_SYMBOLS + string.ascii_letters:
+                    and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
 
