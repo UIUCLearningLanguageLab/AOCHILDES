@@ -469,8 +469,8 @@ class Hub(object):
     def get_ngrams(ngram_range, tokens):
         v = CountVectorizer(ngram_range=ngram_range)
         a = v.build_analyzer()
-        result = a(' '.join(tokens))  # requires string
-        return result
+        ngrams = a(' '.join(tokens))  # a requires strings as input
+        return ngrams
 
     @CachedAndModeSwitchable
     def probe_x_mats(self, max_locs=2048, seed=config.Hub.random_seed):
