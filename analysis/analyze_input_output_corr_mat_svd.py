@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy import stats
 from scipy.sparse import linalg as slinalg
 from scipy import sparse
+import bisect
 
 from childeshub.hub import Hub
 
@@ -11,8 +12,8 @@ SANITY_CHECK = False
 HUB_MODE = 'sem'
 SINGLE_PLOT = True
 NUM_PCS = 30
-COHEND = True
-NGRAM_SIZE = 6
+STATISTIC = 'rank-diff'  # TODO
+NGRAM_SIZE = 1
 BINARY = False
 EXCLUDED = []  # ['may', 'june', 'sweet', 'back', 'behind', 'fly']
 
@@ -27,6 +28,8 @@ START1, END1 = 0, hub.midpoint_loc // 1
 START2, END2 = hub.train_terms.num_tokens - END1, hub.train_terms.num_tokens
 
 CATS = [] or hub.probe_store.cats  # ['bug', 'dessert', 'body', 'bug']
+
+adj_alpha = 0.05 / NUM_PCS
 
 
 def make_in_out_corr_mat(start, end):
@@ -100,11 +103,22 @@ def calc_some_measure(exp_ids, ref_ids, u_col):
     # compare loadings of reference and experimental group
     assert exp_loadings
     assert ref_loadings
-    if COHEND:
+    #
+    if STATISTIC == 'cohend':
         return abs(calc_cohend(exp_loadings, ref_loadings))
-    else:
+    elif STATISTIC == 'rank-diff':
+
+        exp_mean = np.mean(exp_loadings)
+
+        mean_rank = bisect.bisect(sorted(ref_loadings), exp_mean)
+        print(mean_rank, len(ref_loadings))
+
+        return abs(mean_rank - len(ref_loadings)) ** 2
+    elif STATISTIC == 't':
         t, pval = stats.ttest_ind(ref_loadings, exp_loadings, equal_var=False)
         return abs(t)
+    else:
+        raise AttributeError('Invalid arg to "STATISTIC".')
 
 
 def calc_measure_at_each_pc(pc_mat, types, exp_words, ref_words):
@@ -122,8 +136,8 @@ def calc_measure_at_each_pc(pc_mat, types, exp_words, ref_words):
         else:
             pass
     #
-    print('num ngrams with words1={}'.format(len(ids_for_exp)))
-    print('num ngrams with words2={}'.format(len(ids_for_ref)))
+    print('num experimental words={}'.format(len(ids_for_exp)))
+    print('num reference words={}'.format(len(ids_for_ref)))
     #
     res = []
     print('Calculating some measure for each PC...')
@@ -139,24 +153,23 @@ def plot_comparison(y1, y2, cat, cum, color1='blue', color2='red'):
     fig, ax = plt.subplots(1, figsize=FIGSIZE, dpi=DPI)
     plt.title('Do any of the first {} PCs of cooc mat (ngram size={})\ncode for the category {}?'.format(
         NUM_PCS, NGRAM_SIZE, cat.upper()), fontsize=AX_FONTSIZE)
-    if COHEND:
-        ax.set_ylabel('cumulative abs(Cohen d)' if cum else 'abs(Cohen d)', fontsize=AX_FONTSIZE)
-    else:
-        ax.set_ylabel('cumulative abs(t)' if cum else 'abs(t)', fontsize=AX_FONTSIZE)
+    ax.set_ylabel('cumulative abs({})'.format(STATISTIC)
+                  if cum else 'abs({})'.format(STATISTIC), fontsize=AX_FONTSIZE)
     ax.set_xlabel('Principal Component', fontsize=AX_FONTSIZE)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.tick_params(axis='both', which='both', top=False, right=False)
     if not cum:
-        ax.set_ylim([0, 3 if COHEND else 10])
-    elif cum and COHEND:
-        ax.set_ylim([0, NUM_PCS / 2])
-    # plot critical t
-    df = hub.probe_store.num_probes - 2  # df when equal var is assumed
-    p = 1 - 0.05 / NUM_PCS
-    crit_t = stats.t.ppf(p, df)
-    if not cum and not COHEND:
-        ax.axhline(y=crit_t, color='grey')
+        if STATISTIC == 'cohend':
+            ax.set_ylim([0, 3])
+        elif STATISTIC == 't':
+            df = hub.probe_store.num_probes - 2  # df when equal var is assumed
+            p = 1 - adj_alpha
+            crit_t = stats.t.ppf(p, df)
+            ax.axhline(y=crit_t, color='grey')
+    else:
+        if STATISTIC == 'cohend':
+            ax.set_ylim([0, NUM_PCS / 2])
     # plot
     if cum:
         ax.plot(np.cumsum(y1), label=label1, linewidth=2, color=color1)
@@ -191,21 +204,21 @@ print(u2.shape)
 
 if SINGLE_PLOT:  # TODO are nouns in earlier pc in partition 1?
     # y
-    exp_words = hub.interjections  # TODO does large number of nouns make this problematic?
+    exp_words = hub.probe_store.types  # TODO why is there no signal for nouns?
     ref_words = [t for t in hub.train_terms.types if t not in exp_words]
     y1 = calc_measure_at_each_pc(u1, types1, exp_words, ref_words)  # TODO test different POS against each other
     y2 = calc_measure_at_each_pc(u2, types2, exp_words, ref_words)
     # plot
-    plot_comparison(y1, y2, 'interjections vs. all', cum=False)
-    plot_comparison(y1, y2, 'interjections vs. all', cum=True)
+    plot_comparison(y1, y2, 'nouns vs. all', cum=False)
+    plot_comparison(y1, y2, 'nouns vs. all', cum=True)
 else:
     # fig for each category
     for cat in CATS:
         # y
         exp_words = [w for w in hub.probe_store.cat_probe_list_dict[cat] if w not in EXCLUDED]
-        ref_words = [w for w in hub.probe_store.types if w not in exp_words + EXCLUDED]
+        ref_words = [w for w in hub.train_terms.types if w not in exp_words + EXCLUDED]
         y1 = calc_measure_at_each_pc(u1, types1, exp_words, ref_words)
         y2 = calc_measure_at_each_pc(u2, types2, exp_words, ref_words)
         # plot
-        # plot_comparison(y1, y2, cat, cum=False)
+        plot_comparison(y1, y2, cat, cum=False)
         plot_comparison(y1, y2, cat, cum=True)
