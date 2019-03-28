@@ -6,11 +6,13 @@ from scipy import sparse
 
 from childeshub.hub import Hub
 
+SANITY_CHECK = False
+
 HUB_MODE = 'sem'
 SINGLE_PLOT = True
-NUM_PCS = 100
+NUM_PCS = 30
 COHEND = True
-NGRAM_SIZE = 3
+NGRAM_SIZE = 6
 BINARY = False
 EXCLUDED = []  # ['may', 'june', 'sweet', 'back', 'behind', 'fly']
 
@@ -66,16 +68,15 @@ def make_in_out_corr_mat(start, end):
         data.append(1 if BINARY else freq)
     # make sparse matrix once (updating it is expensive)
     res = sparse.csr_matrix((data, (row_ids, cold_ids)), shape=(num_types, num_ngram_types))
-
-    # TODO sanity check
-    for term_id in range(num_types):
-        print('----------------------------------')
-        print(types[term_id])
-        print('----------------------------------')
-        for ngram_id, freq in enumerate(np.squeeze(res[term_id].toarray())):
-            print(ngram_types[ngram_id], freq) if freq != 0 else None
-    raise SystemExit
-
+    #
+    if SANITY_CHECK:
+        for term_id in range(num_types):
+            print('----------------------------------')
+            print(types[term_id])
+            print('----------------------------------')
+            for ngram_id, freq in enumerate(np.squeeze(res[term_id].toarray())):
+                print(ngram_types[ngram_id], freq) if freq != 0 else None
+        raise SystemExit
     return res, types
 
 
@@ -106,7 +107,7 @@ def calc_some_measure(exp_ids, ref_ids, u_col):
         return abs(t)
 
 
-def calc_measure_at_each_pc(pc_mat, types, exp_words, ref_words):  # TODO use words 2 to pit 2 cats against each other
+def calc_measure_at_each_pc(pc_mat, types, exp_words, ref_words):
     id2term = {n: t for n, t in enumerate(types)}
     # pre-compute ids at which either reference or experimental word is located
     ids_for_exp = set()
@@ -149,7 +150,7 @@ def plot_comparison(y1, y2, cat, cum, color1='blue', color2='red'):
     if not cum:
         ax.set_ylim([0, 3 if COHEND else 10])
     elif cum and COHEND:
-        ax.set_ylim([0, NUM_PCS / 10])
+        ax.set_ylim([0, NUM_PCS / 2])
     # plot critical t
     df = hub.probe_store.num_probes - 2  # df when equal var is assumed
     p = 1 - 0.05 / NUM_PCS
@@ -189,21 +190,22 @@ u2 = u[:, :NUM_PCS]
 print(u2.shape)
 
 if SINGLE_PLOT:  # TODO are nouns in earlier pc in partition 1?
-    exp_words = hub.determiners
-    ref_words = hub.train_terms.types
+    # y
+    exp_words = hub.interjections  # TODO does large number of nouns make this problematic?
+    ref_words = [t for t in hub.train_terms.types if t not in exp_words]
     y1 = calc_measure_at_each_pc(u1, types1, exp_words, ref_words)  # TODO test different POS against each other
     y2 = calc_measure_at_each_pc(u2, types2, exp_words, ref_words)
     # plot
-    plot_comparison(y1, y2, 'determiners vs. all', cum=False)
-    plot_comparison(y1, y2, 'determiners vs. all', cum=True)
+    plot_comparison(y1, y2, 'interjections vs. all', cum=False)
+    plot_comparison(y1, y2, 'interjections vs. all', cum=True)
 else:
     # fig for each category
     for cat in CATS:
         # y
         exp_words = [w for w in hub.probe_store.cat_probe_list_dict[cat] if w not in EXCLUDED]
-        ref_words = [w for w in hub.probe_store.types if w not in EXCLUDED]
+        ref_words = [w for w in hub.probe_store.types if w not in exp_words + EXCLUDED]
         y1 = calc_measure_at_each_pc(u1, types1, exp_words, ref_words)
         y2 = calc_measure_at_each_pc(u2, types2, exp_words, ref_words)
         # plot
-        plot_comparison(y1, y2, cat, cum=False)
-        # plot_comparison(y1, y2, cat, cum=True)
+        # plot_comparison(y1, y2, cat, cum=False)
+        plot_comparison(y1, y2, cat, cum=True)
