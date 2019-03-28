@@ -10,6 +10,7 @@ import pandas as pd
 import random
 import scipy.stats
 import string
+from cytoolz import itertoolz
 
 from childeshub.probestore import ProbeStore
 from childeshub.termstore import make_terms
@@ -466,10 +467,13 @@ class Hub(object):
         return result
 
     @staticmethod
-    def get_ngrams(ngram_range, tokens):
-        v = CountVectorizer(ngram_range=ngram_range)
-        a = v.build_analyzer()
-        ngrams = a(' '.join(tokens))  # a requires strings as input
+    def get_ngrams(n_gram_size, tokens):
+
+        if not isinstance(n_gram_size, int):
+            raise TypeError('This function was changed by PH in May 2019 because'
+                            'previously used sklearn Countvectorizer uses stopwords'
+                            ' and removes punctuation')
+        ngrams = list(itertoolz.sliding_window(n_gram_size, tokens))
         return ngrams
 
     @CachedAndModeSwitchable

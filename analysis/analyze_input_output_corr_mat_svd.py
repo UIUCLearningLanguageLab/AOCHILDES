@@ -7,26 +7,24 @@ from scipy import sparse
 from childeshub.hub import Hub
 
 HUB_MODE = 'sem'
+SINGLE_PLOT = True
 NUM_PCS = 100
-
 COHEND = True
-
-NOUNS = False  # TODO plot line for how diagnostic each pc is for nouns in general
-NGRAM_SIZE = 2  # 3 will crash a 32GB RAM machine without sparse input matrix
+NGRAM_SIZE = 3
+BINARY = False
+EXCLUDED = []  # ['may', 'june', 'sweet', 'back', 'behind', 'fly']
 
 LEG_FONTSIZE = 16
 AX_FONTSIZE = 16
 FIGSIZE = (20, 6)
 DPI = 200
 
-EXCLUDED = []  # ['may', 'june', 'sweet', 'back', 'behind', 'fly']
-
 hub = Hub(mode=HUB_MODE)
 
 START1, END1 = 0, hub.midpoint_loc // 1
 START2, END2 = hub.train_terms.num_tokens - END1, hub.train_terms.num_tokens
 
-CATS = ['number', 'body', 'family'] or hub.probe_store.cats  # ['bug', 'dessert', 'body', 'bug']
+CATS = [] or hub.probe_store.cats  # ['bug', 'dessert', 'body', 'bug']
 
 
 def make_in_out_corr_mat(start, end):
@@ -35,9 +33,9 @@ def make_in_out_corr_mat(start, end):
     # types
     types = sorted(set(tokens))
     num_types = len(types)
-    type2id = {t.lower(): n for n, t in enumerate(types)}  # OOV needs to be lower-case because of ngram pipeline
+    type2id = {t: n for n, t in enumerate(types)}
     # ngrams
-    ngrams = hub.get_ngrams((NGRAM_SIZE, NGRAM_SIZE), tokens)
+    ngrams = hub.get_ngrams(NGRAM_SIZE, tokens)
     ngram_types = sorted(set(ngrams))
     num_ngram_types = len(ngram_types)
     ngram2id = {t: n for n, t in enumerate(ngram_types)}
@@ -45,21 +43,39 @@ def make_in_out_corr_mat(start, end):
     shape = (num_types, num_ngram_types)
     print('Making In-Out matrix with shape={}...'.format(shape))
     data = []
-    rows = []
-    cols = []
+    row_ids = []
+    cold_ids = []
+    mat_loc2freq = {}  # to keep track of number of ngram & type co-occurence
     for n, ngram in enumerate(ngrams[:-NGRAM_SIZE]):
+        # row_id + col_id
         col_id = ngram2id[ngram]
         next_ngram = ngrams[n + 1]
-        next_type = next_ngram.split()[-1]
+        next_type = next_ngram[-1]
+        row_id = type2id[next_type]
+        # freq
         try:
-            row_id = type2id[next_type]
-        except KeyError:  # TODO contractions are removed from ngrams
-            continue
-        rows.append(row_id)
-        cols.append(col_id)
-        data.append(1)
+            freq = mat_loc2freq[(row_id, col_id)]
+        except KeyError:
+            mat_loc2freq[(row_id, col_id)] = 1
+            freq = 1
+        else:
+            mat_loc2freq[(row_id, col_id)] += 1
+        # collect
+        row_ids.append(row_id)
+        cold_ids.append(col_id)
+        data.append(1 if BINARY else freq)
     # make sparse matrix once (updating it is expensive)
-    res = sparse.csr_matrix((data, (rows, cols)), shape=(num_types, num_ngram_types), dtype = np.int8)
+    res = sparse.csr_matrix((data, (row_ids, cold_ids)), shape=(num_types, num_ngram_types))
+
+    # TODO sanity check
+    for term_id in range(num_types):
+        print('----------------------------------')
+        print(types[term_id])
+        print('----------------------------------')
+        for ngram_id, freq in enumerate(np.squeeze(res[term_id].toarray())):
+            print(ngram_types[ngram_id], freq) if freq != 0 else None
+    raise SystemExit
+
     return res, types
 
 
@@ -90,7 +106,7 @@ def calc_some_measure(exp_ids, ref_ids, u_col):
         return abs(t)
 
 
-def calc_measure_at_each_pc(pc_mat, types, words1, words2):  # TODO use words 2 to pit 2 cats against each other
+def calc_measure_at_each_pc(pc_mat, types, exp_words, ref_words):  # TODO use words 2 to pit 2 cats against each other
     id2term = {n: t for n, t in enumerate(types)}
     # pre-compute ids at which either reference or experimental word is located
     ids_for_exp = set()
@@ -98,10 +114,12 @@ def calc_measure_at_each_pc(pc_mat, types, words1, words2):  # TODO use words 2 
     print('Getting term_ids...')
     for term_id in range(pc_mat.shape[0]):
         term = id2term[term_id]
-        if term in words1:
+        if term in exp_words:
             ids_for_exp.add(term_id)
-        else:
+        elif term in ref_words:
             ids_for_ref.add(term_id)
+        else:
+            pass
     #
     print('num ngrams with words1={}'.format(len(ids_for_exp)))
     print('num ngrams with words2={}'.format(len(ids_for_ref)))
@@ -112,7 +130,7 @@ def calc_measure_at_each_pc(pc_mat, types, words1, words2):  # TODO use words 2 
         assert len(u_col) == pc_mat.shape[0]
         measure = calc_some_measure(ids_for_exp, ids_for_ref, u_col)
         res.append(measure)
-    print(res)
+    print('Done')
     return res
 
 
@@ -129,9 +147,9 @@ def plot_comparison(y1, y2, cat, cum, color1='blue', color2='red'):
     ax.spines['top'].set_visible(False)
     ax.tick_params(axis='both', which='both', top=False, right=False)
     if not cum:
-        ax.set_ylim([0, 2 if COHEND else 10])
+        ax.set_ylim([0, 3 if COHEND else 10])
     elif cum and COHEND:
-        ax.set_ylim([0, 20])
+        ax.set_ylim([0, NUM_PCS / 10])
     # plot critical t
     df = hub.probe_store.num_probes - 2  # df when equal var is assumed
     p = 1 - 0.05 / NUM_PCS
@@ -140,8 +158,8 @@ def plot_comparison(y1, y2, cat, cum, color1='blue', color2='red'):
         ax.axhline(y=crit_t, color='grey')
     # plot
     if cum:
-        ax.plot(np.cumsum(y1), label='cum. ' + label1, linewidth=2, color=color1)
-        ax.plot(np.cumsum(y2), label='cum. ' + label2, linewidth=2, color=color2)
+        ax.plot(np.cumsum(y1), label=label1, linewidth=2, color=color1)
+        ax.plot(np.cumsum(y2), label=label2, linewidth=2, color=color2)
     else:
         ax.plot(y1, label=label1, linewidth=2, color=color1)
         ax.plot(y2, label=label2, linewidth=2, color=color2)
@@ -151,8 +169,8 @@ def plot_comparison(y1, y2, cat, cum, color1='blue', color2='red'):
 
 
 # make in_out_corr_mats
-label1 = 'tokens betw.\nstart={:,} & end={:,}'.format(START1, END1)
-label2 = 'tokens betw.\nstart={:,} & end={:,}'.format(START2, END2)
+label1 = 'tokens between\n{:,} & {:,}'.format(START1, END1)
+label2 = 'tokens between\n{:,} & {:,}'.format(START2, END2)
 in_out_corr_mat1, types1 = make_in_out_corr_mat(START1, END1)
 in_out_corr_mat2, types2 = make_in_out_corr_mat(START2, END2)
 
@@ -170,15 +188,22 @@ u, _, _ = slinalg.svds(sparse_in_out_corr_mat2, k=NUM_PCS)
 u2 = u[:, :NUM_PCS]
 print(u2.shape)
 
-
-
-
-# fig for each category
-for cat in CATS:
-    # y
-    cat_probes = [w for w in hub.probe_store.cat_probe_list_dict[cat] if w not in EXCLUDED]
-    y1 = calc_measure_at_each_pc(u1, types1, cat_probes, hub.probe_store.types)
-    y2 = calc_measure_at_each_pc(u2, types2, cat_probes, hub.probe_store.types)
+if SINGLE_PLOT:  # TODO are nouns in earlier pc in partition 1?
+    exp_words = hub.determiners
+    ref_words = hub.train_terms.types
+    y1 = calc_measure_at_each_pc(u1, types1, exp_words, ref_words)  # TODO test different POS against each other
+    y2 = calc_measure_at_each_pc(u2, types2, exp_words, ref_words)
     # plot
-    # plot_comparison(y1, y2, cat, cum=False)
-    plot_comparison(y1, y2, cat, cum=True)
+    plot_comparison(y1, y2, 'determiners vs. all', cum=False)
+    plot_comparison(y1, y2, 'determiners vs. all', cum=True)
+else:
+    # fig for each category
+    for cat in CATS:
+        # y
+        exp_words = [w for w in hub.probe_store.cat_probe_list_dict[cat] if w not in EXCLUDED]
+        ref_words = [w for w in hub.probe_store.types if w not in EXCLUDED]
+        y1 = calc_measure_at_each_pc(u1, types1, exp_words, ref_words)
+        y2 = calc_measure_at_each_pc(u2, types2, exp_words, ref_words)
+        # plot
+        plot_comparison(y1, y2, cat, cum=False)
+        # plot_comparison(y1, y2, cat, cum=True)
