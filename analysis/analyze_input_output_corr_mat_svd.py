@@ -10,17 +10,17 @@ from childeshub.hub import Hub
 SANITY_CHECK = False
 
 HUB_MODE = 'sem'
-SINGLE_PLOT = True
+SINGLE_PLOT = False
 NUM_PCS = 30
 STATISTIC = 'rank-diff'  # TODO
-NGRAM_SIZE = 1
+NGRAM_SIZE = 3
 BINARY = False
 EXCLUDED = []  # ['may', 'june', 'sweet', 'back', 'behind', 'fly']
 
 LEG_FONTSIZE = 16
 AX_FONTSIZE = 16
-FIGSIZE = (20, 6)
-DPI = 200
+FIGSIZE = (10, 4)
+DPI = None
 
 hub = Hub(mode=HUB_MODE)
 
@@ -107,13 +107,16 @@ def calc_some_measure(exp_ids, ref_ids, u_col):
     if STATISTIC == 'cohend':
         return abs(calc_cohend(exp_loadings, ref_loadings))
     elif STATISTIC == 'rank-diff':
-
-        exp_mean = np.mean(exp_loadings)
-
-        mean_rank = bisect.bisect(sorted(ref_loadings), exp_mean)
-        print(mean_rank, len(ref_loadings))
-
-        return abs(mean_rank - len(ref_loadings)) ** 2
+        exp_median = np.median(exp_loadings)
+        ref_median = np.median(ref_loadings)
+        sorted_ref_loadings = sorted(ref_loadings)
+        #
+        exp_median_rank = bisect.bisect(sorted_ref_loadings, exp_median)
+        ref_median_rank = bisect.bisect(sorted_ref_loadings, ref_median)  # this gives max_rank // 2
+        #
+        res = abs(exp_median_rank - ref_median_rank) / ref_median_rank  # TODO
+        # print(exp_median_rank, ref_median_rank, round(res, 2))
+        return res
     elif STATISTIC == 't':
         t, pval = stats.ttest_ind(ref_loadings, exp_loadings, equal_var=False)
         return abs(t)
@@ -167,6 +170,8 @@ def plot_comparison(y1, y2, cat, cum, color1='blue', color2='red'):
             p = 1 - adj_alpha
             crit_t = stats.t.ppf(p, df)
             ax.axhline(y=crit_t, color='grey')
+        elif STATISTIC == 'rank-diff':
+            ax.set_ylim([0, 1])
     else:
         if STATISTIC == 'cohend':
             ax.set_ylim([0, NUM_PCS / 2])
@@ -178,6 +183,24 @@ def plot_comparison(y1, y2, cat, cum, color1='blue', color2='red'):
         ax.plot(y1, label=label1, linewidth=2, color=color1)
         ax.plot(y2, label=label2, linewidth=2, color=color2)
     ax.legend(loc='upper left', frameon=False, fontsize=LEG_FONTSIZE)
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_difference(y, name):
+    fig, ax = plt.subplots(1, figsize=FIGSIZE, dpi=DPI)
+    plt.title('Does first partition represent semantic categories in earlier PCs?\n'
+              '(data represented using {}-grams'.format(NGRAM_SIZE), fontsize=AX_FONTSIZE)
+    ax.set_ylabel('diff (cumulative abs({}))'.format(STATISTIC), fontsize=AX_FONTSIZE)
+    ax.set_xlabel('Principal Component', fontsize=AX_FONTSIZE)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.tick_params(axis='both', which='both', top=False, right=False)
+    max_y = np.max(np.abs(y))
+    ax.set_ylim([-max_y, max_y])
+    # plot
+    ax.axhline(y=0, color='grey')
+    ax.plot(y, linewidth=2)
     plt.tight_layout()
     plt.show()
 
@@ -204,15 +227,17 @@ print(u2.shape)
 
 if SINGLE_PLOT:  # TODO are nouns in earlier pc in partition 1?
     # y
-    exp_words = hub.probe_store.types  # TODO why is there no signal for nouns?
+    exp_words = hub.punctuations  # TODO why is there no signal for nouns?
     ref_words = [t for t in hub.train_terms.types if t not in exp_words]
     y1 = calc_measure_at_each_pc(u1, types1, exp_words, ref_words)  # TODO test different POS against each other
     y2 = calc_measure_at_each_pc(u2, types2, exp_words, ref_words)
     # plot
-    plot_comparison(y1, y2, 'nouns vs. all', cum=False)
-    plot_comparison(y1, y2, 'nouns vs. all', cum=True)
+    plot_comparison(y1, y2, 'punctuations vs. all', cum=False)
+    plot_comparison(y1, y2, 'punctuations vs. all', cum=True)
 else:
     # fig for each category
+    ys1 = []
+    ys2 = []
     for cat in CATS:
         # y
         exp_words = [w for w in hub.probe_store.cat_probe_list_dict[cat] if w not in EXCLUDED]
@@ -220,5 +245,16 @@ else:
         y1 = calc_measure_at_each_pc(u1, types1, exp_words, ref_words)
         y2 = calc_measure_at_each_pc(u2, types2, exp_words, ref_words)
         # plot
-        plot_comparison(y1, y2, cat, cum=False)
-        plot_comparison(y1, y2, cat, cum=True)
+        # plot_comparison(y1, y2, cat, cum=False)
+        # plot_comparison(y1, y2, cat, cum=True)
+
+        # TODO collect
+        ys1.append(y1)
+        ys2.append(y2)
+    # aggregate plot
+    plot_comparison(np.mean(ys1, axis=0), np.mean(ys2, axis=0), 'all categories', cum=True)
+    #
+    cum1 = np.cumsum(np.mean(ys1, axis=0))
+    cum2 = np.cumsum(np.mean(ys2, axis=0))
+    diff = cum1 - cum2
+    plot_difference(diff, 'all categories')
