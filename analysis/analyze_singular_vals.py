@@ -2,14 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse import linalg as slinalg
 from scipy import sparse
+from sklearn.preprocessing import normalize
 
 from childeshub.hub import Hub
 
 SANITY_CHECK = False
 
 HUB_MODE = 'sem'
-NUM_PCS = 128
-NGRAM_SIZE = 3
+NUM_PCS = 64
+NGRAM_SIZE = 6
 BINARY = False
 
 LEG_FONTSIZE = 16
@@ -80,7 +81,8 @@ def make_in_out_corr_mat(start, end):
 
 def plot_comparison(y1, y2):
     fig, ax = plt.subplots(1, figsize=FIGSIZE, dpi=DPI)
-    plt.title('data represented with ngram-size={}'.format(NGRAM_SIZE), fontsize=AX_FONTSIZE)
+    plt.title('are singular values larger in partition 1?'
+              '\n(in-out-corr matrix built with ngram-size={})'.format(NGRAM_SIZE), fontsize=AX_FONTSIZE)
     ax.set_ylabel('singular value', fontsize=AX_FONTSIZE)
     ax.set_xlabel('Principal Component #', fontsize=AX_FONTSIZE)
     ax.spines['right'].set_visible(False)
@@ -89,7 +91,7 @@ def plot_comparison(y1, y2):
     # plot
     ax.plot(y1, label=label1, linewidth=2)
     ax.plot(y2, label=label2, linewidth=2)
-    ax.legend(loc='upper left', frameon=False, fontsize=LEG_FONTSIZE)
+    ax.legend(loc='upper right', frameon=False, fontsize=LEG_FONTSIZE)
     plt.tight_layout()
     plt.show()
 
@@ -101,25 +103,18 @@ in_out_corr_mat1, types1 = make_in_out_corr_mat(START1, END1)
 in_out_corr_mat2, types2 = make_in_out_corr_mat(START2, END2)
 
 
-# pca1
-print('Fitting PCA 1 ...')
-sparse_in_out_corr_mat1 = sparse.csr_matrix(in_out_corr_mat1).asfptype()
-_, s1, _ = slinalg.svds(sparse_in_out_corr_mat1, k=NUM_PCS)
-
-# pca2
-print('Fitting PCA 2 ...')
-sparse_in_out_corr_mat2 = sparse.csr_matrix(in_out_corr_mat2).asfptype()
-_, s2, _ = slinalg.svds(sparse_in_out_corr_mat2, k=NUM_PCS)
-
-
 # analyze s
-y1 = []
-y2 = []
-for s, y in [(s1, y1), (s2, y2)]:
-    for row in s[:NUM_PCS]:
-        sing_val = row.sum()
+singular_vals1 = []
+singular_vals2 = []
+for y, mat in [(singular_vals1, in_out_corr_mat1.asfptype()),
+               (singular_vals2, in_out_corr_mat2.asfptype())]:
+    print('Fitting PCA ...')
+    normalized = normalize(mat, axis=1, norm='l2', copy=False)
+    _, s, _ = slinalg.svds(normalized, k=NUM_PCS, return_singular_vectors='vh')  # s is not 2D
+    #
+    for sing_val in s[:-1][::-1]:  # last s is combination of all remaining s
         print(sing_val)
         y.append(sing_val)
     print()
 
-plot_comparison(y1, y2)
+plot_comparison(singular_vals1, singular_vals2)
