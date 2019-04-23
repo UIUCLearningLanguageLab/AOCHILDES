@@ -211,19 +211,21 @@ label2 = 'tokens between\n{:,} & {:,}'.format(START2, END2)
 in_out_corr_mat1, types1 = make_in_out_corr_mat(START1, END1)
 in_out_corr_mat2, types2 = make_in_out_corr_mat(START2, END2)
 
+
 # pca1
 print('Fitting PCA 1 ...')
 sparse_in_out_corr_mat1 = sparse.csr_matrix(in_out_corr_mat1).asfptype()
-u, _, _ = slinalg.svds(sparse_in_out_corr_mat1, k=NUM_PCS)
+u, s1, _ = slinalg.svds(sparse_in_out_corr_mat1, k=NUM_PCS)
 u1 = u[:, :NUM_PCS]
 print(u1.shape)
 
 # pca2
 print('Fitting PCA 2 ...')
 sparse_in_out_corr_mat2 = sparse.csr_matrix(in_out_corr_mat2).asfptype()
-u, _, _ = slinalg.svds(sparse_in_out_corr_mat2, k=NUM_PCS)
+u, s2, _ = slinalg.svds(sparse_in_out_corr_mat2, k=NUM_PCS)
 u2 = u[:, :NUM_PCS]
 print(u2.shape)
+
 
 if SINGLE_PLOT:  # TODO are nouns in earlier pc in partition 1?
     # y
