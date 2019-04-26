@@ -6,14 +6,13 @@ import numpy as np
 from childeshub.hub import Hub
 
 CORPUS_NAME = 'childes-20180315'
-P_NOISE = 'no_0'  # TODO
 
 MIN_CONTEXT_FREQ = 10
 HUB_MODE = 'sem'
 CONTEXT_DISTS = [1, 2, 3, 4, 5, 6]
 
 
-def mkae_y_locs_dict(h, tokens_, context_dist):
+def make_y_locs_dict(h, tokens_, context_dist):
     # context_d
     context_d = {}
     pbar = pyprind.ProgBar(h.train_terms.num_tokens)
@@ -56,26 +55,18 @@ def mkae_y_locs_dict(h, tokens_, context_dist):
     return result
 
 
-def calc_kl_divergence(p, q, epsilon=0.00001):
-    pe = p + epsilon
-    qe = q + epsilon
-    divergence = np.sum(pe * np.log2(pe / qe))
-    return divergence
-
-
-# y_locs_dict
 y_locs_dicts = []
-hub = Hub(mode=HUB_MODE, part_order='inc_age', corpus_name=CORPUS_NAME, p_noise=P_NOISE)
+hub = Hub(mode=HUB_MODE, part_order='inc_age', corpus_name=CORPUS_NAME)
 for context_dist in CONTEXT_DISTS:
-    y_locs_dict = mkae_y_locs_dict(hub, hub.reordered_tokens, context_dist)
+    y_locs_dict = make_y_locs_dict(hub, hub.reordered_tokens, context_dist)
     y_locs_dicts.append(y_locs_dict)
 
 
 for n, (context_dist, y_locs_dict) in enumerate(zip(CONTEXT_DISTS, y_locs_dicts)):
     # fig
     _, ax = plt.subplots(dpi=192)
-    ax.set_title('context-size={} P_NOISE={}, punct={}'.format(
-        context_dist, P_NOISE, 'True' if CORPUS_NAME == 'childes-20180319' else 'False'))
+    ax.set_title('context-size={}, punct={}'.format(
+        context_dist, 'True' if CORPUS_NAME == 'childes-20180319' else 'False'))
     ax.set_ylabel('Probability')
     ax.set_xlabel('Category Restrictiveness')
     ax.spines['right'].set_visible(False)
