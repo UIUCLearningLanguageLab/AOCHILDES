@@ -15,27 +15,20 @@ probe2cat = hub.probe_store.probe_cat_dict
 vocab = hub.train_terms.types
 
 
-def plot_corrs(d, title):
+def plot_tmp(xs, ys, title):
     fig, ax = plt.subplots(figsize=FIGSIZE, dpi=None)
     plt.title(title, fontsize=TITLE_FONTSIZE)
-    ax.set_xlabel('Category')
-    ax.set_ylabel('Correlation between coverage & repetition')
+    ax.set_xlabel('Coverage')
+    ax.set_ylabel('Repetition')
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.tick_params(axis='both', which='both', top=False, right=False)
     ax.yaxis.grid(True)
-    ax.xaxis.grid(True)
-    ax.set_ylim([0.5, 1.0])
-    #
-    cats = list(d.keys())
-    sorted_cats = sorted(cats, key=d.get)
-    num_xticklabels = len(sorted_cats)
-    ax.set_xticks(np.arange(num_xticklabels))
-    ax.set_xticklabels(sorted_cats, rotation=90)
+    ax.set_ylim([0, 4])  # rep
+    ax.set_xlim([0, 20])  # cov
     # plot
-    sorted_ys = [d[cat] for cat in sorted_cats]
-    ax.plot(sorted_ys)
-    ax.axhline(y=np.mean(sorted_ys))
+    for x, y in zip(xs, ys):
+        ax.plot([0, y], [x, 0])
     #
     plt.tight_layout()
     plt.show()
@@ -57,7 +50,8 @@ for half_id, tokens in enumerate([hub.first_half_tokens, hub.second_half_tokens]
         word2prev_cat2count[token][prev_cat] += 1
         word2prev_word2count[token][prev_token] += 1
 
-    cat2corr = {}
+    coverages = []
+    repetitions = []
     for cat in cats:
         cat_probes = [p for p in hub.probe_store.types if probe2cat[p] == cat]
         cat_repetitions = []
@@ -69,10 +63,12 @@ for half_id, tokens in enumerate([hub.first_half_tokens, hub.second_half_tokens]
                 cat_repetitions.append(repetition)
                 cat_coverages.append(coverage)
 
-        corr = np.corrcoef(cat_repetitions, cat_coverages)[0, 1]
-        print(corr)
-        cat2corr[cat] = corr
+        rep = np.mean(cat_repetitions)
+        cov = np.mean(cat_coverages)
+        print(rep, cov)
+        repetitions.append(rep)
+        coverages.append(cov)
 
-    plot_corrs(cat2corr,
-               title='partition {}'.format(half_id + 1))
+    plot_tmp(coverages, repetitions,
+             title='partition {}'.format(half_id + 1))
     print('------------------------------------------------------')
