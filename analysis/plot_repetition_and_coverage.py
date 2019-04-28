@@ -24,11 +24,11 @@ def plot_tmp(xs, ys, title):
     ax.spines['top'].set_visible(False)
     ax.tick_params(axis='both', which='both', top=False, right=False)
     ax.yaxis.grid(True)
-    ax.set_ylim([0, 4])  # rep
-    ax.set_xlim([0, 20])  # cov
+    ax.set_ylim([0, 20])  # rep
+    ax.set_xlim([0, 4])  # cov
     # plot
     for x, y in zip(xs, ys):
-        ax.plot([0, y], [x, 0])
+        ax.plot([0, x], [y, 0])
     #
     plt.tight_layout()
     plt.show()
