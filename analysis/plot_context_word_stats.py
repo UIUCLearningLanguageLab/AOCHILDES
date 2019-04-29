@@ -19,32 +19,29 @@ probe2cat = hub.probe_store.probe_cat_dict
 vocab = hub.train_terms.types
 
 
-def make_ngram_count_mat(contexts_mat, num_vocab):
-    #
-    pbar = pyprind.ProgBar(len(contexts_mat))
-    res = np.zeros((num_contexts, num_vocab))
-    for context, col_id in zip(contexts_mat, outputs):
-        row_id = context2id[tuple(context)]
-        res[row_id, col_id] += 1
-        pbar.update()
-    return res
-
-
 part_ids = range(2)
 cat2part_id2y1 = {cat: {part_id: None for part_id in part_ids} for cat in cats}
 cat2part_id2y2 = {cat: {part_id: None for part_id in part_ids} for cat in cats}
 for part_id in part_ids:
     windows_mat = hub.make_windows_mat(hub.reordered_partitions[part_id], hub.num_windows_in_part)
-    #
+    # inputs_mat
     assert windows_mat.shape[1] > NGRAM_SIZE  # last word is not part of context
     print('Making In-Out matrix...')
-    inputs_mat, outputs = windows_mat[:, :-1], windows_mat[:, -1]
-    contexts_mat = inputs_mat[:, -NGRAM_SIZE:]
-    # count_mat
-    unique_contexts = np.unique(contexts_mat, axis=0)
+    all_inputs_mat, outputs = windows_mat[:, :-1], windows_mat[:, -1]
+    inputs_mat = all_inputs_mat[:, -NGRAM_SIZE:]
+    #
+    unique_contexts = np.unique(inputs_mat, axis=0)
     num_contexts = len(unique_contexts)
     context2id = {tuple(c): n for n, c in enumerate(unique_contexts)}
-    count_mat = make_ngram_count_mat(contexts_mat, hub.params.num_types)
+    # count_mat
+    count_mat = np.zeros((num_contexts, hub.params.num_types))
+    pbar = pyprind.ProgBar(len(inputs_mat))
+    for context, col_id in zip(inputs_mat, outputs):
+        row_id = context2id[tuple(context)]
+        count_mat[row_id, col_id] += 1
+        pbar.update()
+    print('contexts_mat shape={}'.format(inputs_mat.shape))
+    print('num_contexts={}'.format(num_contexts))
 
     # plot statistic not collapsing over categories
     for cat_id, cat in enumerate(cats):
@@ -60,25 +57,25 @@ for part_id in part_ids:
     print('------------------------------------------------------')
 
 
-for cat, part_id2ys in cat2part_id2y1.items():
-    # fig1
-    fig1, ax1 = plt.subplots(figsize=FIGSIZE, dpi=None)
-    plt.title('CHILDES {}-gram Context Statistics\n{}'.format(NGRAM_SIZE, cat.upper()),
-              fontsize=TITLE_FONTSIZE)
-    ax1.set_xlabel('Category Member')
-    ax1.set_ylabel('Variance of context word counts')
-    ax1.spines['right'].set_visible(False)
-    ax1.spines['top'].set_visible(False)
-    ax1.tick_params(axis='both', which='both', top=False, right=False)
-    #
-    for part_id, y in part_id2ys.items():
-        label = 'partition={}'.format(part_id)
-        ax1.plot(y,
-                 label=label,
-                 color=COLORS[part_id])
-    ax1.legend(frameon=False)
-    plt.tight_layout()
-    plt.show()
+# for cat, part_id2ys in cat2part_id2y1.items():
+#     # fig1
+#     fig1, ax1 = plt.subplots(figsize=FIGSIZE, dpi=None)
+#     plt.title('CHILDES {}-gram Context Statistics\n{}'.format(NGRAM_SIZE, cat.upper()),
+#               fontsize=TITLE_FONTSIZE)
+#     ax1.set_xlabel('Category Member')
+#     ax1.set_ylabel('Variance of context word counts')
+#     ax1.spines['right'].set_visible(False)
+#     ax1.spines['top'].set_visible(False)
+#     ax1.tick_params(axis='both', which='both', top=False, right=False)
+#     #
+#     for part_id, y in part_id2ys.items():
+#         label = 'partition={}'.format(part_id)
+#         ax1.plot(y,
+#                  label=label,
+#                  color=COLORS[part_id])
+#     ax1.legend(frameon=False)
+#     plt.tight_layout()
+#     plt.show()
 
 # fig2
 for cat, part_id2ys in cat2part_id2y2.items():
