@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from functools import partial
 from bayes_opt import BayesianOptimization
+import matplotlib.pyplot as plt
 
 from childeshub.hub import Hub
 
@@ -10,6 +11,10 @@ from childeshub.hub import Hub
 calculate ba on tokens - this allows comparison of amount of semantic category information present in partition 1 vs 2
 """
 
+FIGSIZE = (5, 5)
+TITLE_FONTSIZE = 10
+
+NUM_SPLITS = 8
 
 HUB_MODE = 'sem'
 BPTT_STEPS = 7
@@ -67,26 +72,64 @@ def calc_ba(probe_sims, probes, probe2cat, num_opt_init_steps=1, num_opt_steps=1
     return res
 
 
+def plot_ba_trajs(part_id2y, part_id2x, title):
+    fig, ax = plt.subplots(figsize=FIGSIZE, dpi=None)
+    plt.title(title, fontsize=TITLE_FONTSIZE)
+    ax.set_xlabel('Samples from Partition')
+    ax.set_ylabel('Balanced Accuracy')
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.tick_params(axis='both', which='both', top=False, right=False)
+    ax.yaxis.grid(True)
+    # plot
+    for part_id, y in part_id2y.items():
+        x = part_id2x[part_id]
+        ax.plot(x, y, label='partition {}'.format(part_id + 1))
+    #
+    plt.legend(frameon=False, loc='upper left')
+    plt.tight_layout()
+    plt.show()
+
+
+def calc_ba_from_windows(ws_mat, d):
+    for window in ws_mat:
+        last_word = hub.train_terms.types[window[-1]]
+        if last_word in hub.probe_store.types:
+            for word_id in window[:-1]:
+                d[last_word][word_id] += 1
+    # ba
+    p_acts = [d[p] for p in hub.probe_store.types]
+    ba = calc_ba(cosine_similarity(p_acts), hub.probe_store.types, probe2cat)
+    return ba
+
+
 hub = Hub(mode=HUB_MODE, bptt_steps=BPTT_STEPS)
 cats = hub.probe_store.cats
 probe2cat = hub.probe_store.probe_cat_dict
 vocab = hub.train_terms.types
 
 
-for part_id in range(2):
+#
+part_ids = range(2)
+part_id2bas = {part_id: [0.5] for part_id in part_ids}
+part_id2num_windows = {part_id: [0] for part_id in part_ids}
+for part_id in part_ids:
     # a window is [x1, x2, x3, x4, x5, x6, x7, y] if bptt=7
     windows_mat = hub.make_windows_mat(hub.reordered_partitions[part_id], hub.num_windows_in_part)
     print('shape of windows_mat={}'.format(windows_mat.shape))
-
-    # probe2act
+    #
+    xi = 0
     probe2act = {p: np.zeros(hub.params.num_types) for p in hub.probe_store.types}
-    for window in windows_mat:
-        first_word = hub.train_terms.types[window[-1]]
-        if first_word in hub.probe_store.types:
-            for word_id in window[:-1]:
-                probe2act[first_word][word_id] += 1
-    # ba
-    p_acts = [probe2act[p] for p in hub.probe_store.types]
-    ba = calc_ba(cosine_similarity(p_acts), hub.probe_store.types, probe2cat)
-    print('part_id={} ba={:.3f}'.format(part_id, ba))
+    for windows_mat_chunk in np.vsplit(windows_mat, NUM_SPLITS):  # mimic incremental increase in ba
+        ba = calc_ba_from_windows(windows_mat_chunk, probe2act)
+        xi += len(windows_mat_chunk)
+        part_id2bas[part_id].append(ba)
+        part_id2num_windows[part_id].append(xi)
+        print('part_id={} ba={:.3f}'.format(part_id, ba))
     print('------------------------------------------------------')
+
+
+# plot
+plot_ba_trajs(part_id2bas, part_id2num_windows,
+              title='Does ba rise faster in AO-CHILDES partition 1?\n'
+                    'model=bag-of-words with context-size={}'.format(BPTT_STEPS))
