@@ -3,6 +3,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from functools import partial
 from bayes_opt import BayesianOptimization
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import normalize
 
 from childeshub.hub import Hub
 
@@ -17,7 +18,7 @@ TITLE_FONTSIZE = 10
 NUM_SPLITS = 8
 
 HUB_MODE = 'sem'
-BPTT_STEPS = 7
+BPTT_STEPS = 1
 
 
 def calc_ba(probe_sims, probes, probe2cat, num_opt_init_steps=1, num_opt_steps=10):
@@ -98,9 +99,10 @@ def calc_ba_from_windows(ws_mat, d):
             for word_id in window[:-1]:
                 d[last_word][word_id] += 1
     # ba
-    p_acts = [d[p] for p in hub.probe_store.types]
-    ba = calc_ba(cosine_similarity(p_acts), hub.probe_store.types, probe2cat)
-    return ba
+    p_acts = np.asarray([d[p] for p in hub.probe_store.types])
+    normalized_acts = normalize(p_acts, axis=1, norm='l1', copy=False)
+    res = calc_ba(cosine_similarity(normalized_acts), hub.probe_store.types, probe2cat)
+    return res
 
 
 hub = Hub(mode=HUB_MODE, bptt_steps=BPTT_STEPS)

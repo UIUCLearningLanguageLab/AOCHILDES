@@ -15,8 +15,6 @@ class Params:
     def __getattr__(self, name):
         if name in self.params:
             return self.params[name]
-        elif name == 'num_y':
-            return 1  # TODO remove num_y everywhere?
         else:
             raise AttributeError("No such attribute: " + name)
 

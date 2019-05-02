@@ -78,7 +78,7 @@ class TermStore(object):
         should only be added once only to each document
         """
         # factor
-        num_items_in_window = self.params.bptt_steps + self.params.num_y
+        num_items_in_window = self.params.bptt_steps + 1
         factor = self.params.mb_size * (config.Terms.MAX_NUM_DOCS if self._types is None else 1) + num_items_in_window
         # make divisible
         num_factors = num_raw // factor

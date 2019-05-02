@@ -117,7 +117,7 @@ class Hub(object):
 
     @cached_property
     def num_items_in_window(self):
-        num_items_in_window = self.params.bptt_steps + self.params.num_y
+        num_items_in_window = self.params.bptt_steps + 1
         return num_items_in_window
 
     @cached_property
