@@ -12,13 +12,15 @@ from childeshub.hub import Hub
 calculate ba on tokens - this allows comparison of amount of semantic category information present in partition 1 vs 2
 """
 
-FIGSIZE = (5, 5)
+FIGSIZE = (8, 5)
+YLIM = 0.65
 TITLE_FONTSIZE = 10
 
 NUM_SPLITS = 8
 
 HUB_MODE = 'sem'
 BPTT_STEPS = 1
+DIRECTION = -1  # context is left if -1, context is right if +1
 
 
 def calc_ba(probe_sims, probes, probe2cat, num_opt_init_steps=1, num_opt_steps=10):
@@ -82,6 +84,7 @@ def plot_ba_trajs(part_id2y, part_id2x, title):
     ax.spines['top'].set_visible(False)
     ax.tick_params(axis='both', which='both', top=False, right=False)
     ax.yaxis.grid(True)
+    ax.set_ylim([0.5, YLIM])
     # plot
     for part_id, y in part_id2y.items():
         x = part_id2x[part_id]
@@ -94,10 +97,18 @@ def plot_ba_trajs(part_id2y, part_id2x, title):
 
 def calc_ba_from_windows(ws_mat, d):
     for window in ws_mat:
+        first_word = hub.train_terms.types[window[0]]
         last_word = hub.train_terms.types[window[-1]]
-        if last_word in hub.probe_store.types:
-            for word_id in window[:-1]:
-                d[last_word][word_id] += 1
+        if DIRECTION == -1:  # context is defined to be words left of probe
+            if last_word in hub.probe_store.types:
+                for word_id in window[:-1]:
+                    d[last_word][word_id] += 1
+        elif DIRECTION == 1:
+            if first_word in hub.probe_store.types:
+                for word_id in window[0:]:
+                    d[first_word][word_id] += 1
+        else:
+            raise AttributeError('Invalid arg to "DIRECTION".')
     # ba
     p_acts = np.asarray([d[p] for p in hub.probe_store.types])
     normalized_acts = normalize(p_acts, axis=1, norm='l1', copy=False)
@@ -133,5 +144,6 @@ for part_id in part_ids:
 
 # plot
 plot_ba_trajs(part_id2bas, part_id2num_windows,
-              title='Does ba rise faster in AO-CHILDES partition 1?\n'
-                    'model=bag-of-words with context-size={}'.format(BPTT_STEPS))
+              title='Semantic category information captured by CHILDES Bag-of-words model\n'
+                    'context-size={} context-direction={}'.format(
+                  BPTT_STEPS, 'left' if DIRECTION == -1 else 'right'))

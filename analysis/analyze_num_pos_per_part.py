@@ -5,7 +5,7 @@ from childeshub.hub import Hub
 from childeshub import config
 
 CORPUS_NAME = 'childes-20180319'
-BLOCK_ORDER = 'inc_context-entropy'
+BLOCK_ORDER = 'inc_age'
 ANALYZE_POS = []
 HUB_MODE = 'sem'
 

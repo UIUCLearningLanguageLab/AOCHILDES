@@ -217,7 +217,7 @@ class Hub(object):
         elif '4' in sort_by:
             context_size = 4
         else:
-            raise AttributeError('rnnlab: Invalid arg to "sort_by".')
+            raise AttributeError('Invalid arg to "sort_by".')
         #
         is_right = True if 'right' in sort_by else False
         # context_term_ids
@@ -235,7 +235,7 @@ class Hub(object):
                 if len(context_term_ids) > max_context_term_ids:  # this eliminates confound of context frequency
                     break
         else:
-            print('rnnlab WARNING: Collected  {}/{} context_term_ids.'.format(
+            print('WARNING: Collected  {}/{} context_term_ids.'.format(
                 len(context_term_ids), max_context_term_ids))
         # stats
         if 'context-set-size' in sort_by:
@@ -246,7 +246,7 @@ class Hub(object):
             result = np.sum([self.train_terms.term_freq_dict[self.train_terms.types[term_id]]
                              for term_id in context_term_ids])
         else:
-            raise AttributeError('rnnlab: Invalid arg to "sort_by".')
+            raise AttributeError('Invalid arg to "sort_by".')
         return result
 
     def calc_part_id_sort_stat_dict(self, parts, sort_by):

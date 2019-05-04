@@ -4,7 +4,7 @@ import pyprind
 
 from childeshub.hub import Hub
 
-NGRAM_SIZE = 1
+NGRAM_SIZE = 2
 
 FIGSIZE = (6, 6)
 TITLE_FONTSIZE = 10
@@ -29,6 +29,12 @@ for part_id in part_ids:
     print('Making In-Out matrix...')
     all_inputs_mat, outputs = windows_mat[:, :-1], windows_mat[:, -1]
     inputs_mat = all_inputs_mat[:, -NGRAM_SIZE:]
+
+    print(windows_mat[0])
+    print(all_inputs_mat[0])
+    print(outputs[0])
+    print(inputs_mat[0])
+
     #
     unique_contexts = np.unique(inputs_mat, axis=0)
     num_contexts = len(unique_contexts)
@@ -82,8 +88,8 @@ for cat, part_id2ys in cat2part_id2y2.items():
     fig2, ax2 = plt.subplots(figsize=FIGSIZE, dpi=None)
     plt.title('CHILDES {}-gram Context Statistics\n{}'.format(NGRAM_SIZE, cat.upper()),
               fontsize=TITLE_FONTSIZE)
-    ax2.set_xlabel('Category Member')
-    ax2.set_ylabel('Number of context word types')
+    ax2.set_xlabel('Context Types')
+    ax2.set_ylabel('Frequency')
     ax2.spines['right'].set_visible(False)
     ax2.spines['top'].set_visible(False)
     ax2.tick_params(axis='both', which='both', top=False, right=False)
