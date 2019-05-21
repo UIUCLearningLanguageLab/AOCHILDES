@@ -4,7 +4,7 @@ import pyprind
 
 from childeshub.hub import Hub
 
-NGRAM_SIZE = 2
+NGRAM_SIZE = 3
 
 FIGSIZE = (6, 6)
 TITLE_FONTSIZE = 10
@@ -95,7 +95,7 @@ for cat, part_id2ys in cat2part_id2y2.items():
     ax2.tick_params(axis='both', which='both', top=False, right=False)
     #
     for part_id, y in part_id2ys.items():
-        label = 'partition={}'.format(part_id)
+        label = 'partition={}'.format(part_id + 1)
         ax2.plot(y,
                  label=label,
                  color=COLORS[part_id])
