@@ -11,11 +11,19 @@ from childeshub.hub import Hub
 plot correlation matrix of BOW model representations - does correlation matrix look more hierarchical in partition 2?
 """
 
+SKIP_LABELS_INTERVAL = 1  # to prevent overlap of labels (there are many labels)
+
 HUB_MODE = 'sem'
-BPTT_STEPS = 3  # 3
+BPTT_STEPS = 6  # 3
 N_COMPONENTS = 512  # 512
 NORM = 'l1'  # l1
 PART_IDS = [0, 1]  # this is useful because clustering of second corr_mat is based on dg0 and dg1 of first
+
+
+hub = Hub(mode=HUB_MODE, bptt_steps=BPTT_STEPS)
+
+WORDS = hub.probe_store.cat_probe_list_dict['animal'] + hub.probe_store.cat_probe_list_dict['tool']
+num_words = len(WORDS)
 
 
 def cluster(m, dg0, dg1, original_row_words=None, original_col_words=None,
@@ -49,7 +57,7 @@ def cluster(m, dg0, dg1, original_row_words=None, original_col_words=None,
 
 
 def plot_heatmap(mat, ytick_labels, xtick_labels,
-                 figsize=(10, 10), dpi=None, ticklabel_fs=2, title_fs=5):
+                 figsize=(10, 10), dpi=None, ticklabel_fs=10, title_fs=5):
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
     plt.title('', fontsize=title_fs)
     # heatmap
@@ -59,27 +67,27 @@ def plot_heatmap(mat, ytick_labels, xtick_labels,
               cmap=plt.get_cmap('jet'),
               interpolation='nearest')
     # xticks
+    xtick_labels_skipped = []
+    for i, l in enumerate(xtick_labels):
+        xtick_labels_skipped.append(l if i % SKIP_LABELS_INTERVAL == 0 else '')
     num_cols = len(mat.T)
     ax.set_xticks(np.arange(num_cols))
-    ax.xaxis.set_ticklabels(xtick_labels, rotation=90, fontsize=ticklabel_fs)
+    ax.xaxis.set_ticklabels(xtick_labels_skipped, rotation=90, fontsize=ticklabel_fs)
     # yticks
-
-    # TODO
-    ytick_labels_new = []
+    ytick_labels_skipped = []
     for i, l in enumerate(ytick_labels):
-        ytick_labels_new.append(l if i % 10 == 0 else '')
-
+        ytick_labels_skipped.append(l if i % SKIP_LABELS_INTERVAL == 0 else '')
     num_rows = len(mat)
     ax.set_yticks(np.arange(num_rows))
-    ax.yaxis.set_ticklabels(ytick_labels_new,   # no need to reverse (because no extent is set)
+    ax.yaxis.set_ticklabels(ytick_labels_skipped,   # no need to reverse (because no extent is set)
                             rotation=0, fontsize=ticklabel_fs)
     # remove ticklines
     lines = (ax.xaxis.get_ticklines() +
              ax.yaxis.get_ticklines())
     plt.setp(lines, visible=False)
 
-    # plt.show()
-    fig.savefig('all_types_cat_structure_part{}.svg'.format(part_id), format='svg')  # TODO test
+    plt.show()
+    # fig.savefig('words_cat_structure_part{}.svg'.format(part_id), format='svg')
 
 
 def to_corr_mat(data_mat):
@@ -88,21 +96,18 @@ def to_corr_mat(data_mat):
 
 
 def get_bow_token_representations(ws_mat, norm=NORM):
-    res = np.zeros((hub.params.num_types, hub.params.num_types))
+    noun2rep = {w: np.zeros(hub.params.num_types) for w in WORDS}
     for window in ws_mat:
         obs_word_id = window[-1]
-        for var_word_id in window[:-1]:
-            res[obs_word_id, var_word_id] += 1  # TODO which order?
+        obs_word = hub.train_terms.types[obs_word_id]
+        if obs_word in WORDS:
+            for var_word_id in window[:-1]:
+                noun2rep[obs_word][var_word_id] += 1
     # norm
+    res = np.asarray([noun2rep[n] for n in WORDS])
     if norm is not None:
         res = normalize(res, axis=1, norm=norm, copy=False)
     return res
-
-
-hub = Hub(mode=HUB_MODE, bptt_steps=BPTT_STEPS)
-cats = hub.probe_store.cats
-probe2cat = hub.probe_store.probe_cat_dict
-vocab = hub.train_terms.types
 
 
 dg0, dg1 = None, None
@@ -112,7 +117,7 @@ for part_id in PART_IDS:
     print('shape of windows_mat={}'.format(windows_mat.shape))
     token_reps = get_bow_token_representations(windows_mat)
     print('shape of reps={}'.format(token_reps.shape))
-    assert len(token_reps) == hub.params.num_types
+    assert len(token_reps) == num_words
     # pca
     pca = PCA(n_components=N_COMPONENTS)
     token_reps = pca.fit_transform(token_reps)
@@ -120,7 +125,7 @@ for part_id in PART_IDS:
     # plot
     corr_mat = to_corr_mat(token_reps)
     print('shape of corr_mat={}'.format(corr_mat.shape))
-    clustered_corr_mat, rls, cls, dg0, dg1 = cluster(corr_mat, dg0, dg1, hub.train_terms.types, hub.train_terms.types)
+    clustered_corr_mat, rls, cls, dg0, dg1 = cluster(corr_mat, dg0, dg1, WORDS, WORDS)
     plot_heatmap(clustered_corr_mat, rls, cls)
     print('------------------------------------------------------')
 
