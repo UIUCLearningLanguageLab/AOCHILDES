@@ -3,7 +3,7 @@ import multiprocessing as mp
 from childeshub.hub import Hub
 
 HUB_MODE = 'sem'
-MAX_DISTANCE = 1  # TODO
+MAX_DISTANCE = 3   # TODO
 
 
 hub = Hub(mode=HUB_MODE)
