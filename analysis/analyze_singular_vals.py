@@ -9,13 +9,13 @@ from childeshub.hub import Hub
 SANITY_CHECK = False
 
 HUB_MODE = 'sem'
-NUM_PCS = 64
-NGRAM_SIZE = 3
+NGRAM_SIZE = 6
 BINARY = False
 
+PLOT_NUM_PCS = 64
 LEG_FONTSIZE = 16
 AX_FONTSIZE = 16
-FIGSIZE = (10, 4)
+FIGSIZE = (8, 8)
 DPI = None
 
 hub = Hub(mode=HUB_MODE)
@@ -24,8 +24,6 @@ START1, END1 = 0, hub.midpoint_loc // 1
 START2, END2 = hub.train_terms.num_tokens - END1, hub.train_terms.num_tokens
 
 CATS = [] or hub.probe_store.cats  # ['bug', 'dessert', 'body', 'bug']
-
-adj_alpha = 0.05 / NUM_PCS
 
 
 def make_in_out_corr_mat(start, end):
@@ -81,10 +79,10 @@ def make_in_out_corr_mat(start, end):
 
 def plot_comparison(y1, y2):
     fig, ax = plt.subplots(1, figsize=FIGSIZE, dpi=DPI)
-    plt.title('are singular values larger in partition 1?'
+    plt.title('Effect of the reduction of non-probe\nhierarchical category structure on SVD'
               '\n(in-out-corr matrix built with ngram-size={})'.format(NGRAM_SIZE), fontsize=AX_FONTSIZE)
     ax.set_ylabel('singular value', fontsize=AX_FONTSIZE)
-    ax.set_xlabel('Principal Component #', fontsize=AX_FONTSIZE)
+    ax.set_xlabel('Principal Component', fontsize=AX_FONTSIZE)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.tick_params(axis='both', which='both', top=False, right=False)
@@ -110,7 +108,7 @@ for y, mat in [(singular_vals1, in_out_corr_mat1.asfptype()),
                (singular_vals2, in_out_corr_mat2.asfptype())]:
     print('Fitting PCA ...')
     normalized = normalize(mat, axis=1, norm='l2', copy=False)
-    _, s, _ = slinalg.svds(normalized, k=NUM_PCS, return_singular_vectors='vh')  # s is not 2D
+    _, s, _ = slinalg.svds(normalized, k=PLOT_NUM_PCS, return_singular_vectors='vh')  # s is not 2D
     #
     for sing_val in s[:-1][::-1]:  # last s is combination of all remaining s
         print(sing_val)

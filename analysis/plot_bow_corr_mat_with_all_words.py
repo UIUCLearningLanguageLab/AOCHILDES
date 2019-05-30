@@ -12,10 +12,10 @@ plot correlation matrix of BOW model representations - does correlation matrix l
 """
 
 HUB_MODE = 'sem'
-BPTT_STEPS = 3  # 3
+BPTT_STEPS = 1  # 3
 N_COMPONENTS = 512  # 512
 NORM = 'l1'  # l1
-PART_IDS = [0, 1]  # this is useful because clustering of second corr_mat is based on dg0 and dg1 of first
+PART_IDS = [1, 0]  # this is useful because clustering of second corr_mat is based on dg0 and dg1 of first
 
 
 def cluster(m, dg0, dg1, original_row_words=None, original_col_words=None,
