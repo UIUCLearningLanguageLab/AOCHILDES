@@ -74,7 +74,7 @@ def to_corr_mat(data_mat):
     stds = data_mat.std(axis=1, ddof=1, keepdims=True) + 1e-6  # prevent np.inf (happens when dividing by zero)
     deviated = data_mat - mns
     zscored = deviated / stds
-    res = np.matmul(zscored, zscored.T) / len(data_mat) # it matters which matrix is transposed
+    res = np.matmul(zscored, zscored.T) / len(data_mat)  # it matters which matrix is transposed
     return res
 
 

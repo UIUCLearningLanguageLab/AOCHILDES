@@ -2,7 +2,7 @@
 from childeshub.hub import Hub
 
 
-NGRAM_SIZE = 3
+NGRAM_SIZE = 2
 HUB_MODE = 'sem'
 
 print('N-gram Size: {}'.format(NGRAM_SIZE))
@@ -43,6 +43,10 @@ unique_ngrams_late = set(ngrams_late)
 ngram_set_len_late = len(unique_ngrams_late)
 print('Num unique n-grams')
 print('{:,} {:,}'.format(ngram_set_len_early, ngram_set_len_late))
+print()
+
+print('num n-grams in 1 also in 2:')
+print(len([ngram for ngram in unique_ngrams_early if ngram in unique_ngrams_late]))
 print()
 
 unique_ngrams_late.update(unique_ngrams_early)

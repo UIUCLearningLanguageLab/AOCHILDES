@@ -189,7 +189,7 @@ class Hub(object):
         result = len(set(ngrams))
         return result
 
-    def calc_part_probes_context_stat(self, sort_by, part, max_context_term_ids=200):
+    def calc_part_probes_context_stat(self, sort_by, part, max_context_term_ids=1000):
         # check_term_ids
         if 'probes' in sort_by:
             check_term_ids = [self.train_terms.term_id_dict[probe] for probe in self.probe_store.types]

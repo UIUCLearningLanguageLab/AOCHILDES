@@ -7,9 +7,9 @@ NUM_DOCS = 256
 DPI = 192
 FIGSIZE = (10, 5)
 HUB_MODE = 'sem'
-BLOCK_ORDER = 'inc_age'
+BLOCK_ORDER = 'inc_probes-context-entropy-1-right'
 
-hub = Hub(mode=HUB_MODE, part_order=BLOCK_ORDER)
+hub = Hub(mode=HUB_MODE, part_order=BLOCK_ORDER, num_parts=256)
 
 
 # data
