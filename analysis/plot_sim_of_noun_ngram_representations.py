@@ -16,11 +16,11 @@ p2 reinforces that probes are nouns, whereas in p1 this constraint is reduced
 SANITY_CHECK = False
 
 HUB_MODE = 'sem'
-NGRAM_SIZE = 7
+NGRAM_SIZE = 6
 BINARY = False
-NUM_PCS = 512
+NUM_PCS = 512  # set to None to skip SVD  - memory error when using NGRAM_SIZE > 3
 
-PROBES = True
+PROBES = False
 NOUN_FREQ_THR = 100
 
 
@@ -102,9 +102,12 @@ for mat, types in [(in_out_corr_mat1.asfptype(), types1),
     print('Computing singular vectors ...')
     # compute noun representations
     normalized = normalize(mat, axis=1, norm='l1', copy=False)
-    u, s, v = slinalg.svds(normalized, k=NUM_PCS, return_singular_vectors='u')
     bool_ids = [True if t in filtered_nouns else False for t in types]
-    noun_reps = u[bool_ids]
+    if NUM_PCS is not None:
+        u, s, v = slinalg.svds(normalized, k=NUM_PCS, return_singular_vectors='u')
+        noun_reps = u[bool_ids]
+    else:
+        noun_reps = normalized.todense()[bool_ids]
     # collect sim
     noun_sim = np.corrcoef(noun_reps, rowvar=True).mean().item()  # rowvar is correct
     noun_sims.append(noun_sim)
