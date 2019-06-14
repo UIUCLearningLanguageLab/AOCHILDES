@@ -38,8 +38,8 @@ ngram_sizes = list(range(1, MAX_NGRAM_SIZE + 1))
 part_id2y = {1: [], 2: []}
 for ngram_size in ngram_sizes:
     # make n-grams
-    ngrams_early = hub.get_ngrams(ngram_size, tokens_early)
-    ngrams_late = hub.get_ngrams(ngram_size, tokens_late)
+    ngrams_early = hub.get_sliding_windows(ngram_size, tokens_early)
+    ngrams_late = hub.get_sliding_windows(ngram_size, tokens_late)
     num_ngrams_early = len(ngrams_early)
     num_ngrams_late = len(ngrams_late)
 

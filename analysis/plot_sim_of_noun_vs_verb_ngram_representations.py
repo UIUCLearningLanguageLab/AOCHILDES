@@ -19,7 +19,7 @@ HUB_MODE = 'sem'
 NGRAM_SIZE = 6
 BINARY = False
 NUM_PCS = 512
-Y_MAX = 0.35
+Y_MAX = 0.5
 
 FREQ_THR = 100
 
@@ -28,57 +28,6 @@ hub = Hub(mode=HUB_MODE)
 
 START1, END1 = 0, hub.midpoint_loc // 1
 START2, END2 = hub.train_terms.num_tokens - END1, hub.train_terms.num_tokens
-
-
-def make_in_out_corr_mat(start, end):
-    print('Making in_out_corr_mat with start={} and end={}'.format(start, end))
-    tokens = hub.train_terms.tokens[start:end]
-    # types
-    types = sorted(set(tokens))
-    num_types = len(types)
-    type2id = {t: n for n, t in enumerate(types)}
-    # ngrams
-    ngrams = hub.get_ngrams(NGRAM_SIZE, tokens)
-    ngram_types = sorted(set(ngrams))
-    num_ngram_types = len(ngram_types)
-    ngram2id = {t: n for n, t in enumerate(ngram_types)}
-    # make sparse matrix (types in rows, ngrams in cols)
-    shape = (num_types, num_ngram_types)
-    print('Making In-Out matrix with shape={}...'.format(shape))
-    data = []
-    row_ids = []
-    cold_ids = []
-    mat_loc2freq = {}  # to keep track of number of ngram & type co-occurrence
-    for n, ngram in enumerate(ngrams[:-NGRAM_SIZE]):
-        # row_id + col_id
-        col_id = ngram2id[ngram]
-        next_ngram = ngrams[n + 1]
-        next_type = next_ngram[-1]
-        row_id = type2id[next_type]
-        # freq
-        try:
-            freq = mat_loc2freq[(row_id, col_id)]
-        except KeyError:
-            mat_loc2freq[(row_id, col_id)] = 1
-            freq = 1
-        else:
-            mat_loc2freq[(row_id, col_id)] += 1
-        # collect
-        row_ids.append(row_id)
-        cold_ids.append(col_id)
-        data.append(1 if BINARY else freq)
-    # make sparse matrix once (updating it is expensive)
-    res = sparse.csr_matrix((data, (row_ids, cold_ids)), shape=(num_types, num_ngram_types))
-    #
-    if SANITY_CHECK:
-        for term_id in range(num_types):
-            print('----------------------------------')
-            print(types[term_id])
-            print('----------------------------------')
-            for ngram_id, freq in enumerate(np.squeeze(res[term_id].toarray())):
-                print(ngram_types[ngram_id], freq) if freq != 0 else None
-        raise SystemExit
-    return res, types
 
 
 filtered_nouns = set([noun for noun in hub.nouns
@@ -112,8 +61,8 @@ print(filtered_ints)
 # make in_out_corr_mats
 label1 = 'tokens between\n{:,} & {:,}'.format(START1, END1)
 label2 = 'tokens between\n{:,} & {:,}'.format(START2, END2)
-in_out_corr_mat1, types1 = make_in_out_corr_mat(START1, END1)
-in_out_corr_mat2, types2 = make_in_out_corr_mat(START2, END2)
+in_out_corr_mat1, types1 = hub.make_term_by_window_co_occurrence_mat(START1, END1)
+in_out_corr_mat2, types2 = hub.make_term_by_window_co_occurrence_mat(START2, END2)
 
 
 noun_verb_sims = []
@@ -127,8 +76,7 @@ for mat, types in [(in_out_corr_mat1.asfptype(), types1),
                    (in_out_corr_mat2.asfptype(), types2)]:
     print('Computing singular vectors ...')
     # compute  representations
-    normalized = normalize(mat, axis=1, norm='l1', copy=False)
-    u, s, v = slinalg.svds(normalized, k=NUM_PCS, return_singular_vectors='u')
+    normalized = normalize(mat, axis=1, norm='l1', copy=False)  # axis=0 to normalize features else samples
     noun_bool_ids = [True if t in filtered_nouns else False for t in types]
     verb_bool_ids = [True if t in filtered_verbs else False for t in types]
     adj_bool_ids = [True if t in filtered_adjs else False for t in types]
@@ -137,23 +85,25 @@ for mat, types in [(in_out_corr_mat1.asfptype(), types1),
     det_bool_ids = [True if t in filtered_dets else False for t in types]
     pro_bool_ids = [True if t in filtered_pros else False for t in types]
     int_bool_ids = [True if t in filtered_ints else False for t in types]
-    noun_reps = u[noun_bool_ids]
-    verb_reps = u[verb_bool_ids]
-    adj_reps = u[adj_bool_ids]
-    prep_reps = u[prep_bool_ids]
-    conj_reps = u[conj_bool_ids]
-    det_reps = u[det_bool_ids]
-    pro_reps = u[pro_bool_ids]
-    int_reps = u[int_bool_ids]
-    # average over representations
-    avg_noun_rep = noun_reps.mean(0, keepdims=True)
-    avg_verb_rep = verb_reps.mean(0, keepdims=True)
-    avg_adj_rep = adj_reps.mean(0, keepdims=True)
-    avg_prep_rep = prep_reps.mean(0, keepdims=True)
-    avg_conj_rep = conj_reps.mean(0, keepdims=True)
-    avg_det_rep = det_reps.mean(0, keepdims=True)
-    avg_pro_rep = pro_reps.mean(0, keepdims=True)
-    avg_int_rep = int_reps.mean(0, keepdims=True)
+    if NUM_PCS is not None:
+        u, s, v = slinalg.svds(normalized, k=NUM_PCS, return_singular_vectors='u')
+        avg_noun_rep = u[noun_bool_ids].max(0, keepdims=True)
+        avg_verb_rep = u[verb_bool_ids].max(0, keepdims=True)
+        avg_adj_rep = u[adj_bool_ids].max(0, keepdims=True)
+        avg_prep_rep = u[prep_bool_ids].max(0, keepdims=True)
+        avg_conj_rep = u[conj_bool_ids].max(0, keepdims=True)
+        avg_det_rep = u[det_bool_ids].max(0, keepdims=True)
+        avg_pro_rep = u[pro_bool_ids].max(0, keepdims=True)
+        avg_int_rep = u[int_bool_ids].max(0, keepdims=True)
+    else:
+        avg_noun_rep = normalized.todense()[noun_bool_ids].max(0)
+        avg_verb_rep = normalized.todense()[verb_bool_ids].max(0)
+        avg_adj_rep = normalized.todense()[adj_bool_ids].max(0)
+        avg_prep_rep = normalized.todense()[prep_bool_ids].max(0)
+        avg_conj_rep = normalized.todense()[conj_bool_ids].max(0)
+        avg_det_rep = normalized.todense()[det_bool_ids].max(0)
+        avg_pro_rep = normalized.todense()[pro_bool_ids].max(0)
+        avg_int_rep = normalized.todense()[int_bool_ids].max(0)
     # cosine similarity
     noun_verb_sim = cosine_similarity(avg_noun_rep, avg_verb_rep).mean()
     noun_adj_sim = cosine_similarity(avg_noun_rep, avg_adj_rep).mean()

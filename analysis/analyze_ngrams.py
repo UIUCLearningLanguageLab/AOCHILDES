@@ -29,8 +29,8 @@ print('{:,} {:,}'.format(num_total_probes_early, num_total_probes_late))
 print()
 
 
-ngrams_early = hub.get_ngrams(NGRAM_SIZE, tokens_early)
-ngrams_late = hub.get_ngrams(NGRAM_SIZE, tokens_late)
+ngrams_early = hub.get_sliding_windows(NGRAM_SIZE, tokens_early)
+ngrams_late = hub.get_sliding_windows(NGRAM_SIZE, tokens_late)
 num_ngrams_early = len(ngrams_early)
 num_ngrams_late = len(ngrams_late)
 print('Num total ngrams')

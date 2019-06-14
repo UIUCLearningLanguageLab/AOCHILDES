@@ -10,6 +10,7 @@ import pandas as pd
 import random
 import scipy.stats
 import string
+from scipy import sparse
 from cytoolz import itertoolz
 
 from childeshub.probestore import ProbeStore
@@ -467,13 +468,13 @@ class Hub(object):
         return result
 
     @staticmethod
-    def get_ngrams(n_gram_size, tokens):
+    def get_sliding_windows(window_size, tokens):
 
-        if not isinstance(n_gram_size, int):
+        if not isinstance(window_size, int):
             raise TypeError('This function was changed by PH in May 2019 because'
                             'previously used sklearn Countvectorizer uses stopwords'
                             ' and removes punctuation')
-        ngrams = list(itertoolz.sliding_window(n_gram_size, tokens))
+        ngrams = list(itertoolz.sliding_window(window_size, tokens))
         return ngrams
 
     @CachedAndModeSwitchable
@@ -486,7 +487,8 @@ class Hub(object):
             except ValueError:  # if replace=False and the sample size is greater than the population size
                 locs = self.term_unordered_locs_dict[probe]
             probe_x_mat = np.asarray([self.train_terms.token_ids[loc + 1 - self.params.bptt_steps: loc + 1]
-                                      for loc in locs if self.train_terms.num_tokens - 1 > loc >= self.params.bptt_steps])
+                                      for loc in locs if
+                                      self.train_terms.num_tokens - 1 > loc >= self.params.bptt_steps])
             result.append(probe_x_mat)
         return result
 
@@ -500,7 +502,8 @@ class Hub(object):
             except ValueError:  # if replace=False and the sample size is greater than the population size
                 locs = self.term_unordered_locs_dict[probe]
             probe_y_mat = np.asarray([[self.train_terms.token_ids[loc + 1]]
-                                      for loc in locs if self.train_terms.num_tokens - 1 > loc >= self.params.bptt_steps])
+                                      for loc in locs if
+                                      self.train_terms.num_tokens - 1 > loc >= self.params.bptt_steps])
             result.append(probe_y_mat)
         return result
 
@@ -614,7 +617,7 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in config.Terms.pos2tags['noun']\
+            if tag in config.Terms.pos2tags['noun'] \
                     and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
@@ -624,7 +627,7 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in config.Terms.pos2tags['adjective']\
+            if tag in config.Terms.pos2tags['adjective'] \
                     and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
@@ -634,7 +637,7 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in config.Terms.pos2tags['verb']\
+            if tag in config.Terms.pos2tags['verb'] \
                     and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
@@ -644,7 +647,7 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in config.Terms.pos2tags['adverb']\
+            if tag in config.Terms.pos2tags['adverb'] \
                     and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
@@ -654,7 +657,7 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in config.Terms.pos2tags['pronoun']\
+            if tag in config.Terms.pos2tags['pronoun'] \
                     and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
@@ -664,7 +667,7 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in config.Terms.pos2tags['preposition']\
+            if tag in config.Terms.pos2tags['preposition'] \
                     and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
@@ -674,7 +677,7 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in config.Terms.pos2tags['conjunction']\
+            if tag in config.Terms.pos2tags['conjunction'] \
                     and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
@@ -684,7 +687,7 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in config.Terms.pos2tags['interjection']\
+            if tag in config.Terms.pos2tags['interjection'] \
                     and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
@@ -694,7 +697,7 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in config.Terms.pos2tags['determiner']\
+            if tag in config.Terms.pos2tags['determiner'] \
                     and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
@@ -704,7 +707,7 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in config.Terms.pos2tags['particle']\
+            if tag in config.Terms.pos2tags['particle'] \
                     and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
@@ -714,7 +717,7 @@ class Hub(object):
         result = []
         for term, tags_d in self.train_terms.term_tags_dict.items():
             tag = sorted(tags_d.items(), key=lambda i: i[1])[-1][0]
-            if tag in config.Terms.pos2tags['punctuation']\
+            if tag in config.Terms.pos2tags['punctuation'] \
                     and term not in config.Terms.SPECIAL_SYMBOLS + list(string.ascii_letters):
                 result.append(term)
         return result
@@ -875,3 +878,84 @@ class Hub(object):
                 context_diversity = num_term_co_occurences / self.train_terms.num_types
                 result.append(context_diversity)
         return result
+
+    # ////////////////////////////////////////////////// SVD
+
+    def make_term_by_window_co_occurrence_mat(self, tokens=None, start=None, end=None,
+                                              window_size=7, sanity_check=False, probes_in_windows_only=False):
+        """
+        terms are in rows, windows are in cols.
+        y_words are terms, x_words are last word in windows.
+        y_words always occur after y_words in the input.
+        """
+
+        # tokens
+        if tokens is None:
+            if start is not None and end is not None:
+                tokens = self.train_terms.tokens[start:end]
+            else:
+                raise ValueError('Need either "tokens" or "start" and "end".')
+
+        # y_words = terms
+        y_words = sorted(set(tokens))
+        num_yws = len(y_words)
+        yw2row_id = {t: n for n, t in enumerate(y_words)}
+        # windows
+        windows_in_order = self.get_sliding_windows(window_size, tokens)
+        if probes_in_windows_only:
+            print('probes_in_windows_only=True')
+            unique_windows = sorted(set([w for w in windows_in_order if w[-1] in self.probe_store.types]))
+        else:
+            unique_windows = sorted(set(windows_in_order))
+        num_unique_windows = len(unique_windows)
+        window2col_id = {t: n for n, t in enumerate(unique_windows)}
+
+        # make sparse matrix (y_words in rows, windows in cols)
+        shape = (num_yws, num_unique_windows)
+        print('Making term-by-window co-occurrence matrix with shape={}...'.format(shape))
+        data = []
+        row_ids = []
+        cold_ids = []
+        mat_loc2freq = {}  # needed to keep track of freq
+        for n, window in enumerate(windows_in_order[:-window_size]):
+            # row_id + col_id
+            try:
+                col_id = window2col_id[window]
+            except KeyError:  # probes_in_windows_only=True
+                continue
+            next_window = windows_in_order[n + 1]
+            next_term = next_window[-1]  # -1 is correct because windows slide by 1 word
+            row_id = yw2row_id[next_term]
+            # freq
+            try:
+                freq = mat_loc2freq[(row_id, col_id)]
+            except KeyError:
+                mat_loc2freq[(row_id, col_id)] = 1
+                freq = 1
+            else:
+                mat_loc2freq[(row_id, col_id)] += 1
+            # collect
+            row_ids.append(row_id)
+            cold_ids.append(col_id)
+            data.append(freq)
+
+        # make sparse matrix once (updating it is expensive)
+        res = sparse.csr_matrix((data, (row_ids, cold_ids)), shape=(num_yws, num_unique_windows))
+        #
+        if sanity_check:
+            for term_id in range(num_yws):
+                print('----------------------------------')
+                print(y_words[term_id])
+                print('----------------------------------')
+                for ngram_id, freq in enumerate(np.squeeze(res[term_id].toarray())):
+                    print(unique_windows[ngram_id], freq) if freq != 0 else None
+            raise SystemExit
+
+        # x_words are last word in each window
+        x_words = []
+        for window in unique_windows:
+            x_words.append(window[-1])
+
+        print('term-by-window co-occurrence matrix has sum={:,}'.format(res.sum()))
+
+        return res, x_words, y_words

@@ -1,26 +1,25 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+from cytoolz import itertoolz
 from functools import partial
 from bayes_opt import BayesianOptimization
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import normalize
 
 from childeshub.hub import Hub
 
 
 """
-calculate ba on tokens - this allows comparison of amount of semantic category information present in partition 1 vs 2
+calculate ba on tokens.
+this allows comparison of amount of semantic category information present in partition 1 vs 2
 """
 
 FIGSIZE = (8, 5)
 YLIM = 0.65
 TITLE_FONTSIZE = 10
 
-NUM_SPLITS = 8
-
 HUB_MODE = 'sem'
-BPTT_STEPS = 1
-DIRECTION = -1  # context is left if -1, context is right if +1
+NUM_BA_EVALS = 2
+WINDOW_SIZE = 2
 
 
 def calc_ba(probe_sims, probes, probe2cat, num_opt_init_steps=1, num_opt_steps=10):
@@ -78,7 +77,7 @@ def calc_ba(probe_sims, probes, probe2cat, num_opt_init_steps=1, num_opt_steps=1
 def plot_ba_trajs(part_id2y, part_id2x, title):
     fig, ax = plt.subplots(figsize=FIGSIZE, dpi=None)
     plt.title(title, fontsize=TITLE_FONTSIZE)
-    ax.set_xlabel('Samples from Partition')
+    ax.set_xlabel('Number of Words in Partition')
     ax.set_ylabel('Balanced Accuracy')
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -95,47 +94,41 @@ def plot_ba_trajs(part_id2y, part_id2x, title):
     plt.show()
 
 
-def calc_ba_from_windows(ws_mat, d):
-    for window in ws_mat:
-        first_word = hub.train_terms.types[window[0]]
-        last_word = hub.train_terms.types[window[-1]]
-        if DIRECTION == -1:  # context is defined to be words left of probe
-            if last_word in hub.probe_store.types:
-                for word_id in window[:-1]:
-                    d[last_word][word_id] += 1
-        elif DIRECTION == 1:
-            if first_word in hub.probe_store.types:
-                for word_id in window[0:]:
-                    d[first_word][word_id] += 1
-        else:
-            raise AttributeError('Invalid arg to "DIRECTION".')
-    # ba
-    p_acts = np.asarray([d[p] for p in hub.probe_store.types])
-    normalized_acts = normalize(p_acts, axis=1, norm='l1', copy=False)
-    res = calc_ba(cosine_similarity(normalized_acts), hub.probe_store.types, probe2cat)
-    return res
-
-
-hub = Hub(mode=HUB_MODE, bptt_steps=BPTT_STEPS)
-cats = hub.probe_store.cats
+hub = Hub(mode=HUB_MODE)
 probe2cat = hub.probe_store.probe_cat_dict
-vocab = hub.train_terms.types
 
-
-#
 part_ids = range(2)
 part_id2bas = {part_id: [0.5] for part_id in part_ids}
 part_id2num_windows = {part_id: [0] for part_id in part_ids}
 for part_id in part_ids:
-    # a window is [x1, x2, x3, x4, x5, x6, x7, y] if bptt=7
-    windows_mat = hub.make_windows_mat(hub.reordered_partitions[part_id], hub.num_windows_in_part)
-    print('shape of windows_mat={}'.format(windows_mat.shape))
-    #
+    tokens = [hub.first_half_tokens, hub.second_half_tokens][part_id]
     xi = 0
-    probe2act = {p: np.zeros(hub.params.num_types) for p in hub.probe_store.types}
-    for windows_mat_chunk in np.vsplit(windows_mat, NUM_SPLITS):  # mimic incremental increase in ba
-        ba = calc_ba_from_windows(windows_mat_chunk, probe2act)
-        xi += len(windows_mat_chunk)
+    num_tokens_in_chunk = len(tokens) // NUM_BA_EVALS
+    for tokens_chunk in itertoolz.partition_all(num_tokens_in_chunk, tokens):  # mimic incremental increase in ba
+        tw_mat, xws, yws = hub.make_term_by_window_co_occurrence_mat(
+            tokens=tokens_chunk, window_size=WINDOW_SIZE, probes_in_windows_only=False)  # TODO
+
+        # TODO to match analysis in tree-transitions, probes should be in x-words - doesn't work
+
+        # there are multiple windows with probe in last position when window_size > 1
+        # probe_reps = []
+        # for probe in hub.probe_store.types:
+        #     col_bools = [True if xw == probe else False for xw in xws]
+        #     probe_rep = np.asarray(np.mean(tw_mat[:, col_bools], axis=1)).flatten()
+        #     # print(probe, np.count_nonzero(col_bools), probe_rep.shape)
+        #     probe_reps.append(probe_rep)
+
+        # TODO old way - probes are in yws - this works
+        filtered_probes = [probe for probe in hub.probe_store.types if probe in yws]
+        row_ids = [yws.index(probe) for probe in filtered_probes]
+        probe_reps = tw_mat[row_ids, :].toarray()
+
+
+        # ba
+        print('shape of probe_reps={}'.format(probe_reps.shape))
+        ba = calc_ba(cosine_similarity(probe_reps), filtered_probes, probe2cat)
+        # collect
+        xi += len(tokens_chunk)
         part_id2bas[part_id].append(ba)
         part_id2num_windows[part_id].append(xi)
         print('part_id={} ba={:.3f}'.format(part_id, ba))
@@ -144,6 +137,6 @@ for part_id in part_ids:
 
 # plot
 plot_ba_trajs(part_id2bas, part_id2num_windows,
-              title='Semantic category information captured by CHILDES Bag-of-words model\n'
-                    'context-size={} context-direction={}'.format(
-                  BPTT_STEPS, 'left' if DIRECTION == -1 else 'right'))
+              title='Semantic category information in AO-CHILDES'
+                    '\ncaptured by term-window co-occurrence matrix\n'
+                    'with window-size={}'.format(WINDOW_SIZE))
