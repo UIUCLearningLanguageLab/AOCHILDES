@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import normalize
 from scipy.sparse import linalg as slinalg
-from scipy import sparse
 from sklearn.metrics.pairwise import cosine_similarity
 
 from childeshub.hub import Hub
@@ -14,14 +13,13 @@ if so, this would lend evidence to the idea that p2 induces syntactic bias (it i
 the difference between nous and verbs than differences between semantic categories. 
 """
 
-SANITY_CHECK = False
 HUB_MODE = 'sem'
-NGRAM_SIZE = 6
-BINARY = False
+WINDOW_SIZE = 2
 NUM_PCS = 512
 Y_MAX = 0.5
 
 FREQ_THR = 100
+VERBOSE = False
 
 
 hub = Hub(mode=HUB_MODE)
@@ -48,21 +46,23 @@ filtered_pros = set([pro for pro in hub.pronouns
 filtered_ints = set([pro for pro in hub.interjections
                      if hub.train_terms.term_freq_dict[pro] > FREQ_THR])
 
+if VERBOSE:
+    print('nouns')
+    print(filtered_nouns)
+    print('verbs')
+    print(filtered_verbs)
+    print('adjectives')
+    print(filtered_adjs)
+    print('interjections')
+    print(filtered_ints)
 
-print('nouns')
-print(filtered_nouns)
-print('verbs')
-print(filtered_verbs)
-print('adjectives')
-print(filtered_adjs)
-print('interjections')
-print(filtered_ints)
-
-# make in_out_corr_mats
-label1 = 'tokens between\n{:,} & {:,}'.format(START1, END1)
-label2 = 'tokens between\n{:,} & {:,}'.format(START2, END2)
-in_out_corr_mat1, types1 = hub.make_term_by_window_co_occurrence_mat(START1, END1)
-in_out_corr_mat2, types2 = hub.make_term_by_window_co_occurrence_mat(START2, END2)
+# make term_by_window_co_occurrence_mats
+start1, end1 = 0, hub.midpoint_loc // 1
+start2, end2 = hub.train_terms.num_tokens - end1, hub.train_terms.num_tokens
+label1 = 'partition 1' or 'tokens between\n{:,} & {:,}'.format(start1, end1)
+label2 = 'partition 2' or 'tokens between\n{:,} & {:,}'.format(start2, end2)
+tw_mat1, xws1, yws1 = hub.make_term_by_window_co_occurrence_mat(start=start1, end=end1, window_size=WINDOW_SIZE)
+tw_mat2, xws2, yws2 = hub.make_term_by_window_co_occurrence_mat(start=start2, end=end2, window_size=WINDOW_SIZE)
 
 
 noun_verb_sims = []
@@ -72,19 +72,20 @@ noun_conj_sims = []
 noun_det_sims = []
 noun_pro_sims = []
 noun_int_sims = []
-for mat, types in [(in_out_corr_mat1.asfptype(), types1),
-                   (in_out_corr_mat2.asfptype(), types2)]:
+for mat, xws in [(tw_mat1.asfptype(), xws1),
+                 (tw_mat2.asfptype(), xws2)]:
     print('Computing singular vectors ...')
     # compute  representations
+    mat = mat.T  # transpose to do SVD, x-words now index rows
     normalized = normalize(mat, axis=1, norm='l1', copy=False)  # axis=0 to normalize features else samples
-    noun_bool_ids = [True if t in filtered_nouns else False for t in types]
-    verb_bool_ids = [True if t in filtered_verbs else False for t in types]
-    adj_bool_ids = [True if t in filtered_adjs else False for t in types]
-    prep_bool_ids = [True if t in filtered_preps else False for t in types]
-    conj_bool_ids = [True if t in filtered_conjs else False for t in types]
-    det_bool_ids = [True if t in filtered_dets else False for t in types]
-    pro_bool_ids = [True if t in filtered_pros else False for t in types]
-    int_bool_ids = [True if t in filtered_ints else False for t in types]
+    noun_bool_ids = [True if t in filtered_nouns else False for t in xws]
+    verb_bool_ids = [True if t in filtered_verbs else False for t in xws]
+    adj_bool_ids = [True if t in filtered_adjs else False for t in xws]
+    prep_bool_ids = [True if t in filtered_preps else False for t in xws]
+    conj_bool_ids = [True if t in filtered_conjs else False for t in xws]
+    det_bool_ids = [True if t in filtered_dets else False for t in xws]
+    pro_bool_ids = [True if t in filtered_pros else False for t in xws]
+    int_bool_ids = [True if t in filtered_ints else False for t in xws]
     if NUM_PCS is not None:
         u, s, v = slinalg.svds(normalized, k=NUM_PCS, return_singular_vectors='u')
         avg_noun_rep = u[noun_bool_ids].max(0, keepdims=True)
@@ -134,7 +135,7 @@ for mat, types in [(in_out_corr_mat1.asfptype(), types1),
 x = [0, 1]
 fig, ax = plt.subplots(dpi=None, figsize=(5, 5))
 plt.title('Distributional similarity of nouns & other POS classes\nn-gram model with size={} and num PCs={}'.format(
-    NGRAM_SIZE, NUM_PCS))
+    WINDOW_SIZE, NUM_PCS))
 ax.set_ylabel('Cosine Similarity')
 ax.set_xlabel('Partition')
 ax.set_ylim([0, Y_MAX])

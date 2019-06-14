@@ -13,13 +13,11 @@ calculate ba on tokens.
 this allows comparison of amount of semantic category information present in partition 1 vs 2
 """
 
-FIGSIZE = (8, 5)
 YLIM = 0.65
-TITLE_FONTSIZE = 10
 
 HUB_MODE = 'sem'
-NUM_BA_EVALS = 2
-WINDOW_SIZE = 2
+NUM_BA_EVALS = 4
+WINDOW_SIZES = [1, 2, 3, 4, 5, 6, 7]
 
 
 def calc_ba(probe_sims, probes, probe2cat, num_opt_init_steps=1, num_opt_steps=10):
@@ -74,22 +72,22 @@ def calc_ba(probe_sims, probes, probe2cat, num_opt_init_steps=1, num_opt_steps=1
     return res
 
 
-def plot_ba_trajs(part_id2y, part_id2x, title):
-    fig, ax = plt.subplots(figsize=FIGSIZE, dpi=None)
-    plt.title(title, fontsize=TITLE_FONTSIZE)
-    ax.set_xlabel('Number of Words in Partition')
-    ax.set_ylabel('Balanced Accuracy')
+def plot_ba_trajs(part_id2y, part_id2x, title, fontsize=16):
+    fig, ax = plt.subplots(figsize=(8, 5), dpi=None)
+    plt.title(title, fontsize=fontsize)
+    ax.set_xlabel('Number of Words in Partition', fontsize=fontsize)
+    ax.set_ylabel('Balanced Accuracy', fontsize=fontsize)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.tick_params(axis='both', which='both', top=False, right=False)
-    ax.yaxis.grid(True)
+    # ax.yaxis.grid(True)
     ax.set_ylim([0.5, YLIM])
     # plot
     for part_id, y in part_id2y.items():
         x = part_id2x[part_id]
         ax.plot(x, y, label='partition {}'.format(part_id + 1))
     #
-    plt.legend(frameon=False, loc='upper left')
+    plt.legend(frameon=False, loc='upper left', fontsize=fontsize)
     plt.tight_layout()
     plt.show()
 
@@ -97,46 +95,36 @@ def plot_ba_trajs(part_id2y, part_id2x, title):
 hub = Hub(mode=HUB_MODE)
 probe2cat = hub.probe_store.probe_cat_dict
 
-part_ids = range(2)
-part_id2bas = {part_id: [0.5] for part_id in part_ids}
-part_id2num_windows = {part_id: [0] for part_id in part_ids}
-for part_id in part_ids:
-    tokens = [hub.first_half_tokens, hub.second_half_tokens][part_id]
-    xi = 0
-    num_tokens_in_chunk = len(tokens) // NUM_BA_EVALS
-    for tokens_chunk in itertoolz.partition_all(num_tokens_in_chunk, tokens):  # mimic incremental increase in ba
-        tw_mat, xws, yws = hub.make_term_by_window_co_occurrence_mat(
-            tokens=tokens_chunk, window_size=WINDOW_SIZE, probes_in_windows_only=False)  # TODO
+for w_size in WINDOW_SIZES:
 
-        # TODO to match analysis in tree-transitions, probes should be in x-words - doesn't work
+    part_ids = range(2)
+    part_id2bas = {part_id: [0.5] for part_id in part_ids}
+    part_id2num_windows = {part_id: [0] for part_id in part_ids}
+    for part_id in part_ids:
+        tokens = [hub.first_half_tokens, hub.second_half_tokens][part_id]
+        xi = 0
+        num_tokens_in_chunk = len(tokens) // NUM_BA_EVALS
+        for tokens_chunk in itertoolz.partition_all(num_tokens_in_chunk, tokens):  # mimic incremental increase in ba
 
-        # there are multiple windows with probe in last position when window_size > 1
-        # probe_reps = []
-        # for probe in hub.probe_store.types:
-        #     col_bools = [True if xw == probe else False for xw in xws]
-        #     probe_rep = np.asarray(np.mean(tw_mat[:, col_bools], axis=1)).flatten()
-        #     # print(probe, np.count_nonzero(col_bools), probe_rep.shape)
-        #     probe_reps.append(probe_rep)
+            # new format to match analysis in tree-transitions: windows are RIGHT contexts and terms are left
+            # probes are in x-words - this works
+            tw_mat, xws, yws = hub.make_term_by_window_co_occurrence_mat(
+                tokens=tokens_chunk, window_size=w_size, only_probes_in_x=True)
+            filtered_probes = xws
+            probe_reps = tw_mat.toarray().T  # transpose because ba routine representations in the rows
 
-        # TODO old way - probes are in yws - this works
-        filtered_probes = [probe for probe in hub.probe_store.types if probe in yws]
-        row_ids = [yws.index(probe) for probe in filtered_probes]
-        probe_reps = tw_mat[row_ids, :].toarray()
+            # ba
+            print('shape of probe_reps={}'.format(probe_reps.shape))
+            ba = calc_ba(cosine_similarity(probe_reps), filtered_probes, probe2cat)
+            # collect
+            xi += len(tokens_chunk)
+            part_id2bas[part_id].append(ba)
+            part_id2num_windows[part_id].append(xi)
+            print('part_id={} ba={:.3f}'.format(part_id, ba))
+        print('------------------------------------------------------')
 
-
-        # ba
-        print('shape of probe_reps={}'.format(probe_reps.shape))
-        ba = calc_ba(cosine_similarity(probe_reps), filtered_probes, probe2cat)
-        # collect
-        xi += len(tokens_chunk)
-        part_id2bas[part_id].append(ba)
-        part_id2num_windows[part_id].append(xi)
-        print('part_id={} ba={:.3f}'.format(part_id, ba))
-    print('------------------------------------------------------')
-
-
-# plot
-plot_ba_trajs(part_id2bas, part_id2num_windows,
-              title='Semantic category information in AO-CHILDES'
-                    '\ncaptured by term-window co-occurrence matrix\n'
-                    'with window-size={}'.format(WINDOW_SIZE))
+    # plot
+    plot_ba_trajs(part_id2bas, part_id2num_windows,
+                  title='Semantic category information in AO-CHILDES'
+                        '\ncaptured by term-window co-occurrence matrix\n'
+                        'with window-size={}'.format(w_size))

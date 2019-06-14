@@ -12,7 +12,7 @@ setup(
                       'sklearn',
                       'spacy',
                       'pyprind',
-                      'sortedcontainers', 'matplotlib', 'seaborn'],
+                      'sortedcontainers', 'matplotlib', 'seaborn', 'cytoolz'],
     url='https://github.com/phueb/CHILDESHub',
     license='',
     author='Philip Huebner',
