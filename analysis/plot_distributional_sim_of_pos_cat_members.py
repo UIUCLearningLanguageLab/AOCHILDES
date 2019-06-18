@@ -14,7 +14,7 @@ how similar are term-by-window representations of members of a POS category?
 
 HUB_MODE = 'sem'
 WINDOW_SIZE = 7
-NUM_PCS = 512  # set to None to skip SVD  - memory error when using NGRAM_SIZE > 3
+NUM_PCS = 512  # set to None to skip SVD  - memory error when using WINDOW_SIZE > 3
 FONTSIZE = 16
 
 POS = 'nouns'

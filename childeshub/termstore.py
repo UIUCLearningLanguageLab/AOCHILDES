@@ -19,8 +19,18 @@ def make_terms(params):
         for test_line_id in ids:
             test_line = l.pop(test_line_id)  # removes line and returns removed line
             test_lines.append(test_line)
+
+        # shuffle documents before splitting
+        if params.shuffle_docs:
+            random.seed(3)  # results in equal distribution of probe words
+            random.shuffle(l)
+        # split lines
         res = (list(chain(*[line.split() for line in l])),
                list(chain(*[line.split() for line in test_lines])))
+
+        # TODO
+        print(l[0])
+
         return res
 
     # split train test

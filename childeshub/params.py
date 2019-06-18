@@ -8,6 +8,7 @@ class Params:
                        'bptt_steps': 7,
                        'num_saves': 10,
                        'part_order': 'inc_age',
+                       'shuffle_docs': False,
                        'num_types': 4096,
                        'corpus_name': 'childes-20180319',
                        'probes_name': 'childes-20180319_4096'}
