@@ -10,16 +10,14 @@ class Dirs:
 
 
 class Probes:
-    verbose = False  # print probes not in vocab
+    verbose = True  # print probes not in vocab
 
 
 class Terms:
     NUM_TEST_LINES = 100
     MAX_NUM_DOCS = 2048
     OOV_SYMBOL = 'OOV'
-    F_NOISE_SYMBOL = 'F_NOISE'
-    P_NOISE_SYMBOL = 'P_NOISE'
-    SPECIAL_SYMBOLS = [OOV_SYMBOL, F_NOISE_SYMBOL, P_NOISE_SYMBOL] + ['xxx', 'TITLED', 'NAME_B', 'NAME_I']
+    SPECIAL_SYMBOLS = [OOV_SYMBOL] + ['xxx', 'TITLED', 'NAME_B', 'NAME_I']
     pos2tags = {'verb': ['BES', 'HVS', 'MD', 'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ'],
                 'noun': ['NN', 'NNS', 'WP'],
                 'adverb': ['EX', 'RB', 'RBR', 'RBS', 'WRB'],

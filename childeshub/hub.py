@@ -300,14 +300,14 @@ class Hub(object):
         elif order_by == 'dec':
             result = sorted_partitions[::-1]
         elif order_by == 'middec':
-            num_mid_parts = self.params.num_parts // 3
+            num_mid_parts = (self.params.num_parts + 3 - 1) // 3  # ceiling division
             start = (self.params.num_parts // 2) - (num_mid_parts // 2)
             end = start + num_mid_parts
             mid_parts = sorted_partitions[start: end]
             remaining_parts = sorted_partitions[:start] + sorted_partitions[end:]
             result = mid_parts + remaining_parts[::-1]
         elif order_by == 'midinc':
-            num_mid_parts = self.params.num_parts // 3
+            num_mid_parts = (self.params.num_parts + 3 - 1) // 3  # ceiling division
             start = (self.params.num_parts // 2) - (num_mid_parts // 2)
             end = start + num_mid_parts
             mid_parts = sorted_partitions[start: end]

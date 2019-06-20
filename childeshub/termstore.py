@@ -14,23 +14,22 @@ def make_terms(params):
         res = f.open('r').readlines()
         return res
 
-    def split_lines(l, ids):
+    def tokenize(all_lines, ids):
         test_lines = []
         for test_line_id in ids:
-            test_line = l.pop(test_line_id)  # removes line and returns removed line
+            test_line = all_lines.pop(test_line_id)  # removes line and returns removed line
             test_lines.append(test_line)
 
         # shuffle documents before splitting
         if params.shuffle_docs:
-            random.seed(3)  # results in equal distribution of probe words
-            random.shuffle(l)
-        # split lines
-        res = (list(chain(*[line.split() for line in l])),
+            # seed=3 results in equal distribution of probe words,
+            # but gives better results when inc_age vs dec_age which suggest seed is bad
+            # TODO test seed=3 again, because I might have plotted results incorrectly
+            random.seed(None)
+            random.shuffle(all_lines)
+        # tokenize
+        res = (list(chain(*[line.split() for line in all_lines])),
                list(chain(*[line.split() for line in test_lines])))
-
-        # TODO
-        print(l[0])
-
         return res
 
     # split train test
@@ -38,10 +37,11 @@ def make_terms(params):
     test_raws = {}
     for name in ['terms', 'tags']:
         lines = load_lines(name)
+        print('Found {} documents'.format(len(lines)))
         num_test_line_ids = len(lines) - config.Terms.NUM_TEST_LINES  # adjust because of popping
         random.seed(3)
         test_line_ids = random.sample(range(num_test_line_ids), config.Terms.NUM_TEST_LINES)
-        train_raw, test_raw = split_lines(lines, test_line_ids)
+        train_raw, test_raw = tokenize(lines, test_line_ids)
         # oov
         train_set = set(train_raw)
         for n, item in enumerate(test_raw):
