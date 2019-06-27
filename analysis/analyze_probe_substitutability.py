@@ -2,33 +2,25 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pyprind
 import numpy as np
+from scipy.stats import ttest_ind
 
 from childeshub.hub import Hub
 
 CORPUS_NAME = 'childes-20180319'
-P_NOISE = 'early_2'  # TODO
 
-MIN_CONTEXT_FREQ = 10
+MIN_CONTEXT_FREQ = 1
+MIN_CAT_FREQ = 1
 HUB_MODE = 'sem'
-CONTEXT_DISTS = [1, 2, 3, 4, 5, 6]
+CONTEXT_DISTS = [2, 3]
+YMAX = 0.5
 
 
-def mkae_y_locs_dict(h, tokens_, context_dist):
+def make_y2locs(h, tokens_, context_dist):
     print('Calculating context stats with hub_mode={}...'.format(h.mode))
-    cat_probes_expected_probs_d = {cat: np.array([1 / len(h.probe_store.cat_probe_list_dict[cat])
-                                                  if probe in h.probe_store.cat_probe_list_dict[cat] else 0.0
-                                                  for probe in h.probe_store.types])
-                                   for cat in h.probe_store.cats}
-    #
-    #
-    # cat_probes_expected_probs_d = {cat: np.array([h.train_terms.term_freq_dict[probe]
-    #                                               if probe in h.probe_store.cat_probe_list_dict[cat] else 0.0
-    #                                               for probe in h.probe_store.types])
-    #                                for cat in h.probe_store.cats}
-    # for k, v in cat_probes_expected_probs_d.items():  # normalize
-    #     cat_probes_expected_probs_d[k] = v / v.sum()
-    #     print(cat_probes_expected_probs_d[k].sum())
-
+    cat2probes_expected_probs = {cat: np.array([1 / len(h.probe_store.cat_probe_list_dict[cat])
+                                                if probe in h.probe_store.cat_probe_list_dict[cat] else 0.0
+                                                for probe in h.probe_store.types])
+                                 for cat in h.probe_store.cats}
     # context_d
     context_d = {}
     pbar = pyprind.ProgBar(h.train_terms.num_tokens)
@@ -67,12 +59,13 @@ def mkae_y_locs_dict(h, tokens_, context_dist):
             probes_observed_probs = np.array(
                 [context_d[context]['freq_by_probe'][probe] / context_d[context]['total_freq']
                  for probe in h.probe_store.types])
-            # expected
-            most_common_cat = sorted(h.probe_store.cats, key=lambda cat: context_d[context]['freq_by_cat'][cat])[-1]
-            probes_expected_probs = cat_probes_expected_probs_d[most_common_cat]
-            y = calc_kl_divergence(probes_expected_probs, probes_observed_probs)  # asymmetric
-            # collect y
-            result[y] = context_d[context]['locs']
+            # compute KL div for each category that the context is associated with (not just most common category)
+            for cat, cat_freq in context_d[context]['freq_by_cat'].items():
+                if cat_freq > MIN_CAT_FREQ:
+                    probes_expected_probs = cat2probes_expected_probs[cat]
+                    y = calc_kl_divergence(probes_expected_probs, probes_observed_probs)  # asymmetric
+                    # collect y
+                    result[y] = context_d[context]['locs']
     return result
 
 
@@ -94,42 +87,64 @@ def print_contexts(d):
                   sorted(d[context]['freq_by_probe'].items(), key=lambda i: i[1])[-5:])
 
 
-# y_locs_dict
-y_locs_dicts = []
-hub = Hub(mode=HUB_MODE, part_order='inc_age', corpus_name=CORPUS_NAME, p_noise=P_NOISE)
+# data
+y2locs_list = []
+hub = Hub(mode=HUB_MODE, part_order='inc_age', corpus_name=CORPUS_NAME)
 for context_dist in CONTEXT_DISTS:
-    y_locs_dict = mkae_y_locs_dict(hub, hub.reordered_tokens, context_dist)
-    y_locs_dicts.append(y_locs_dict)
+    y2locs = make_y2locs(hub, hub.reordered_tokens, context_dist)
+    y2locs_list.append(y2locs)
 
-
-for n, (context_dist, y_locs_dict) in enumerate(zip(CONTEXT_DISTS, y_locs_dicts)):
+# plot
+for context_dist, y2locs in zip(CONTEXT_DISTS, y2locs_list):
     # fig
-    _, ax = plt.subplots(dpi=192)
-    ax.set_title('context-size={} P_NOISE={}, punct={}'.format(
-        context_dist, P_NOISE, 'True' if CORPUS_NAME == 'childes-20180319' else 'False'))
-    ax.set_ylabel('Probability')
-    ax.set_xlabel('KL divergence')
+    fontsize = 16
+    _, ax = plt.subplots(figsize=(6, 6))
+    ax.set_title('context-size={}'.format(context_dist), fontsize=fontsize)
+    ax.set_ylabel('Probability', fontsize=fontsize)
+    ax.set_xlabel('KL Divergence', fontsize=fontsize)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.tick_params(axis='both', which='both', top='off', right='off')
+    ax.set_ylim([0, YMAX])
     # plot
     colors = sns.color_palette("hls", 2)[::-1]
     y1 = []
     y2 = []
-    for y, locs in y_locs_dict.items():
+    for y, locs in y2locs.items():
         num_locs_in_part1 = len(np.where(np.array(locs) < hub.midpoint_loc)[0])
         num_locs_in_part2 = len(np.where(np.array(locs) > hub.midpoint_loc)[0])
         y1 += [y] * num_locs_in_part1
         y2 += [y] * num_locs_in_part2
     y1 = np.array(y1)
     y2 = np.array(y2)
-    ax.hist(y1, density=True, label='partition 1', color=colors[0], histtype='step', bins=12, range=[0, 12])
-    ax.hist(y2, density=True, label='partition 2', color=colors[1], histtype='step', bins=12, range=[0, 12])
-    ax.text(0.02, 0.5, 'p1 mean={:.2f}+/-{:.1f}'.format(np.mean(y1), np.std(y1)), transform=ax.transAxes)
-    ax.text(0.02, 0.4, 'p2 mean={:.2f}+/-{:.1f}'.format(np.mean(y2), np.std(y2)), transform=ax.transAxes)
-
-    ax.axhline(y=0, color='grey')
-    plt.legend(frameon=False, loc='upper right')
+    num_bins = 20
+    y1binned, x1, _ = ax.hist(y1, density=True, label='partition 1', color=colors[0], histtype='step',
+                              bins=num_bins, range=[0, 12], zorder=3)
+    y2binned, x2, _ = ax.hist(y2, density=True, label='partition 2', color=colors[1], histtype='step',
+                              bins=num_bins, range=[0, 12], zorder=3)
+    ax.text(0.02, 0.7, 'partition 1:\nmean={:.2f}+/-{:.1f}\nn={:,}'.format(
+        np.mean(y1), np.std(y1), len(y1)), transform=ax.transAxes)
+    ax.text(0.02, 0.6, 'partition 2:\nmean={:.2f}+/-{:.1f}\nn={:,}'.format(
+        np.mean(y2), np.std(y2), len(y2)), transform=ax.transAxes)
+    #  fill between the lines (highlighting the difference between the two histograms)
+    for i, x1i in enumerate(x1[:-1]):
+        y1line = [y1binned[i], y1binned[i]]
+        y2line = [y2binned[i], y2binned[i]]
+        ax.fill_between(x=[x1i, x1[i + 1]],
+                        y1=y1line,
+                        y2=y2line,
+                        where=y1line > y2line,
+                        color=colors[0],
+                        alpha=0.5,
+                        zorder=2)
+    #
+    plt.legend(frameon=False, loc='upper left', fontsize=fontsize)
     plt.tight_layout()
     plt.show()
+
+    # t test
+    t, prob = ttest_ind(y1, y2, equal_var=False)
+    print('t={}'.format(t))
+    print('p={:.6f}'.format(prob))
+    print()
 

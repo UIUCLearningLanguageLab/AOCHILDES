@@ -37,6 +37,7 @@ class Hub(object):
         self._terms = terms
         self.cached_property_names = []  # names of cached properties that need to be invalidated after mode switching
         self.mode2probestore = {}
+        print('Initialized probe store with mode="{}"'.format(mode))
 
     # ////////////////////////////////////////////// init
 
@@ -68,6 +69,7 @@ class Hub(object):
             if k not in res.params:
                 raise KeyError('"{}" not in Hub Params.'.format(k))
             else:
+                print('Hub: setting {}={}'.format(k, v))
                 res.params[k] = v
         return res
 
