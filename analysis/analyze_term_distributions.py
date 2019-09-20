@@ -5,7 +5,7 @@ from collections import Counter
 from childeshub.hub import Hub
 
 DPI = 196
-NUM_PARTITIONS = 8
+NUM_PARTITIONS = 2
 HUB_MODE = 'sem'
 
 hub = Hub(mode=HUB_MODE)

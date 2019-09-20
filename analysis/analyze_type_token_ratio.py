@@ -34,22 +34,34 @@ for part in hub.reordered_partitions:
 
 # fig
 fig, axarr = plt.subplots(dpi=DPI, nrows=2)
-plt.suptitle('{}, part_order={}'.format(HUB_MODE, BLOCK_ORDER))
+# plt.suptitle('{}, part_order={}'.format(HUB_MODE, BLOCK_ORDER))
 x = np.arange(NUM_PARTS)
 y_names = ['types', 'tokens']
 for ax, y_name, ys in zip(axarr, y_names, [(y1_early, y1_late), (y2_early, y2_late)]):
     ax.set_xlabel('Reordered Partition')
+
+    ax.set_xlabel('Partition')
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels([0, 1])
+
     ax.set_ylabel('Number of {}'.format(y_name))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.tick_params(axis='both', which='both', top='off', right='off')
-    # ax.set_ylim([0, np.max(np.concatenate(ys))])
+    ax.set_ylim([0, np.max(np.concatenate(ys)) + 10])
     ax.yaxis.grid(True, alpha=0.1)
     # plot
+    print('mean', np.mean(np.vstack(ys), axis=0))
     ax.plot(x, np.mean(np.vstack(ys), axis=0), label='average', color='grey', linestyle=':')
-    for y, label in zip(ys, ['{} ({})'.format(i, 'reordered' if IS_REORDERED else 'unordered')
+    # for y, label in zip(ys, ['{} ({})'.format(i, 'reordered' if IS_REORDERED else 'unordered')
+    #                          for i in ['early', 'late']]):
+
+    for y, label in zip(ys, ['{} probes'.format(i, 'reordered' if IS_REORDERED else 'unordered')
                              for i in ['early', 'late']]):
+
         ax.plot(x, y, label=label)
+        print(y, label)
+
 # legend
 for ax in axarr:
     ax.legend(frameon=False)

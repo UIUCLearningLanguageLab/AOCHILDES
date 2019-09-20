@@ -8,10 +8,10 @@ from childeshub.hub import Hub
 
 CORPUS_NAME = 'childes-20180319'
 
-MIN_CONTEXT_FREQ = 1
+MIN_CONTEXT_FREQ = 10
 MIN_CAT_FREQ = 1
 HUB_MODE = 'sem'
-CONTEXT_DISTS = [2, 3]
+CONTEXT_DISTS = [1]
 YMAX = 0.5
 
 
@@ -123,9 +123,9 @@ for context_dist, y2locs in zip(CONTEXT_DISTS, y2locs_list):
     y2binned, x2, _ = ax.hist(y2, density=True, label='partition 2', color=colors[1], histtype='step',
                               bins=num_bins, range=[0, 12], zorder=3)
     ax.text(0.02, 0.7, 'partition 1:\nmean={:.2f}+/-{:.1f}\nn={:,}'.format(
-        np.mean(y1), np.std(y1), len(y1)), transform=ax.transAxes)
-    ax.text(0.02, 0.6, 'partition 2:\nmean={:.2f}+/-{:.1f}\nn={:,}'.format(
-        np.mean(y2), np.std(y2), len(y2)), transform=ax.transAxes)
+        np.mean(y1), np.std(y1), len(y1)), transform=ax.transAxes, fontsize=fontsize - 2)
+    ax.text(0.02, 0.55, 'partition 2:\nmean={:.2f}+/-{:.1f}\nn={:,}'.format(
+        np.mean(y2), np.std(y2), len(y2)), transform=ax.transAxes, fontsize=fontsize - 2)
     #  fill between the lines (highlighting the difference between the two histograms)
     for i, x1i in enumerate(x1[:-1]):
         y1line = [y1binned[i], y1binned[i]]

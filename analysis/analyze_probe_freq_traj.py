@@ -5,11 +5,10 @@ from childeshub.hub import Hub
 
 NUM_DOCS = 256
 DPI = 192
-FIGSIZE = (10, 5)
+FIGSIZE = (6, 6)
 HUB_MODE = 'sem'
 BLOCK_ORDER = 'inc_age'
-
-SHUFFLE_DOCS = True
+SHUFFLE_DOCS = False
 
 hub = Hub(mode=HUB_MODE, part_order=BLOCK_ORDER, num_parts=256, shuffle_docs=SHUFFLE_DOCS)
 

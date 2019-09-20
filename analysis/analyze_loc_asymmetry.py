@@ -34,7 +34,7 @@ def plot(*terms_list, dpi=192, ax_fontsize=12, fit_line=False, labels=('1st half
     plt.show()
 
 
-half_num_types = hub.train_terms.num_types // 2
+half_num_types = hub.params.num_types // 2
 pos_terms_list = [hub.nouns, hub.verbs, hub.adjectives]
 titles = ['Nouns', 'Verbs', 'Adjectives']
 num_titles = len(titles)
@@ -46,7 +46,7 @@ plot(loc_sorted_terms[:half_num_types], loc_sorted_terms[-half_num_types:],
 
 # frequency
 freq_sorted_terms = list(zip(*hub.train_terms.term_freq_dict.most_common(
-    hub.train_terms.num_types)))[0]
+    hub.params.num_types)))[0]
 plot(freq_sorted_terms[:half_num_types], title='Most Frequent',
      num_bins=1000, rolling_mean=500)
 plot(freq_sorted_terms[-half_num_types:], title='least Frequent',
