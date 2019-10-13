@@ -59,7 +59,7 @@ def gen_transcripts(csv_readers, criterion):
         if not is_valid(reader):
             continue
         transcript_id = reader['transcript_id']
-        value = reader[criterion]
+        criterion_value = reader[criterion]
         while reader['transcript_id'] == transcript_id:
             if is_valid(reader):
                 transcript += to_utterance(reader)
@@ -67,7 +67,7 @@ def gen_transcripts(csv_readers, criterion):
                 reader = next(csv_readers)
             except StopIteration:
                 break  # do not remove
-        yield (value, transcript)
+        yield (transcript, criterion_value)
         transcript = to_utterance(reader)
 
 
@@ -85,10 +85,10 @@ def to_utterance(d):
         return utterance.format(d['gloss'])
 
 
-def normalize(word, probe_set):
+def normalize(word, words_excluded_from_ner):
     if len(word.text) <= 2:
         normalized = word.text if not LOWER_CASE else word.text.lower()
-    elif word.text.lower() in probe_set:  # prevent probes from potentially being treated as NEs
+    elif word.text.lower() in words_excluded_from_ner:  # prevent probes from potentially being treated as NEs
         normalized = word.text if not LOWER_CASE else word.text.lower()
     elif word.ent_type_ in BAD_ENT_TYPES:
         normalized = word.text if not LOWER_CASE else word.text.lower()
@@ -104,12 +104,14 @@ def normalize(word, probe_set):
 
 
 def main():
-    # get transcripts
+    # get csv files in which transcripts are stored
     csv_paths = sorted(config.Dirs.data.glob('*.csv'))
     readers = [csv.DictReader(csv_path.open('r')) for csv_path in csv_paths]
     chained_readers = itertools.chain(*readers)
-    criterion_values, transcripts = zip(*sorted(
-        gen_transcripts(chained_readers, criterion=SORT_CRITERION), key=lambda tup: float(tup[0])))
+
+    # read transcripts, and return some criterion value for each
+    transcripts, criterion_values,  = zip(*sorted(
+        gen_transcripts(chained_readers, criterion=SORT_CRITERION), key=lambda tup: float(tup[1])))
     if VERBOSE_SORT:
         print(criterion_values)
 
@@ -127,13 +129,14 @@ def main():
     # process + export transcripts
     num_transcripts = len(transcripts)
     print('Processing {} transcripts...'.format(num_transcripts))
-    pbar = pyprind.ProgBar(num_transcripts)
+    progress_bar = pyprind.ProgBar(num_transcripts)
     for doc in nlp.pipe(transcripts):
-        pbar.update()
         terms = [normalize(word, probe_store.types) for word in doc]
         tags = [word.tag_ for word in doc]
         f1.write(' '.join(terms) + '\n')
         f2.write(' '.join(tags) + '\n')
+
+        progress_bar.update()
 
 
 if __name__ == '__main__':
