@@ -6,14 +6,15 @@ Research code for preparing and analyzing text corpora consisting of child-direc
 
 TODO
 
-## Included corpora
+## Included corpus
 
-I primarily use the two corpora included in this package, `childes-20171212.txt` and `childes-20180319.txt`
-They differ in that `childes-20171212.txt` was generated with a few additional processing steps:
-1) all title-cased strings were replaced with a single symbol ("TITLED")
-2) all words tagged by the Python package `spacy` as referring to a person or organization were replaced by a single symbol
- ("NAME_B"if the word is the first in a span of words referring to a person or organization,
-  and "NAME_I" if it is not the first word in a span of words referring to a person or organization)
+I primarily use `items/childes-20180319_terms.txt` in my research. 
+It was created using only a modest amount of post-processing to preserve as accurately as possible the structure that children actually experience. 
+Have a look at `items/childes-20180319_params.yaml` for the parameters used to create the corpus.
+
+* words were lower-cased
+* contractions were split
+* punctuation was preserved (declaratives, imperatives, and questions)
 
 ## Compatibility
 

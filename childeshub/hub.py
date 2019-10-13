@@ -15,7 +15,7 @@ from cytoolz import itertoolz
 
 from childeshub.probestore import ProbeStore
 from childeshub.termstore import make_terms
-from childeshub.params import Params
+from childeshub.params import HubParams
 from childeshub import config
 
 
@@ -64,13 +64,13 @@ class Hub(object):
     def make_params(kwargs):
         if kwargs is None:
             raise RuntimeError('No params passed to hub.')
-        res = Params()
+        res = HubParams()
         for k, v in kwargs.items():
-            if k not in res.params:
+            if k not in res.__dict__:
                 raise KeyError('"{}" not in Hub Params.'.format(k))
             else:
                 print('Hub: setting {}={}'.format(k, v))
-                res.params[k] = v
+                res.__dict__[k] = v
         return res
 
     def switch_mode(self, mode):
