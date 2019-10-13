@@ -22,15 +22,16 @@ Compare the quality of noun-contexts between partition 1 and 2
 
 CORPUS_NAME = 'childes-20180319'
 
-MIN_NOUN_FREQ = 10
+MIN_NOUN_FREQ = 100
 HUB_MODE = 'sem'
-CONTEXT_SIZE = 4
+CONTEXT_SIZE = 7
 
 FONTSIZE = 16
 FIG_SIZE = (6, 6)
 
 MAX_CONTEXT_CLASS = 50000  # too small -> program does not work, too large -> waste memory
-MAX_SUM = 500  # only affects figure and best-fit line
+MIN_SUM = 0     # only affects figure and best-fit line
+MAX_SUM = 1000  # only affects figure and best-fit line
 
 assert MAX_SUM <= MAX_CONTEXT_CLASS
 
@@ -88,8 +89,8 @@ ax.set_xlabel('Number of nouns in context', fontsize=FONTSIZE)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.tick_params(axis='both', which='both', top=False, right=False)
-ax.set_xlim([0, MAX_SUM])
-ax.set_ylim([0, MAX_SUM])  # make symmetrical
+ax.set_xlim([MIN_SUM, MAX_SUM])
+ax.set_ylim([MIN_SUM, MAX_SUM])  # make symmetrical
 # plot
 colors = iter(sns.color_palette("hls", 2)[::-1])
 part_names = iter(['partition 1', 'partition 2'])
@@ -114,17 +115,17 @@ for d in [context2is_noun2freq1, context2is_noun2freq2]:
 
     x_yes_nouns = [cc
                    for cc, is_noun2stats in sorted(context_class2is_noun2stats.items())
-                   if is_noun2stats[True]['n'] > 0 and is_noun2stats[True]['sum'] < MAX_SUM]
+                   if is_noun2stats[True]['n'] > 0 and MIN_SUM <  is_noun2stats[True]['sum'] < MAX_SUM]
     x_non_nouns = [cc
                    for cc, is_noun2stats in sorted(context_class2is_noun2stats.items())
-                   if is_noun2stats[False]['n'] > 0 and is_noun2stats[False]['sum'] < MAX_SUM]
+                   if is_noun2stats[False]['n'] > 0 and MIN_SUM <  is_noun2stats[False]['sum'] < MAX_SUM]
 
     y_yes_nouns = [is_noun2stats[True]['sum'] / is_noun2stats[True]['n']
                    for cc, is_noun2stats in sorted(context_class2is_noun2stats.items())
-                   if is_noun2stats[True]['n'] > 0 and is_noun2stats[True]['sum'] < MAX_SUM]
+                   if is_noun2stats[True]['n'] > 0 and MIN_SUM <  is_noun2stats[True]['sum'] < MAX_SUM]
     y_non_nouns = [is_noun2stats[False]['sum'] / is_noun2stats[False]['n']
                    for cc, is_noun2stats in sorted(context_class2is_noun2stats.items())
-                   if is_noun2stats[False]['n'] > 0 and is_noun2stats[False]['sum'] < MAX_SUM]
+                   if is_noun2stats[False]['n'] > 0 and MIN_SUM < is_noun2stats[False]['sum'] < MAX_SUM]
 
     # this should be a straight line if everything is correct
     ax.plot(x_yes_nouns, y_yes_nouns, color='grey', linestyle='-', zorder=1)
@@ -135,10 +136,10 @@ for d in [context2is_noun2freq1, context2is_noun2freq2]:
     color = next(colors)
     part_name = next(part_names)
     ax.scatter(x_non_nouns, y_non_nouns, color=color, label=part_name)
-    ax.plot(x_non_nouns, hub.fit_line(x_non_nouns, y_non_nouns), color=color, lw=3)
+    ax.plot([0, MAX_SUM], hub.fit_line(x_non_nouns, y_non_nouns, eval_x=[0, MAX_SUM]), color=color, lw=3)
     # the smaller the slope of the curve, the better
     # because number of non-nuns do not increase as fast as number of nouns in a context
 
-plt.legend(frameon=True, loc='best', fontsize=FONTSIZE)
+plt.legend(frameon=True, loc='lower right', fontsize=FONTSIZE)
 plt.tight_layout()
 plt.show()

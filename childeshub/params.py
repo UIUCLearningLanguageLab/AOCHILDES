@@ -3,7 +3,6 @@ class Params:
     def __init__(self):
         self.params = {'mb_size': 64,
                        'num_iterations': [20, 20],
-                       'embed_size': 512,
                        'num_parts': 2,
                        'bptt_steps': 7,
                        'num_saves': 10,

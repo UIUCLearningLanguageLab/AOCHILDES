@@ -417,9 +417,9 @@ class Hub(object):
         return result
 
     @staticmethod
-    def fit_line(x, y):
+    def fit_line(x, y, eval_x=None):
         poly = np.polyfit(x, y, 1)
-        result = np.poly1d(poly)(x)
+        result = np.poly1d(poly)(eval_x or x)
         return result
 
     def calc_loc_asymmetry(self, term, num_bins=200):  # num_bins=200 for terms

@@ -1,4 +1,3 @@
-import os
 import csv
 import itertools
 import datetime
@@ -6,7 +5,7 @@ import spacy
 import pyprind
 
 from childeshub.probestore import ProbeStore
-from childeshub.params import default_hub_params
+from childeshub.params import Params
 from childeshub import config
 
 DRY_RUN = True
@@ -23,9 +22,11 @@ LOWER_CASE = True
 NORMALIZE_TITLES = False
 PUNCTUATION = False
 
-VERBOSE_SORT = False
+VERBOSE_SORT = True
 VERBOSE_NORMALIZE = False
 VERBOSE_VALIDATION = False
+
+HUB_MODE = 'sem'  # prevent semantic probes from being normalized
 
 
 def is_valid(d):
@@ -52,30 +53,30 @@ def is_valid(d):
     return True
 
 
-def gen_transcripts(ds, criterion):
+def gen_transcripts(csv_readers, criterion):
     transcript = ''
-    for d in ds:
-        if not is_valid(d):
+    for reader in csv_readers:
+        if not is_valid(reader):
             continue
-        transcript_id = d['transcript_id']
-        d_criterion = d[criterion]
-        while d['transcript_id'] == transcript_id:
-            if is_valid(d):
-                transcript += to_utterance(d)
+        transcript_id = reader['transcript_id']
+        value = reader[criterion]
+        while reader['transcript_id'] == transcript_id:
+            if is_valid(reader):
+                transcript += to_utterance(reader)
             try:
-                d = next(ds)
+                reader = next(csv_readers)
             except StopIteration:
                 break  # do not remove
-        yield (d_criterion, transcript)
-        transcript = to_utterance(d)
+        yield (value, transcript)
+        transcript = to_utterance(reader)
 
 
 def to_utterance(d):
     if PUNCTUATION:
         utterance = '{}{} '
-        punctation_dict = {'imperative': '!', 'question': '?'}
+        punctuation_dict = {'imperative': '!', 'question': '?'}
         try:
-            punctuation = punctation_dict[d['type'].split('_')[0]]
+            punctuation = punctuation_dict[d['type'].split('_')[0]]
         except KeyError:
             punctuation = '.'
         return utterance.format(d['gloss'], punctuation)
@@ -104,34 +105,35 @@ def normalize(word, probe_set):
 
 def main():
     # get transcripts
-    csv_paths = sorted(config.Dirs.data.glob('*.csv'))  # TODO test
-    readers = [csv.DictReader(open(csv_path, 'r')) for csv_path in csv_paths]
+    csv_paths = sorted(config.Dirs.data.glob('*.csv'))
+    readers = [csv.DictReader(csv_path.open('r')) for csv_path in csv_paths]
     chained_readers = itertools.chain(*readers)
-    d_cs, ts = zip(*sorted(
+    criterion_values, transcripts = zip(*sorted(
         gen_transcripts(chained_readers, criterion=SORT_CRITERION), key=lambda tup: float(tup[0])))
     if VERBOSE_SORT:
-        print(d_cs)
+        print(criterion_values)
 
     # files
     date_str = datetime.datetime.now().strftime('%Y%m%d')
     corpus_name = 'childes-{}'.format(date_str) if not DRY_RUN else 'dry_run'
-    items_dir = os.path.join('rnnlab', 'items')
-    terms_f, tags_f = [open(os.path.join(items_dir, '{}_{}.txt'.format(corpus_name, item_name)),
-                            'w', encoding='utf-8') for item_name in ['terms', 'tags']]
+    terms_file_name = config.Dirs.items / '{}_{}.txt'.format(corpus_name, 'terms')
+    tags_file_name = config.Dirs.items / '{}_{}.txt'.format(corpus_name, 'tags')
+    f1 = terms_file_name.open('w', encoding='utf-8')
+    f2 = tags_file_name.open('w', encoding='utf-8')
+
+    nlp = spacy.load('en_core_web_sm', disable=['parser'])
+    probe_store = ProbeStore(HUB_MODE, Params().probes_name)
 
     # process + export transcripts
-    nlp = spacy.load('en_core_web_sm', disable=['parser'])
-    probe_store = ProbeStore(default_hub_params)
-    num_ts = len(ts)
-    print('Processing {} transcripts...'.format(num_ts))
-    pbar = pyprind.ProgBar(num_ts)
-    for doc in nlp.pipe(ts):
+    num_transcripts = len(transcripts)
+    print('Processing {} transcripts...'.format(num_transcripts))
+    pbar = pyprind.ProgBar(num_transcripts)
+    for doc in nlp.pipe(transcripts):
         pbar.update()
         terms = [normalize(word, probe_store.types) for word in doc]
         tags = [word.tag_ for word in doc]
-        for item_f, item_name, items in [(terms_f, 'terms', terms),
-                                         (tags_f, 'tags', tags)]:
-            item_f.write(' '.join(items) + '\n')
+        f1.write(' '.join(terms) + '\n')
+        f2.write(' '.join(tags) + '\n')
 
 
 if __name__ == '__main__':
