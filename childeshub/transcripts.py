@@ -24,6 +24,7 @@ col2dtype = {'id': np.int,
 # make sure to add spaces after each utterance boundary marker
 punctuation_dict = {'imperative': '! ',
                     'imperative_emphatic': '! ',
+                    'question exclamation': '! ',
                     'declarative': '. ',
                     'interruption': '. ',
                     'self interruption': '. ',
@@ -39,7 +40,7 @@ punctuation_dict = {'imperative': '! ',
 
 class Transcripts:
 
-    def __init__(self, params=None):
+    def __init__(self, params=None, sex=None):
         self.params = params or ItemParams()
 
         # load each utterance as a row in data frame
@@ -51,14 +52,18 @@ class Transcripts:
         self.df = pd.concat(dfs)
 
         # drop rows
-        print('Transcripts: Utterances before dropping rows: {}'.format(len(self.df)))
+        print('Transcripts: Utterances before dropping rows: {:>8,}'.format(len(self.df)))
         self.df.drop(self.df[self.df['target_child_age'] > self.params.max_days].index, inplace=True)
         self.df.drop(self.df[self.df['num_tokens'] < self.params.min_utterance_length].index, inplace=True)
         self.df.drop(self.df[self.df['speaker_role'].isin(self.params.bad_speaker_roles)].index, inplace=True)
         self.df.drop(self.df[~self.df['collection_name'].isin(self.params.collection_names)].index, inplace=True)
-        print('Transcripts: Utterances after  dropping rows: {}'.format(len(self.df)))
+        print('Transcripts: Utterances after  dropping rows: {:>8,}'.format(len(self.df)))
 
-        self._sexes = []  # keep track of sex when making transcripts
+        if sex:
+            self.df.drop(self.df[self.df['target_child_sex'] != sex].index, inplace=True)
+            print('Transcripts: Utterances after  filter by sex: {:>8,}'.format(len(self.df)))
+
+        self._ages = []
 
     @cached_property
     def age_ordered(self):
@@ -66,25 +71,21 @@ class Transcripts:
         for age, rows in self.df.groupby('target_child_age'):
             for transcript_id, rows2 in rows.groupby('transcript_id'):
 
-                # keep track of sex
-                sexes = rows['target_child_sex'].dropna().tolist()
-                if not len(set(sexes)) == 1:
-                    self._sexes.append('na')
-                else:
-                    self._sexes.append(sexes[0])  # there should only be 1 sex (1 child) per transcript
-
                 transcript = ''
                 for gloss, utterance_type in zip(rows2['gloss'], rows['type']):
                     transcript += gloss
                     if self.params.punctuation:
                         transcript += punctuation_dict[utterance_type]
                 res.append(transcript)
+
+                self._ages.append(age)
+
         return res
 
-    @property
-    def sexes(self):
+    @cached_property
+    def ages(self):
         _ = self.age_ordered
-        return self._sexes
+        return self._ages
 
     @property
     def num_transcripts(self):
@@ -144,7 +145,7 @@ class PostProcessor:
         else:
             return terms_list, tags_list
 
-    def to_file(self, terms_list, tags_list, path_to_folder=None, dry_run=False, first_only=False):
+    def to_file(self, terms_list, tags_list, ages, path_to_folder=None, suffix='', dry_run=False):
         print('Processor: Writing to disk...')
         date_str = datetime.datetime.now().strftime('%Y%m%d')
         corpus_name = 'childes-{}'.format(date_str)
@@ -154,18 +155,19 @@ class PostProcessor:
         if dry_run:
             path_to_folder = config.Dirs.items / 'dry_runs'
 
-        params_path = path_to_folder / '{}_{}.yaml'.format(corpus_name, 'params')
-        terms_path = path_to_folder / '{}_{}.txt'.format(corpus_name, 'terms')
-        tags_path = path_to_folder / '{}_{}.txt'.format(corpus_name, 'tags')
+        params_path = path_to_folder / '{}_{}{}.yaml'.format(corpus_name, 'params', suffix)
+        terms_path = path_to_folder / '{}_{}{}.txt'.format(corpus_name, 'terms', suffix)
+        tags_path = path_to_folder / '{}_{}{}.txt'.format(corpus_name, 'tags', suffix)
+        ages_path = path_to_folder / '{}_{}{}.txt'.format(corpus_name, 'ages', suffix)
 
         f1 = terms_path.open('w', encoding='utf-8')
         f2 = tags_path.open('w', encoding='utf-8')
+        f3 = ages_path.open('w', encoding='utf-8')
 
-        for terms, tags in zip(terms_list, tags_list):
+        for terms, tags, age in zip(terms_list, tags_list, ages):
             f1.write(' '.join(terms) + '\n')
             f2.write(' '.join(tags) + '\n')
-            if first_only:
-                break
+            f3.write(str(age) + '\n')
 
         f1.close()
         f2.close()

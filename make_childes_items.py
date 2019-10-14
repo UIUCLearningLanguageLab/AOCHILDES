@@ -13,7 +13,7 @@ transcripts = Transcripts(params)
 proc = PostProcessor(params)
 
 excluded_words = probe_store.types  # exclude probes from processing
-proc.to_file(*proc.process(transcripts.age_ordered, excluded_words))
+proc.to_file(*proc.process(transcripts.age_ordered, excluded_words), transcripts.ages)
 
 
 
