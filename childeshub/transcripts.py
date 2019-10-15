@@ -4,6 +4,7 @@ from cached_property import cached_property
 import datetime
 import spacy
 import pyprind
+import attr
 import yaml
 
 from childeshub import config
@@ -174,4 +175,4 @@ class PostProcessor:
 
         # save params
         with params_path.open('w', encoding='utf8') as f:
-            yaml.dump(self.params.__dict__, f, default_flow_style=False, allow_unicode=True)
+            yaml.dump(attr.asdict(self.params), f, default_flow_style=False, allow_unicode=True)
