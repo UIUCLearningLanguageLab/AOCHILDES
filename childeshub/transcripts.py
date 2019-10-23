@@ -44,7 +44,7 @@ class Transcripts:
     def __init__(self, params=None, sex=None):
         self.params = params or ItemParams()
 
-        # load each utterance as a row in data frame
+        # load each utterance as a row in original_transcripts frame
         dfs = [pd.read_csv(csv_path,
                            index_col='id',
                            usecols=col2dtype.keys(),
@@ -104,7 +104,7 @@ class PostProcessor:
         elif word.text.lower() in words_excluded_from_ner:  # prevent probes from potentially being treated as NEs
             normalized = word.text if not self.params.lowercase else word.text.lower()
         elif word.text.istitle() and self.params.normalize_titles:
-            normalized = 'TITLED'
+            normalized = config.Symbols.TITLED
         else:
             normalized = word.text if not self.params.lowercase else word.text.lower()
 

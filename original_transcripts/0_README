@@ -1,0 +1,6 @@
+Created by Philip Huebner, Dec 2017
+Used "childesr" package to download CHILDES corpora - used only corpora present in Jon Willits' 3YO corpus provided to PH in 2016
+Exported corpora to csvs
+R commands:
+utts = get_utterances(corpus=<Corpus Name>, role_exclude='Target_Child')
+write.table(utts, <Corpus Name>, sep=',', row.names=FALSE)

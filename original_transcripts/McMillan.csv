@@ -1,0 +1,146 @@
+id,speaker_id,utterance_order,transcript_id,corpus_id,gloss,num_tokens,stem,part_of_speech,speaker_code,speaker_name,speaker_role,target_child_id,target_child_age,target_child_name,target_child_sex,type,media_end,media_start,media_unit,collection_id,collection_name,num_morphemes,language
+1062241,3065,2,3542,37,mhm,1,yes,co,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,2.847,0.96,s,3,Eng-NA,1,eng
+1062246,3065,3,3542,37,she playing peekaboo,3,she play peekaboo,pro:sub part co,MOT,NA,Mother,3064,852.25,Rachel,female,question,6.92,4.847,s,3,Eng-NA,4,eng
+1062264,3065,5,3542,37,what else do you see,5,what else do you see,pro:int post v pro:per v,MOT,NA,Mother,3064,852.25,Rachel,female,question,13.2,11.334,s,3,Eng-NA,5,eng
+1062336,3065,8,3542,37,yep she's taking a nap,5,yep she take a nap,co pro:sub part det:art n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,18.35,16.708,s,3,Eng-NA,7,eng
+1062352,3065,9,3542,37,now what's he doing,4,now what he do,adv pro:int pro:sub part,MOT,NA,Mother,3064,852.25,Rachel,female,question,25.608,24.35,s,3,Eng-NA,6,eng
+1062374,3065,10,3542,37,what do you see on this page,7,what do you see on this page,pro:int mod pro:per v prep pro:dem n,MOT,NA,Mother,3064,852.25,Rachel,female,question,30.492,28.608,s,3,Eng-NA,7,eng
+1062415,3065,12,3542,37,yeah he's eating isn't he,5,yeah he eat be he,co pro:sub part cop pro:sub,MOT,NA,Mother,3064,852.25,Rachel,female,question,37.631,35.8,s,3,Eng-NA,9,eng
+1062438,3065,13,3542,37,what's going on now,4,what go on now,pro:int part adv adv,MOT,NA,Mother,3064,852.25,Rachel,female,question,52,50.031,s,3,Eng-NA,6,eng
+1062470,3065,15,3542,37,no you're right he shouldn't be taking the money should he,11,no you right he should be take the money should he,co pro:per adj pro:sub mod aux part det:art n mod pro:sub,MOT,NA,Mother,3064,852.25,Rachel,female,question,56.012,53.05,s,3,Eng-NA,14,eng
+1062522,3065,17,3542,37,bad guy,2,bad guy,adj n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,58.012,57,s,3,Eng-NA,2,eng
+1062537,3065,18,3542,37,she brushing his hair,4,she brush his hair,pro:sub part det:poss n,MOT,NA,Mother,3064,852.25,Rachel,female,question,71.206,69.012,s,3,Eng-NA,5,eng
+1062560,3065,19,3542,37,she brushing his fur,4,she brush his fur,pro:sub part det:poss n,MOT,NA,Mother,3064,852.25,Rachel,female,question,73.016,71.206,s,3,Eng-NA,5,eng
+1062582,3065,20,3542,37,huh you like to do that,6,huh you like to do that,co pro:per v inf v pro:dem,MOT,NA,Mother,3064,852.25,Rachel,female,trail off,76.139,74.016,s,3,Eng-NA,6,eng
+1062609,3065,22,3542,37,yes,1,yes,co,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,78.424,77.417,s,3,Eng-NA,1,eng
+1062631,3065,24,3542,37,dogs lots_of dogs,3,dog lots_of dog,n qn n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,86.283,84.3,s,3,Eng-NA,5,eng
+1062655,3065,26,3542,37,that's right that one's Clifford huh,6,that right that one Clifford huh,pro:dem adj det:dem pro:indef n:prop co,MOT,NA,Mother,3064,852.25,Rachel,female,question,92.469,89.721,s,3,Eng-NA,8,eng
+1062679,3065,27,3542,37,ready to read now,4,ready to read now,adj inf v adv,MOT,NA,Mother,3064,852.25,Rachel,female,question,NA,NA,NA,3,Eng-NA,5,eng
+1062707,3065,29,3542,37,okay,1,okay,co,MOT,NA,Mother,3064,852.25,Rachel,female,trail off,95.469,92.469,s,3,Eng-NA,1,eng
+1062724,3065,31,3542,37,I'm Emily Elizabeth,3,I Emily Elizabeth,pro:sub n:prop n:prop,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,98.6,96.988,s,3,Eng-NA,4,eng
+1062754,3065,33,3542,37,those are socks,3,those be sock,pro:dem cop n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,100.439,99.569,s,3,Eng-NA,5,eng
+1062770,3065,34,3542,37,and I have a dog,5,and I have a dog,coord pro:sub v det:art n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,102.162,100.439,s,3,Eng-NA,5,eng
+1062796,3065,36,3542,37,that's a leash,3,that a leash,pro:dem det:art n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,105.426,104.3,s,3,Eng-NA,4,eng
+1062815,3065,37,3542,37,my dog is a big red dog,7,my dog be a big red dog,det:poss n cop det:art adj adj n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,NA,NA,NA,3,Eng-NA,8,eng
+1062844,3065,38,3542,37,some dog kids I know have dogs too,8,some dog kid I know have dog too,qn n n pro:sub v v n adv,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,109.7,105.426,s,3,Eng-NA,10,eng
+1062880,3065,40,3542,37,no,1,no,co,MOT,NA,Mother,3064,852.25,Rachel,female,question,NA,NA,NA,3,Eng-NA,1,eng
+1062893,3065,41,3542,37,we're done,2,we do,pro:sub part,MOT,NA,Mother,3064,852.25,Rachel,female,question,110.887,110,s,3,Eng-NA,4,eng
+1062908,3065,42,3542,37,okay some are re,4,okay some be,co pro:indef cop,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,112,110.887,s,3,Eng-NA,4,eng
+1062934,3065,44,3542,37,yes that's a,3,yes that a,co pro:dem det:art,MOT,NA,Mother,3064,852.25,Rachel,female,trail off,112.7,112,s,3,Eng-NA,4,eng
+1062959,3065,46,3542,37,that's a dog,3,that a dog,pro:dem det:art n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,NA,NA,NA,3,Eng-NA,4,eng
+1062982,3065,47,3542,37,what's a dog say,4,what a dog say,pro:int det:art n v,MOT,NA,Mother,3064,852.25,Rachel,female,question,114.396,113,s,3,Eng-NA,5,eng
+1063014,3065,49,3542,37,what's he say,3,what he say,pro:int pro:sub v,MOT,NA,Mother,3064,852.25,Rachel,female,question,116.8,115.784,s,3,Eng-NA,4,eng
+1063042,3065,51,3542,37,flowers,1,flower,n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,NA,NA,NA,3,Eng-NA,2,eng
+1063048,3065,52,3542,37,some dogs are red but I have the,8,some dog be red but I have the,qn n cop adj conj pro:sub v det:art,MOT,NA,Mother,3064,852.25,Rachel,female,trail off,122,117.663,s,3,Eng-NA,10,eng
+1063073,3065,53,3542,37,this is my dog Clifford,5,this be my dog Clifford,pro:dem cop det:poss n n:prop,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,NA,NA,NA,3,Eng-NA,6,eng
+1063089,3065,54,3542,37,we have fun together,4,we have fun together,pro:sub v n adv,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,NA,NA,NA,3,Eng-NA,4,eng
+1063105,3065,55,3542,37,we play games,3,we play game,pro:sub n n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,NA,NA,NA,3,Eng-NA,4,eng
+1063121,3065,56,3542,37,I throw a stick and he brings it back to me,11,I throw a stick and he bring it back to me,pro:sub v det:art n coord pro:sub v pro:per adv prep pro:obj,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,130,122,s,3,Eng-NA,12,eng
+1063170,3065,57,3542,37,are we done with the book,6,be we do with the book,cop pro:sub part prep det:art n,MOT,NA,Mother,3064,852.25,Rachel,female,question,133.068,131,s,3,Eng-NA,8,eng
+1063192,3065,58,3542,37,hm,1,hm,co,MOT,NA,Mother,3064,852.25,Rachel,female,question,NA,NA,NA,3,Eng-NA,1,eng
+1063202,3065,59,3542,37,you want to play on the big red ball,9,you want to play on the big red ball,pro:per v inf v prep det:art adj adj n,MOT,NA,Mother,3064,852.25,Rachel,female,question,136.213,133.068,s,3,Eng-NA,9,eng
+1063230,3065,60,3542,37,do you want to play on the big red ball,10,do you want to play on the big red ball,mod pro:per v inf v prep det:art adj adj n,MOT,NA,Mother,3064,852.25,Rachel,female,question,139.3,138.213,s,3,Eng-NA,10,eng
+1063272,3065,62,3542,37,no,1,no,co,MOT,NA,Mother,3064,852.25,Rachel,female,question,NA,NA,NA,3,Eng-NA,1,eng
+1063289,3065,63,3542,37,what do you want to do,6,what do you want to do,pro:int mod pro:per v inf v,MOT,NA,Mother,3064,852.25,Rachel,female,question,142.087,140,s,3,Eng-NA,6,eng
+1063303,3065,64,3542,37,you're gonna read the book to me,7,you gonna read the book to me,pro:per mod:aux v det:art n prep pro:obj,MOT,NA,Mother,3064,852.25,Rachel,female,question,160.231,158.687,s,3,Eng-NA,9,eng
+1063327,3065,65,3542,37,do you want to come back up here,8,do you want to come back up here,mod pro:per v inf v adv adv adv,MOT,NA,Mother,3064,852.25,Rachel,female,question,167.463,166.231,s,3,Eng-NA,8,eng
+1063350,3065,66,3542,37,okay come on,3,okay come on,co v adv,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,169.952,168.463,s,3,Eng-NA,3,eng
+1063361,3065,67,3542,37,this is the page you want to start on,9,this be the page you want to start on,pro:dem cop det:art n pro:per v inf v adv,MOT,NA,Mother,3064,852.25,Rachel,female,question,174.551,172.952,s,3,Eng-NA,10,eng
+1063384,3065,68,3542,37,okay,1,okay,co,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,177.028,175.551,s,3,Eng-NA,1,eng
+1063402,3065,70,3542,37,those are cupcakes,3,those be cupcake,pro:dem cop n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,179.891,178.7,s,3,Eng-NA,5,eng
+1063414,3065,71,3542,37,it's not easy to keep Clifford,6,it not ease to keep Clifford,pro:per neg adj inf v n:prop,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,NA,NA,NA,3,Eng-NA,9,eng
+1063430,3065,72,3542,37,he eats and drinks a lot,6,he eat and drink a lot,pro:sub v coord v det:art n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,184.097,179.891,s,3,Eng-NA,8,eng
+1063448,3065,73,3542,37,his house was a problem too,6,his house be a problem too,det:poss n cop det:art n post,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,187.395,185.097,s,3,Eng-NA,8,eng
+1063469,3065,74,3542,37,where's Clifford's house,3,where Clifford house,adv:int n:prop n,MOT,NA,Mother,3064,852.25,Rachel,female,question,190.012,187.395,s,3,Eng-NA,5,eng
+1063479,3065,75,3542,37,but he's a very good that's right that's Clifford's house,10,but he a very that right that Clifford house,conj pro:sub det:art adv pro:dem adv pro:rel n:prop n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,194.168,191.012,s,3,Eng-NA,13,eng
+1063505,3065,76,3542,37,but he's a very good watchdog,6,but he a very good watchdog,conj pro:sub det:art adv adj n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,196.175,194.168,s,3,Eng-NA,7,eng
+1063535,3065,77,3542,37,bad boys don't come around any more,7,bad boy do come around any more,adj n mod v prep qn pro:indef,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,198.925,196.575,s,3,Eng-NA,9,eng
+1063559,3065,78,3542,37,one day I gave Clifford a bath,7,one day I give Clifford a bath,det:num n pro:sub v n:prop det:art n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,201.752,198.925,s,3,Eng-NA,8,eng
+1063581,3065,79,3542,37,do you like baths,4,do you like bath,mod pro:per co n,MOT,NA,Mother,3064,852.25,Rachel,female,question,203.764,201.752,s,3,Eng-NA,5,eng
+1063598,3065,80,3542,37,I combed his hair I took him to the dog show,11,I comb his hair I take him to the dog show,pro:sub v det:poss n pro:sub v pro:obj prep det:art n n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,NA,NA,NA,3,Eng-NA,13,eng
+1063632,3065,81,3542,37,I'd like to say Clifford won first prize,8,I like to say Clifford win first prize,pro:sub v inf v n:prop v adj n,MOT,NA,Mother,3064,852.25,Rachel,female,declarative,211.636,204.764,s,3,Eng-NA,10,eng
+1062418,3068,1,3543,37,is that a girl,4,be that a girl,cop pro:rel det:art n,MOT,NA,Mother,3066,852.25,Sarah,female,question,25.319,23.426,s,3,Eng-NA,5,eng
+1062431,3068,2,3543,37,what else is in this book,6,what else be in this book,pro:int post aux prep pro:dem n,MOT,NA,Mother,3066,852.25,Sarah,female,question,29,25.319,s,3,Eng-NA,7,eng
+1062473,3068,4,3543,37,what else do you see,5,what else do you see,pro:int post v pro:per v,MOT,NA,Mother,3066,852.25,Sarah,female,question,32.804,30.579,s,3,Eng-NA,5,eng
+1062510,3068,6,3543,37,that's,1,that,pro:dem,MOT,NA,Mother,3066,852.25,Sarah,female,trail off,35.8,34.194,s,3,Eng-NA,2,eng
+1062527,3068,8,3543,37,that's the girl isn't it,5,that the girl be it,pro:dem det:art n cop pro:per,MOT,NA,Mother,3066,852.25,Sarah,female,question,38,36,s,3,Eng-NA,8,eng
+1062569,3068,10,3543,37,dog,1,dog,v,MOT,NA,Mother,3066,852.25,Sarah,female,question,40.961,40.083,s,3,Eng-NA,1,eng
+1062586,3068,12,3543,37,dog that's right you're a smart girl,7,dog that right you a smart girl,n pro:dem adv pro:per det:art adj n,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,43.8,41.661,s,3,Eng-NA,9,eng
+1062635,3068,14,3543,37,okay want to turn the page when you're ready,9,okay want to turn the page when you ready,co v inf v det:art n conj pro:per adj,MOT,NA,Mother,3066,852.25,Sarah,female,question,49.023,46.626,s,3,Eng-NA,10,eng
+1062680,3068,16,3543,37,okay,1,okay,co,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,53.896,52.258,s,3,Eng-NA,1,eng
+1062703,3068,18,3543,37,oh,1,oh,co,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,55.63,53.896,s,3,Eng-NA,1,eng
+1062710,3068,19,3543,37,what else do you see,5,what else do you see,pro:int post v pro:per v,MOT,NA,Mother,3066,852.25,Sarah,female,question,57.17,55.63,s,3,Eng-NA,5,eng
+1062765,3068,22,3543,37,you said oh no,4,you say oh no,pro:per v co co,MOT,NA,Mother,3066,852.25,Sarah,female,question,NA,NA,NA,3,Eng-NA,5,eng
+1062782,3068,23,3543,37,yeah he's taking the stick from the policeman isn't he,10,yeah he take the stick from the be he,co pro:sub part det:art n prep det:art cop pro:sub,MOT,NA,Mother,3066,852.25,Sarah,female,question,64.837,60.137,s,3,Eng-NA,13,eng
+1062817,3068,24,3543,37,are you trying to take that from him,8,be you try to take that from him,cop pro:per part inf v pro:rel prep pro:obj,MOT,NA,Mother,3066,852.25,Sarah,female,question,69.487,64.837,s,3,Eng-NA,10,eng
+1062860,3068,26,3543,37,oh no,2,oh no,co co,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,72.915,71.43,s,3,Eng-NA,2,eng
+1062913,3067,30,3543,37,hi there,2,hi there,co adv,INV,Julie,Investigator,3066,852.25,Sarah,female,declarative,85.27,81.842,s,3,Eng-NA,2,eng
+1062927,3068,31,3543,37,are we ready to go onto another page,8,be we ready to go onto another page,cop pro:sub adj inf v prep qn n,MOT,NA,Mother,3066,852.25,Sarah,female,question,87.539,85.27,s,3,Eng-NA,9,eng
+1062966,3068,33,3543,37,okay,1,okay,co,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,91.7,91,s,3,Eng-NA,1,eng
+1063010,3068,36,3543,37,is she playing peekaboo,4,be she play peekaboo,cop pro:sub part co,MOT,NA,Mother,3066,852.25,Sarah,female,question,96.253,94.518,s,3,Eng-NA,6,eng
+1063031,3068,38,3543,37,peekaboo,1,peekaboo,co,MOT,NA,Mother,3066,852.25,Sarah,female,question,98.054,97.228,s,3,Eng-NA,1,eng
+1063050,3068,40,3543,37,baby,1,baby,n,MOT,NA,Mother,3066,852.25,Sarah,female,question,103.699,102.693,s,3,Eng-NA,1,eng
+1063065,3068,42,3543,37,baby,1,baby,n,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,106.308,105.283,s,3,Eng-NA,1,eng
+1063075,3068,43,3543,37,okay what else do you see,6,okay what else do you see,co pro:int post v pro:per v,MOT,NA,Mother,3066,852.25,Sarah,female,question,109.048,106.308,s,3,Eng-NA,6,eng
+1063113,3068,45,3543,37,yeah you see a baby,5,yeah you see a baby,co pro:per v det:art n,MOT,NA,Mother,3066,852.25,Sarah,female,question,110.173,109.048,s,3,Eng-NA,5,eng
+1063137,3068,47,3543,37,there is a baby,4,there be a baby,adv cop det:art n,MOT,NA,Mother,3066,852.25,Sarah,female,question,116.437,115.047,s,3,Eng-NA,5,eng
+1063176,3068,49,3543,37,mhm,1,yes,co,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,118.937,117.937,s,3,Eng-NA,1,eng
+1063184,3068,50,3543,37,what about the moon,4,what about the moon,pro:int adv det:art n,MOT,NA,Mother,3066,852.25,Sarah,female,question,NA,NA,NA,3,Eng-NA,4,eng
+1063205,3068,51,3543,37,where's the moon,3,where the moon,adv:int det:art n,MOT,NA,Mother,3066,852.25,Sarah,female,question,123.159,121.037,s,3,Eng-NA,4,eng
+1063219,3068,52,3543,37,look back on this page,5,look back on this page,v adv prep pro:dem n,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,NA,NA,NA,3,Eng-NA,5,eng
+1063245,3068,53,3543,37,do you see a moon,5,do you see a moon,mod pro:per v det:art n,MOT,NA,Mother,3066,852.25,Sarah,female,question,126,123.99,s,3,Eng-NA,5,eng
+1063274,3068,55,3543,37,moon,1,moon,n,MOT,NA,Mother,3066,852.25,Sarah,female,question,127.7,126.676,s,3,Eng-NA,1,eng
+1063286,3068,56,3543,37,where's the dog,3,where the dog,adv:int det:art n,MOT,NA,Mother,3066,852.25,Sarah,female,question,130.356,129,s,3,Eng-NA,4,eng
+1063322,3068,60,3543,37,that's right,2,that right,pro:dem n,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,NA,NA,NA,3,Eng-NA,3,eng
+1063334,3068,61,3543,37,where's the house,3,where the house,adv:int det:art n,MOT,NA,Mother,3066,852.25,Sarah,female,question,136.266,134.769,s,3,Eng-NA,4,eng
+1063362,3068,64,3543,37,what's that called,3,what that call,pro:int pro:rel v,MOT,NA,Mother,3066,852.25,Sarah,female,question,NA,NA,NA,3,Eng-NA,5,eng
+1063381,3068,66,3543,37,what's that called,3,what that call,pro:int pro:rel v,MOT,NA,Mother,3066,852.25,Sarah,female,question,142.069,138.522,s,3,Eng-NA,5,eng
+1063406,3068,69,3543,37,okay,1,okay,co,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,146.747,146.069,s,3,Eng-NA,1,eng
+1063428,3068,71,3543,37,more,1,more,pro:indef,MOT,NA,Mother,3066,852.25,Sarah,female,question,149.225,148.245,s,3,Eng-NA,1,eng
+1063450,3068,73,3543,37,that's a man that's right,5,that a man that right,pro:dem det:art n pro:rel n,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,152.671,150.725,s,3,Eng-NA,7,eng
+1063481,3068,75,3543,37,hm,1,hm,co,MOT,NA,Mother,3066,852.25,Sarah,female,question,NA,NA,NA,3,Eng-NA,1,eng
+1063491,3068,76,3543,37,what's that,2,what that,pro:int pro:dem,MOT,NA,Mother,3066,852.25,Sarah,female,question,163.099,159.499,s,3,Eng-NA,3,eng
+1063520,3068,78,3543,37,that's a girl,3,that a girl,pro:dem det:art n,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,167.71,166.592,s,3,Eng-NA,4,eng
+1063542,3068,80,3543,37,that's a lion,3,that a lion,pro:dem det:art n,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,172.355,171.231,s,3,Eng-NA,4,eng
+1063566,3068,82,3543,37,what's a lion say,4,what a lion say,pro:int det:art n v,MOT,NA,Mother,3066,852.25,Sarah,female,question,174.965,173.355,s,3,Eng-NA,5,eng
+1063596,3068,84,3543,37,what's he got,3,what he get,pro:int pro:sub v,MOT,NA,Mother,3066,852.25,Sarah,female,question,181.449,175.965,s,3,Eng-NA,5,eng
+1063616,3068,86,3543,37,that's a shoe,3,that a shoe,pro:dem det:art n,MOT,NA,Mother,3066,852.25,Sarah,female,declarative,188.169,186.95,s,3,Eng-NA,4,eng
+1062403,3065,1,3544,37,mom doesn't let us have this stuff very often Grandma,10,mom do let us have this stuff very often Grandma,n mod v pro:obj v pro:dem n adv adv n:prop,MOT,NA,Mother,NA,NA,NA,NA,declarative,5.6,1.5,s,3,Eng-NA,13,eng
+1062444,3072,2,3544,37,are you ready for more,5,be you ready for more,cop pro:per v prep pro:indef,GRA,NA,Grandmother,NA,NA,NA,NA,question,8,5.601,s,3,Eng-NA,6,eng
+1062478,3072,4,3544,37,ready for more ice cream,5,ready for more ice cream,v prep qn n n,GRA,NA,Grandmother,NA,NA,NA,NA,question,9.5,8,s,3,Eng-NA,5,eng
+1062502,3065,5,3544,37,whose turn,2,whose turn,pro:rel n,MOT,NA,Mother,NA,NA,NA,NA,question,NA,NA,NA,3,Eng-NA,2,eng
+1062516,3065,6,3544,37,whose turn is it,4,whose turn be it,pro:rel n aux pro:per,MOT,NA,Mother,NA,NA,NA,NA,question,10.2,8.5,s,3,Eng-NA,5,eng
+1062535,3065,7,3544,37,whose turn is it for the next bite,8,whose turn be it for the next bite,pro:rel n aux pro:per prep det:art adj n,MOT,NA,Mother,NA,NA,NA,NA,question,12,10.2,s,3,Eng-NA,9,eng
+1062572,3072,8,3544,37,you gotta sit Sarah,4,you gotta sit Sarah,pro:per mod:aux v n:prop,GRA,NA,Grandmother,NA,NA,NA,NA,declarative,NA,NA,NA,3,Eng-NA,4,eng
+1062592,3072,9,3544,37,Sarah no no you gotta sit,6,Sarah no no you gotta sit,n:prop qn qn pro:per mod:aux v,GRA,NA,Grandmother,NA,NA,NA,NA,declarative,14,10.2,s,3,Eng-NA,6,eng
+1062613,3065,10,3544,37,no no not at table nothing Rachel,7,no no not at table nothing Rachel,co co neg prep n pro:indef n:prop,MOT,NA,Mother,NA,NA,NA,NA,declarative,NA,NA,NA,3,Eng-NA,7,eng
+1062642,3065,11,3544,37,er Sarah,2,Sarah,n:prop,MOT,NA,Mother,NA,NA,NA,NA,declarative,15.5,12.5,s,3,Eng-NA,1,eng
+1062653,3072,12,3544,37,you you gotta sit Sarah if you want ice cream,10,you you gotta sit Sarah if you want ice cream,pro:per pro:per mod:aux v n:prop conj pro:per v n n,GRA,NA,Grandmother,NA,NA,NA,NA,declarative,NA,NA,NA,3,Eng-NA,10,eng
+1062697,3072,13,3544,37,you gotta sit,3,you gotta sit,pro:per mod:aux v,GRA,NA,Grandmother,NA,NA,NA,NA,declarative,18.5,15,s,3,Eng-NA,3,eng
+1062713,3072,14,3544,37,there you go baby sit,5,there you go baby sit,adv pro:per v n v,GRA,NA,Grandmother,NA,NA,NA,NA,declarative,23.366,20.427,s,3,Eng-NA,5,eng
+1062745,3065,16,3544,37,that's a camera,3,that a camera,pro:dem det:art n,MOT,NA,Mother,NA,NA,NA,NA,declarative,25.8,24.5,s,3,Eng-NA,4,eng
+1062759,3070,17,3544,37,,0,,,ADU,NA,Adult,NA,NA,NA,NA,declarative,27.702,25.8,s,3,Eng-NA,NA,eng
+1062777,3065,19,3544,37,Rachel,1,Rachel,n:prop,MOT,NA,Mother,NA,NA,NA,NA,question,30.831,28.961,s,3,Eng-NA,1,eng
+1062797,3065,21,3544,37,would you like more,4,will you like more,mod pro:per v pro:indef,MOT,NA,Mother,NA,NA,NA,NA,question,33.589,32.254,s,3,Eng-NA,5,eng
+1062822,3065,23,3544,37,mm,1,mm,co,MOT,NA,Mother,NA,NA,NA,NA,question,39.487,37.752,s,3,Eng-NA,1,eng
+1062835,3072,24,3544,37,you think that Poppa's gonna come back,7,you think that Poppa gonna come back,pro:per v pro:dem n:prop mod:aux v adv,GRA,NA,Grandmother,NA,NA,NA,NA,question,42.527,39.487,s,3,Eng-NA,8,eng
+1062874,3072,26,3544,37,xxx,1,,,GRA,NA,Grandmother,NA,NA,NA,NA,declarative,NA,NA,NA,3,Eng-NA,NA,eng
+1062912,3070,29,3544,37,,0,,,ADU,NA,Adult,NA,NA,NA,NA,declarative,48.248,46.442,s,3,Eng-NA,NA,eng
+1062918,3065,30,3544,37,okay who's next,3,okay who next,co pro:rel adv,MOT,NA,Mother,NA,NA,NA,NA,question,51.8,50.248,s,3,Eng-NA,4,eng
+1062970,3065,32,3544,37,who's next,2,who next,pro:rel adv,MOT,NA,Mother,NA,NA,NA,NA,question,54.2,53,s,3,Eng-NA,3,eng
+1062980,3072,33,3544,37,who wants more,3,who want more,pro:int v pro:indef,GRA,NA,Grandmother,NA,NA,NA,NA,question,55.2,54.2,s,3,Eng-NA,4,eng
+1063035,3065,36,3544,37,more,1,more,pro:indef,MOT,NA,Mother,NA,NA,NA,NA,question,58.577,57.3,s,3,Eng-NA,1,eng
+1063071,3065,39,3544,37,who drew on the table,5,who draw on the table,pro:int v prep det:art n,MOT,NA,Mother,NA,NA,NA,NA,question,64.7,63.6,s,3,Eng-NA,6,eng
+1063097,3065,41,3544,37,Sarah did you draw on the table,7,Sarah do you draw on the table,n:prop v pro:per v prep det:art n,MOT,NA,Mother,NA,NA,NA,NA,question,66.366,64.7,s,3,Eng-NA,8,eng
+1063123,3072,42,3544,37,where are Poppa,3,where be Poppa,adv:int aux n:prop,GRA,NA,Grandmother,NA,NA,NA,NA,question,NA,NA,NA,3,Eng-NA,4,eng
+1063140,3072,43,3544,37,poppa's gone,2,poppa go,n part,GRA,NA,Grandmother,NA,NA,NA,NA,declarative,67.8,65.5,s,3,Eng-NA,4,eng
+1063153,3065,44,3544,37,did you draw on the table,6,do you draw on the table,mod pro:per v prep det:art n,MOT,NA,Mother,NA,NA,NA,NA,question,70,67.8,s,3,Eng-NA,7,eng
+1063183,3065,46,3544,37,Rachel did you draw on the table,7,Rachel do you draw on the table,n:prop v pro:per v prep det:art n,MOT,NA,Mother,NA,NA,NA,NA,question,73.088,71.4,s,3,Eng-NA,8,eng
+1063215,3070,48,3544,37,,0,,,ADU,NA,Adult,NA,NA,NA,NA,declarative,75.888,73.088,s,3,Eng-NA,NA,eng
+1063241,3070,51,3544,37,,0,,,ADU,NA,Adult,NA,NA,NA,NA,declarative,80,78.771,s,3,Eng-NA,NA,eng
+1063249,3065,52,3544,37,you didn't answer my question Rachel,6,you do answer my question Rachel,pro:per mod v det:poss n n:prop,MOT,NA,Mother,NA,NA,NA,NA,declarative,82,80,s,3,Eng-NA,8,eng
+1063294,3072,55,3544,37,where,1,where,adv:int,GRA,NA,Grandmother,NA,NA,NA,NA,question,83.6,82.5,s,3,Eng-NA,1,eng
+1063311,3072,57,3544,37,where's where is our Poppa,5,where be our Poppa,adv:int cop det:poss n:prop,GRA,NA,Grandmother,NA,NA,NA,NA,question,89,84.2,s,3,Eng-NA,5,eng
+1063329,3065,58,3544,37,Rachel did you hear my question,6,Rachel do you hear my question,n:prop v pro:per v det:poss n,MOT,NA,Mother,NA,NA,NA,NA,question,NA,NA,NA,3,Eng-NA,7,eng
+1063349,3065,59,3544,37,who drew on the table,5,who draw on the table,pro:int v prep det:art n,MOT,NA,Mother,NA,NA,NA,NA,question,93,89,s,3,Eng-NA,6,eng
+1063367,3070,60,3544,37,,0,,,ADU,NA,Adult,NA,NA,NA,NA,declarative,95,93,s,3,Eng-NA,NA,eng

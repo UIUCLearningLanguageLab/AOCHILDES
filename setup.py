@@ -1,9 +1,11 @@
 from setuptools import setup
 
+from childeshub import __name__, __version__
+
 setup(
-    name='CHILDESHub',
-    version='0.1dev',
-    packages=['childeshub'],
+    name=__name__,
+    version=__version__,
+    packages=[__name__],
     include_package_data=True,
     install_requires=['cached_property',
                       'pandas',
@@ -12,10 +14,15 @@ setup(
                       'sklearn',
                       'spacy',
                       'pyprind',
-                      'sortedcontainers', 'matplotlib', 'seaborn', 'cytoolz', 'PyYAML', 'attrs'],
+                      'sortedcontainers',
+                      'matplotlib',
+                      'seaborn',
+                      'cytoolz',
+                      'PyYAML',
+                      'attrs'],
     url='https://github.com/phueb/CHILDESHub',
     license='',
     author='Philip Huebner',
     author_email='info@philhuebner.com',
-    description='Create and analyze variants of American-English CHILDES corpus'
+    description='Create text corpus from CHILDES database'
 )

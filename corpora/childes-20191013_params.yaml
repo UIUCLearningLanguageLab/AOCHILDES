@@ -1,0 +1,10 @@
+bad_speaker_roles:
+- Target_Child
+- Child
+collection_names:
+- Eng-NA
+lowercase: true
+max_days: 2190
+min_utterance_length: 1
+normalize_titles: false
+punctuation: true
