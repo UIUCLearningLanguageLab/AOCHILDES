@@ -25,6 +25,7 @@ Have a look at `items/childes-20180319_params.yaml` for the parameters used to c
 ## To-do
 
 * exclude probe words (from CategoryEval from pos-processing)
+* expose a simple API for analyzing POS tags (pos.py)
 
 ## Compatibility
 
