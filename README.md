@@ -1,4 +1,4 @@
-# CHILDESHub
+# Create-CHILDES-Corpus
 
 Research code for preparing text corpora consisting of child-directed speech.
 Each line in the resulting text file is a transcript.
@@ -14,7 +14,7 @@ python3 make_corpus.py
 
 ## Included corpora
 
-The file `items/childes-20180319_terms.txt` was used by Philip Huebner in his research on training RNNs with age-ordered language input
+The file `items/childes-20180319_terms.txt` was used by Philip Huebner in his research on training RNNs with age-ordered language input.
 It was created using only a modest amount of post-processing to preserve as accurately as possible the structure that children actually experience. 
 Have a look at `items/childes-20180319_params.yaml` for the parameters used to create the corpus.
 
