@@ -14,7 +14,7 @@ python3 make_corpus.py
 
 ## Included corpora
 
-I primarily use `items/childes-20180319_terms.txt` in my research. 
+The file `items/childes-20180319_terms.txt` was used by Philip Huebner in his research on training RNNs with age-ordered language input
 It was created using only a modest amount of post-processing to preserve as accurately as possible the structure that children actually experience. 
 Have a look at `items/childes-20180319_params.yaml` for the parameters used to create the corpus.
 
