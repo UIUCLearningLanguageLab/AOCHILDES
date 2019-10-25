@@ -24,5 +24,5 @@ setup(
     license='',
     author='Philip Huebner',
     author_email='info@philhuebner.com',
-    description='Create text corpus from CHILDES database'
+    description='Create text corpus from American-English CHILDES database'
 )
