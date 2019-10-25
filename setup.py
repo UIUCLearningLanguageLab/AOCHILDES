@@ -20,7 +20,7 @@ setup(
                       'cytoolz',
                       'PyYAML',
                       'attrs'],
-    url='https://github.com/phueb/CHILDESHub',
+    url='https://github.com/UIUCLearningLanguageLab/CreateCHILDESCorpus',
     license='',
     author='Philip Huebner',
     author_email='info@philhuebner.com',
