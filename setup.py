@@ -1,6 +1,6 @@
 from setuptools import setup
 
-from childeshub import __name__, __version__
+from src import __name__, __version__
 
 setup(
     name=__name__,

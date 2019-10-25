@@ -7,8 +7,8 @@ import pyprind
 import attr
 import yaml
 
-from childeshub import config
-from childeshub.params import ItemParams
+from src import config
+from src.params import ItemParams
 
 nlp = spacy.load('en_core_web_sm')
 
