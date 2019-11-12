@@ -7,8 +7,8 @@ import pyprind
 import attr
 import yaml
 
-from src import config
-from src.params import ItemParams
+from childes import config
+from childes.params import ItemParams
 
 nlp = spacy.load('en_core_web_sm')
 
@@ -49,7 +49,7 @@ class Transcripts:
                            index_col='id',
                            usecols=col2dtype.keys(),
                            dtype=col2dtype)
-               for csv_path in sorted(config.Dirs.data.glob('*.csv'))]
+               for csv_path in sorted(config.Dirs.original.glob('*.csv'))]
         self.df = pd.concat(dfs)
 
         # drop rows
@@ -152,9 +152,9 @@ class PostProcessor:
         corpus_name = 'childes-{}'.format(date_str)
 
         if path_to_folder is None:
-            path_to_folder = config.Dirs.items
+            path_to_folder = config.Dirs.corpora
         if dry_run:
-            path_to_folder = config.Dirs.items / 'dry_runs'
+            path_to_folder = config.Dirs.corpora / 'dry_runs'
 
         params_path = path_to_folder / '{}_{}{}.yaml'.format(corpus_name, 'params', suffix)
         terms_path = path_to_folder / '{}_{}{}.txt'.format(corpus_name, 'terms', suffix)

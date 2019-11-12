@@ -3,8 +3,9 @@ from pathlib import Path
 
 class Dirs:
     src = Path(__file__).parent
-    data = src.parent / 'original_transcripts'
-    items = src / 'corpora'
+    root = src.parent
+    original = src / 'original_transcripts'
+    corpora = root / 'corpora'
 
 
 class Symbols:

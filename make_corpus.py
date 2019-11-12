@@ -1,6 +1,6 @@
 
-from src.params import ItemParams
-from src.transcripts import Transcripts, PostProcessor
+from childes.params import ItemParams
+from childes.transcripts import Transcripts, PostProcessor
 
 
 params = ItemParams()
