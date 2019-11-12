@@ -3,7 +3,7 @@ from setuptools import setup
 from src import __name__, __version__
 
 setup(
-    name='ccc',
+    name=__name__,
     version=__version__,
     packages=[__name__],
     include_package_data=True,
