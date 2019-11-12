@@ -12,6 +12,14 @@ To create a text corpus, execute:
 python3 make_corpus.py
 ```
 
+To expose API within Python:
+
+```python
+from childes.transcripts import Transcripts
+
+transcripts = Transcripts(sex='m')
+```
+
 ## Included corpora
 
 The file `items/childes-20180319_terms.txt` was used by Philip Huebner in his research on training RNNs with age-ordered language input.
