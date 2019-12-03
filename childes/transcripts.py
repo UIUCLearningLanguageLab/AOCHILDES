@@ -184,6 +184,7 @@ class PostProcessor:
         line = re.sub(r' \'cause', ' because', line)
         line = re.sub(r' s\'more', ' some more', line)
         line = re.sub(r' got_to', ' got to', line)
+        line = re.sub(r' got ta', ' got to', line)
         line = re.sub(r' aroun', ' around', line)
         return line
 
