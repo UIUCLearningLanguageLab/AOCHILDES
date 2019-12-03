@@ -7,12 +7,12 @@ import pyprind
 import attr
 import yaml
 import re
+from pathlib import Path
+from typing import List, Optional
 
 from childes import config
 from childes.params import Params
 from childes.config import names_set, COLLOCATIONS
-
-nlp = spacy.load('en_core_web_sm')
 
 col2dtype = {'id': np.int,
              'speaker_role': str,
@@ -52,7 +52,7 @@ class Transcripts:
                            usecols=col2dtype.keys(),
                            dtype=col2dtype)
                for csv_path in sorted(config.Dirs.original.glob('*.csv'))]
-        self.df: pd.DataFrame = pd.concat(dfs)
+        self.df = pd.DataFrame(pd.concat(dfs))
 
         # drop rows
         print('Transcripts: Utterances before dropping rows: {:>8,}'.format(len(self.df)))
@@ -246,6 +246,8 @@ class PostProcessor:
         print('Processor: Processing {} transcripts...'.format(num_transcripts))
         progress_bar = pyprind.ProgBar(num_transcripts)
 
+        nlp = spacy.load('en_core_web_sm')  # do not put in outer scope; might raise un-necessary OSError instead
+
         lines = []
         for doc in nlp.pipe(transcripts, batch_size=batch_size, disable=['tagger', 'parser', 'ner']):
             line = ' '.join([self.handle_titles(word) for word in doc])
@@ -271,19 +273,26 @@ class PostProcessor:
 
         return lines
 
-    def to_file(self, texts, ages, path_to_folder=None, suffix='', dry_run=False):
+    def to_file(self,
+                texts: List[str],
+                ages: List[float],
+                output_dir: Optional[str] = None,
+                suffix: str = ''):
         print('Processor: Writing to disk...')
         date_str = datetime.datetime.now().strftime('%Y%m%d')
         corpus_name = 'childes-{}'.format(date_str)
 
-        if path_to_folder is None:
-            path_to_folder = config.Dirs.corpora
-        if dry_run:
-            path_to_folder = config.Dirs.corpora / 'dry_runs'
+        if output_dir is None:
+            output_path = Path('output')
+        else:
+            output_path = Path(output_dir)
 
-        params_path = path_to_folder / '{}_{}{}.yaml'.format(corpus_name, 'params', suffix)
-        terms_path = path_to_folder / '{}_{}{}.txt'.format(corpus_name, 'terms', suffix)
-        ages_path = path_to_folder / '{}_{}{}.txt'.format(corpus_name, 'ages', suffix)
+        if not output_path.exists():
+            output_path.mkdir()
+
+        params_path = output_path / '{}_{}{}.yaml'.format(corpus_name, 'params', suffix)
+        terms_path = output_path / '{}_{}{}.txt'.format(corpus_name, 'terms', suffix)
+        ages_path = output_path / '{}_{}{}.txt'.format(corpus_name, 'ages', suffix)
 
         f1 = terms_path.open('w', encoding='utf-8')
         f2 = ages_path.open('w', encoding='utf-8')

@@ -20,6 +20,15 @@ from childes.transcripts import Transcripts
 transcripts = Transcripts(sex='m')
 ```
 
+To use an existing corpus, you do not need to install this package. 
+Simply navigate to `/corpora` and download the text file of your choice. 
+Notice, there are four files associated with each corpus:
+* `CORPUS_NAME_params.yaml`: the parameter configuration used to create the corpus
+* `CORPUS_NAME_terms.txt`: line-separated transcripts
+* `CORPUS_NAME_tags.txt`: part-of-speech tags for each transcript provided by `spacy`
+* `CORPUS_NAME_ages.txt`: age of the target-child for each transcript
+
+
 ## Excluded utterances
 
 *  utterances with the unicode symbol '�' are discarded
