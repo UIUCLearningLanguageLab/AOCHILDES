@@ -70,13 +70,17 @@ class Transcripts:
 
     @cached_property
     def age_ordered(self):
+
+        ignore_regex = re.compile(r'(�|www|xxx|yyy)')
+
         res = []
         for age, rows in self.df.groupby('target_child_age'):
             for transcript_id, rows2 in rows.groupby('transcript_id'):
 
                 transcript = ''
                 for gloss, utterance_type in zip(rows2['gloss'], rows['type']):
-                    if '�' in gloss or 'xxx' in gloss or 'www' in gloss:
+                    if ignore_regex.findall(gloss):
+                        print(gloss)
                         continue
                     transcript += gloss
                     if self.params.punctuation:
