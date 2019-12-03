@@ -4,12 +4,11 @@ bad_speaker_roles:
 collection_names:
 - Eng-NA
 distinguish_possessive: false
-handle_spacy_contractions: false
 max_days: 2190
-merge_collocations: false
 min_utterance_length: 1
 normalize_names: false
+normalize_spelling: false
 normalize_titles: false
+prettify_spacy_contractions: false
 punctuation: true
 replace_archaic_words: false
-replace_slang: false

@@ -13,7 +13,7 @@ from typing import List, Optional
 from childes import config
 from childes.normalize import w2w
 from childes.params import Params
-from childes.config import names_set, COLLOCATIONS
+from childes.config import names_set, NAME_COLLOCATIONS
 
 col2dtype = {'id': np.int,
              'speaker_role': str,
@@ -87,7 +87,6 @@ class Transcripts:
                         transcript += punctuation_dict[utterance_type]
 
                 res.append(transcript)
-
                 self._ages.append(age)
 
         return res
@@ -109,12 +108,16 @@ class PostProcessor:
 
     def handle_titles(self, word):
 
-        # replace name
+        if not word.text.istitle():
+            return word.text.lower()
+
+        # name
         if word.text.lower() in names_set and self.params.normalize_names:
+            print(word.text)
             res = config.Symbols.NAME
 
         # replace titled word
-        elif word.text.istitle() and word.text not in {'I', 'Mother'} and self.params.normalize_titles:
+        elif word.text not in {'I', 'Mother'} and self.params.normalize_titles:
             res = config.Symbols.TITLED
 
         else:
@@ -122,8 +125,8 @@ class PostProcessor:
 
         return res
 
-    def replace_slang(self, w):
-        if not self.params.replace_slang:
+    def normalize_spelling(self, w):
+        if not self.params.normalize_spelling:
             return w
 
         try:
@@ -231,12 +234,12 @@ class PostProcessor:
 
         lines = []
         for doc in nlp.pipe(transcripts, batch_size=batch_size, disable=['tagger', 'parser', 'ner']):
-            line = ' '.join([self.replace_slang(self.handle_titles(word)) for word in doc])
+            line = ' '.join([self.normalize_spelling(self.handle_titles(word)) for word in doc])
 
             # co-locations - do this before processing names
-            if self.params.merge_collocations:
-                for w1, w2 in COLLOCATIONS:
-                    line = re.sub(r'({}) ({})'.format(w1, w2), r'\1_\2', line)
+            if self.params.normalize_names:
+                for w1, w2 in NAME_COLLOCATIONS:
+                    line = re.sub(r'({}) ({})'.format(w1, w2), config.Symbols.NAME, line)
 
             # regex substitutions
             line = self.fix_childes_coding(line)
@@ -275,7 +278,6 @@ class PostProcessor:
         f2 = ages_path.open('w', encoding='utf-8')
 
         for line, age in zip(lines, ages):
-            print(line[:10])
             f1.write(line + '\n')
             f2.write(str(age) + '\n')
 

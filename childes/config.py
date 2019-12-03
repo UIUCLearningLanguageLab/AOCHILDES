@@ -14,7 +14,7 @@ class Symbols:
     TITLED = '[TITLED]'
 
 
-COLLOCATIONS = [
+NAME_COLLOCATIONS = [
     ('winnie', 'pooh'),
     ('santa', 'claus'),
     ('nursie', 'nellie'),
@@ -27,7 +27,10 @@ COLLOCATIONS = [
     ('raggedy', 'ann'),
     ('old', 'macdonald'),
     ('old', 'mcdonald'),
+    ('kitty', 'cat'),
 ]
+
+SONG = {'doo', 'dee', 'deedee', 'dadada', 'da', 'la_dee_da_dee_dum'}
 
 
 PEOPLE = {'laura', 'mama', 'sarah', 'william', 'ross', 'adam',
@@ -66,12 +69,13 @@ PEOPLE = {'laura', 'mama', 'sarah', 'william', 'ross', 'adam',
           'gus', 'aunt_carey', 'wanda', 'donny', 'baxter', 'molly', 'larry', 'ian', 'jean',
           'hank', 'betsy', 'avril', 'ais', 'titus', 'tallulah', 'shaun', 'rex', 'pattycake',
           'mel', 'lou', 'gerald', 'aladar', 'shana', 'maryse', 'loi', 'lilly', 'lee', 'gaby',
-          'frannie', 'evan', 'aaron', 'nicholas', 'marissa'}
+          'frannie', 'evan', 'aaron', 'nicholas', 'marissa', 'lil', 'awoh', 'hunhunh', 'ruby',
+          'sue', 'ann_marie', 'didldow', 'yaya', 'hunm', 'mike'}
 
 FAMILY = {'mommy', 'daddy', 'grandma', 'mom', 'dad', 'grandpa', 'papa',
           'mummy', 'momma', 'dada', 'auntie', 'gramma', 'grampa', 'untie',
-          'granny', 'grammy', 'mum', 'nonno', 'babaji', 'dadaji',
-          'grandaddy', 'granma', 'mamma', 'mumma'}
+          'granny', 'grammy', 'mum', 'nonno', 'babaji', 'dadaji', 'badji'
+          'grandaddy', 'granma', 'mamma', 'mumma', 'grampy'}
 
 CHARACTERS = {'dumbo', 'ariel', 'elmo', 'bert', 'winnie', 'winnie_pooh', 'ernie', 'santa', 'santa_claus',
               'robin', 'mickey', 'donald', 'cinderella', 'grover', 'maisy', 'snoopy',
@@ -84,7 +88,8 @@ CHARACTERS = {'dumbo', 'ariel', 'elmo', 'bert', 'winnie', 'winnie_pooh', 'ernie'
               'itsy_bitsy', 'simple_simon', 'popeye', 'goldie', 'dipsy', 'tunky_winky',
               'lincoln', 'lassie', 'old macdonald', 'sully', 'sulley', 'raggedy_ann', 'kermit',
               'grouchy', 'zach', 'zeek', 'willy_wonka', 'pebbles', 'bam_bam', 'raffi', 'donald_duck',
-              'easter_bunny', 'scuffy', 'daffy', 'daffy_duck'}
+              'easter_bunny', 'scuffy', 'daffy', 'daffy_duck', 'big_bird', 'dingo', 'fixit',
+              'gordon', 'percy', 'care_bear'}
 
 names_set = SortedSet()
 names_set.update(CHARACTERS)
