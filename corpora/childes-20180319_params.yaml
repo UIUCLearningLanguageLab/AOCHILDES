@@ -3,8 +3,12 @@ bad_speaker_roles:
 - Child
 collection_names:
 - Eng-NA
-lowercase: true
+handle_spacy_contractions: false
 max_days: 2190
+merge_collocations: false
 min_utterance_length: 1
+normalize_names: false
 normalize_titles: false
 punctuation: true
+replace_archaic_words: false
+replace_slang: false
