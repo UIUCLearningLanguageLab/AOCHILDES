@@ -6,7 +6,9 @@ Importantly, transcripts are always ordered by age of the target child.
 
 ## Usage
 
-To create a text corpus, execute:
+### Creating a corpus file
+
+To create a corpus file:
 
 ```bash
 python3 make_corpus.py
@@ -28,6 +30,13 @@ Notice, there are four files associated with each corpus:
 * `CORPUS_NAME_tags.txt`: part-of-speech tags for each transcript provided by `spacy`
 * `CORPUS_NAME_ages.txt`: age of the target-child for each transcript
 
+### Vocab file
+
+In the terminal:
+
+```bash
+tr ' ' '\12' <corpora/childes-20191203_terms.txt| sort | uniq -c | sort -nr > corpora/childes-20191203_vocab.txt
+```
 
 ## Excluded utterances
 

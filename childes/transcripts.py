@@ -145,48 +145,48 @@ class PostProcessor:
 
     @staticmethod
     def replace_slang(line):
-        line = re.sub(r' lets', ' let us', line)
-        line = re.sub(r' djou', ' do you', line)
-        line = re.sub(r' d\'you', ' do you', line)
-        line = re.sub(r' didjou', ' did you', line)
-        line = re.sub(r' wouldjou', ' would you', line)
-        line = re.sub(r' whadyou', ' what do you', line)
-        line = re.sub(r' whaddya', ' what do you', line)
-        line = re.sub(r' whadya', ' what do you', line)
-        line = re.sub(r' didja', ' did you', line)
-        line = re.sub(r' gimme', ' give me', line)
-        line = re.sub(r' comere', ' come here', line)
-        line = re.sub(r' c\'mere', ' come here', line)
-        line = re.sub(r' cmere', ' come here', line)
-        line = re.sub(r' camere', ' come here', line)
-        line = re.sub(r' c\'mon', ' come on', line)
-        line = re.sub(r' comon', ' come on', line)
-        line = re.sub(r' lookee', ' look', line)
-        line = re.sub(r' looka', ' look', line)
-        line = re.sub(r' mkay', ' okay', line)
-        line = re.sub(r' whyn\'t', ' why do not you', line)
-        line = re.sub(r' ya ', ' you ', line)
-        line = re.sub(r' til ', ' until', line)
-        line = re.sub(r' untill', ' until', line)
-        line = re.sub(r' gon na', ' going to', line)
+        line = re.sub(r' lets ', ' let us ', line)
+        line = re.sub(r' djou ', ' do you ', line)
+        line = re.sub(r' d\'you ', ' do you ', line)
+        line = re.sub(r' didjou ', ' did you ', line)
+        line = re.sub(r' wouldjou ', ' would you ', line)
+        line = re.sub(r' whadyou ', ' what do you ', line)
+        line = re.sub(r' whaddya ', ' what do you ', line)
+        line = re.sub(r' whadya ', ' what do you ', line)
+        line = re.sub(r' didja ', ' did you ', line)
+        line = re.sub(r' gimme ', ' give me ', line)
+        line = re.sub(r' comere ', ' come here ', line)
+        line = re.sub(r' c\'mere ', ' come here ', line)
+        line = re.sub(r' cmere ', ' come here ', line)
+        line = re.sub(r' camere ', ' come here ', line)
+        line = re.sub(r' c\'mon ', ' come on ', line)
+        line = re.sub(r' comon ', ' come on ', line)
+        line = re.sub(r' lookee ', ' look ', line)
+        line = re.sub(r' looka ', ' look ', line)
+        line = re.sub(r' mkay ', ' okay ', line)
+        line = re.sub(r' whyn\'t ', ' why do not you ', line)
+        line = re.sub(r' ya ', ' you  ', line)
+        line = re.sub(r' til ', ' until ', line)
+        line = re.sub(r' untill ', ' until ', line)
+        line = re.sub(r' gon na ', ' going to ', line)
         line = re.sub(r' goin ', ' going ', line)
-        line = re.sub(r' havta', ' have to', line)
-        line = re.sub(r' oughta', ' ought to', line)
-        line = re.sub(r' d\'ya', ' do you', line)
+        line = re.sub(r' havta ', ' have to ', line)
+        line = re.sub(r' oughta ', ' ought to ', line)
+        line = re.sub(r' d\'ya ', ' do you ', line)
         line = re.sub(r' doin ', ' doing ', line)
-        line = re.sub(r' cann\'t', ' can not', line)
-        line = re.sub(r' dontcha', ' do not you', line)
-        line = re.sub(r' getcha', ' get you', line)
-        line = re.sub(r' howbout', ' how about', line)
+        line = re.sub(r' cann\'t ', ' can not ', line)
+        line = re.sub(r' dontcha ', ' do not you ', line)
+        line = re.sub(r' getcha ', ' get you ', line)
+        line = re.sub(r' howbout ', ' how about ', line)
         line = re.sub(r' scuse ', ' excuse ', line)
-        line = re.sub(r' y\'know', ' you know', line)
-        line = re.sub(r' ai n\'t', ' is not', line)
-        line = re.sub(r' \'cause', ' because', line)
-        line = re.sub(r' s\'more', ' some more', line)
-        line = re.sub(r' got_to', ' got to', line)
-        line = re.sub(r' got ta', ' got to', line)
-        line = re.sub(r' aroun', ' around', line)
-        line = re.sub(r' what s', ' what is', line)
+        line = re.sub(r' y\'know ', ' you know ', line)
+        line = re.sub(r' ai n\'t ', ' is not ', line)
+        line = re.sub(r' \'cause ', ' because ', line)
+        line = re.sub(r' s\'more ', ' some more ', line)
+        line = re.sub(r' got_to ', ' got to ', line)
+        line = re.sub(r' got ta ', ' got to ', line)
+        line = re.sub(r' aroun ', ' around ', line)
+        line = re.sub(r' what s ', ' what is ', line)
         return line
 
     @staticmethod
@@ -206,21 +206,21 @@ class PostProcessor:
         """
 
         # 's VERBing -> is VERBing
-        line = re.sub(r'(\s|^)let \'s going to go', ' let us go', line)  # happens to end in -ing
-        line = re.sub(r'(\s|^)let \'s bring', r' let us bring', line)  # happens to end in -ing
-        line = re.sub(r'(\s|^)let \'s sing', r' let us sing', line)  # happens to end in -ing
-        line = re.sub(r' \'s ([A-z]+?)ing', r' is \1ing', line)
+        line = re.sub(r'(\s|^)let \'s going to go ', ' let us go ', line)  # happens to end in -ing
+        line = re.sub(r'(\s|^)let \'s bring ', r' let us bring ', line)  # happens to end in -ing
+        line = re.sub(r'(\s|^)let \'s sing ', r' let us sing ', line)  # happens to end in -ing
+        line = re.sub(r' \'s ([A-z]+?)ing ', r' is \1ing ', line)
 
         # contractions
-        line = re.sub(r'(\s|^)let \'s', ' let us', line)
-        line = re.sub(r' \'s got', ' has got', line)
-        line = re.sub(r' \'m', ' am', line)
-        line = re.sub(r' \'re', ' are', line)
-        line = re.sub(r' \'ll', ' will', line)
-        line = re.sub(r' \'d', ' would', line)
-        line = re.sub(r' \'ve', ' have', line)
-        line = re.sub(r' \'em', ' them', line)
-        line = re.sub(r' n\'t', ' not', line)
+        line = re.sub(r'(\s|^)let \'s ', ' let us ', line)
+        line = re.sub(r' \'s got ', ' has got ', line)
+        line = re.sub(r' \'m ', ' am ', line)
+        line = re.sub(r' \'re ', ' are ', line)
+        line = re.sub(r' \'ll ', ' will ', line)
+        line = re.sub(r' \'d ', ' would ', line)
+        line = re.sub(r' \'ve ', ' have ', line)
+        line = re.sub(r' \'em ', ' them ', line)
+        line = re.sub(r' n\'t ', ' not ', line)
 
         return line
 
@@ -239,11 +239,11 @@ class PostProcessor:
         """
 
         # possessive "'s"
-        line = re.sub(r'\[NAME\] \'s', '[NAME] [POSSESSIVE]', line)
-        line = re.sub(r'\[NAME\] \'', '[NAME] [POSSESSIVE]', line)  # in case a name ends with an "s"
+        line = re.sub(r' \[NAME\] \'s ', ' [NAME] [POSSESSIVE] ', line)
+        line = re.sub(r' \[NAME\] \' ', ' [NAME] [POSSESSIVE] ', line)  # in case a name ends with an "s"
 
         # all other "'s" should originate from "is"
-        line = re.sub(r' \'s', ' is', line)
+        line = re.sub(r' \'s ', ' is ', line)
 
         # TODO this does not correctly handle case where "'s" is supposed to be "is", as in:
         # TODO  "your mommy's thirty eight" -> "your [NAME] [POSSESSIVE] thirty eight"
