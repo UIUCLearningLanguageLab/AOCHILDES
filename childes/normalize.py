@@ -21,7 +21,7 @@ w2w = {
 	'looka': 'look',
 	'mkay': 'okay',
 	'whyn\'t': 'why do not you',
-	'ya': 'you ',
+	'ya': 'you',
 	'til': 'until',
 	'untill': 'until',
 	'gon na': 'going to',
