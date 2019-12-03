@@ -186,6 +186,7 @@ class PostProcessor:
         line = re.sub(r' got_to', ' got to', line)
         line = re.sub(r' got ta', ' got to', line)
         line = re.sub(r' aroun', ' around', line)
+        line = re.sub(r' what s', ' what is', line)
         return line
 
     @staticmethod
@@ -196,13 +197,6 @@ class PostProcessor:
         whitespace-separated from tokens like "he".
         in order to use an SRL tagger, non-English tokens must be converted into English words.
         for example, "'ll" must be converted into "will".
-
-        extra care is taken with the token "'s" because it can either be "is" or "us", depending on context.
-
-        a possessive marker, like [POSS] is not introduced, as that is not how children experience English.
-        hearing a sentence like "mommy's _", a child does not know if this is a possessive construction,
-        or whether a verb will follow.
-        thus, the corpus should not provide this additional information about what words come next.
 
         the regex "(\s|^)let" is used so that "let" is matched at beginning of transcript and
         anywhere inside of transcript but not as part of a larger word ending in "let"
@@ -225,15 +219,30 @@ class PostProcessor:
         line = re.sub(r' \'em', ' them', line)
         line = re.sub(r' n\'t', ' not', line)
 
+        return line
+
+    @staticmethod
+    def distinguish_possessive(line):
+        """
+        the token "'s" is difficult to handle because it can either be "is" or "us", depending on context.
+
+        ideally, a possessive marker, like [POSS] should not be added, as that is not how children experience English.
+        hearing a utterance start like "mommy's _", a child does not know if this is a possessive construction,
+        or whether a verb will follow.
+        moreover, it is impossible, using substitution rules to perfectly distinguish between the two usages of "'s".
+        still, this function is useful when it is desirable to distinguish between the different semantics of
+        the possessive "'s" and the contraction of "is".
+        """
+
         # possessive "'s"
-        line = re.sub(r'\[NAME\] \'s', '[NAME_POSSESSIVE]', line)
-        line = re.sub(r'\[NAME\] \'', '[NAME_POSSESSIVE]', line)  # in case a name ends with an "s"
+        line = re.sub(r'\[NAME\] \'s', '[NAME] [POSSESSIVE]', line)
+        line = re.sub(r'\[NAME\] \'', '[NAME] [POSSESSIVE]', line)  # in case a name ends with an "s"
 
         # all other "'s" should originate from "is"
         line = re.sub(r' \'s', ' is', line)
 
         # TODO this does not correctly handle case where "'s" is supposed to be "is", as in:
-        # TODO  "your mommy's thirty eight" -> "your [NAME_POSSESSIVE] thirty eight"
+        # TODO  "your mommy's thirty eight" -> "your [NAME] [POSSESSIVE] thirty eight"
 
         return line
 
@@ -264,6 +273,7 @@ class PostProcessor:
             line = self.replace_archaic_words(line) if self.params.replace_archaic_words else line
             line = self.replace_slang(line) if self.params.replace_slang else line
             line = self.handle_spacy_contractions(line) if self.params.handle_spacy_contractions else line
+            line = self.distinguish_possessive(line) if self.params.distinguish_possessive else line
 
             if ' let is ' in line:
                 print(line)
@@ -275,7 +285,7 @@ class PostProcessor:
         return lines
 
     def to_file(self,
-                texts: List[str],
+                lines: List[str],
                 ages: List[float],
                 output_dir: Optional[str] = None,
                 suffix: str = ''):
@@ -284,7 +294,7 @@ class PostProcessor:
         corpus_name = 'childes-{}'.format(date_str)
 
         if output_dir is None:
-            output_path = Path('output')
+            output_path = config.Dirs.corpora
         else:
             output_path = Path(output_dir)
 
@@ -298,8 +308,9 @@ class PostProcessor:
         f1 = terms_path.open('w', encoding='utf-8')
         f2 = ages_path.open('w', encoding='utf-8')
 
-        for text, age in zip(texts, ages):
-            f1.write(text + '\n')
+        for line, age in zip(lines, ages):
+            print(line[:10])
+            f1.write(line + '\n')
             f2.write(str(age) + '\n')
 
         f1.close()

@@ -3,6 +3,7 @@ bad_speaker_roles:
 - Child
 collection_names:
 - Eng-NA
+distinguish_possessive: false
 handle_spacy_contractions: false
 max_days: 2190
 merge_collocations: false

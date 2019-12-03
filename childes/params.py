@@ -15,3 +15,4 @@ class Params:
     replace_archaic_words = attr.ib(default=True)
     replace_slang = attr.ib(default=True)
     handle_spacy_contractions = attr.ib(default=True)
+    distinguish_possessive = attr.ib(default=False)
