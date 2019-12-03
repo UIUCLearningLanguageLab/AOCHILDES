@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from childes import config
+from childes.normalize import w2w
 from childes.params import Params
 from childes.config import names_set, COLLOCATIONS
 
@@ -80,7 +81,6 @@ class Transcripts:
                 transcript = ''
                 for gloss, utterance_type in zip(rows2['gloss'], rows['type']):
                     if ignore_regex.findall(gloss):
-                        print(gloss)
                         continue
                     transcript += gloss
                     if self.params.punctuation:
@@ -122,6 +122,15 @@ class PostProcessor:
 
         return res
 
+    def replace_slang(self, w):
+        if not self.params.replace_slang:
+            return w
+
+        try:
+            return w2w[w]
+        except KeyError:
+            return w
+
     @staticmethod
     def fix_childes_coding(line):
         line = re.sub(r' chi chi ', ' child ', line)
@@ -145,52 +154,6 @@ class PostProcessor:
     @staticmethod
     def replace_archaic_words(line):
         line = re.sub(r' oatios', ' oats', line)
-        return line
-
-    @staticmethod
-    def replace_slang(line):
-        line = re.sub(r' lets ', ' let us ', line)
-        line = re.sub(r' djou ', ' do you ', line)
-        line = re.sub(r' d\'you ', ' do you ', line)
-        line = re.sub(r' didjou ', ' did you ', line)
-        line = re.sub(r' wouldjou ', ' would you ', line)
-        line = re.sub(r' whadyou ', ' what do you ', line)
-        line = re.sub(r' whaddya ', ' what do you ', line)
-        line = re.sub(r' whadya ', ' what do you ', line)
-        line = re.sub(r' didja ', ' did you ', line)
-        line = re.sub(r' gimme ', ' give me ', line)
-        line = re.sub(r' comere ', ' come here ', line)
-        line = re.sub(r' c\'mere ', ' come here ', line)
-        line = re.sub(r' cmere ', ' come here ', line)
-        line = re.sub(r' camere ', ' come here ', line)
-        line = re.sub(r' c\'mon ', ' come on ', line)
-        line = re.sub(r' comon ', ' come on ', line)
-        line = re.sub(r' lookee ', ' look ', line)
-        line = re.sub(r' looka ', ' look ', line)
-        line = re.sub(r' mkay ', ' okay ', line)
-        line = re.sub(r' whyn\'t ', ' why do not you ', line)
-        line = re.sub(r' ya ', ' you  ', line)
-        line = re.sub(r' til ', ' until ', line)
-        line = re.sub(r' untill ', ' until ', line)
-        line = re.sub(r' gon na ', ' going to ', line)
-        line = re.sub(r' goin ', ' going ', line)
-        line = re.sub(r' havta ', ' have to ', line)
-        line = re.sub(r' oughta ', ' ought to ', line)
-        line = re.sub(r' d\'ya ', ' do you ', line)
-        line = re.sub(r' doin ', ' doing ', line)
-        line = re.sub(r' cann\'t ', ' can not ', line)
-        line = re.sub(r' dontcha ', ' do not you ', line)
-        line = re.sub(r' getcha ', ' get you ', line)
-        line = re.sub(r' howbout ', ' how about ', line)
-        line = re.sub(r' scuse ', ' excuse ', line)
-        line = re.sub(r' y\'know ', ' you know ', line)
-        line = re.sub(r' ai n\'t ', ' is not ', line)
-        line = re.sub(r' \'cause ', ' because ', line)
-        line = re.sub(r' s\'more ', ' some more ', line)
-        line = re.sub(r' got_to ', ' got to ', line)
-        line = re.sub(r' got ta ', ' got to ', line)
-        line = re.sub(r' aroun ', ' around ', line)
-        line = re.sub(r' what s ', ' what is ', line)
         return line
 
     @staticmethod
@@ -268,7 +231,7 @@ class PostProcessor:
 
         lines = []
         for doc in nlp.pipe(transcripts, batch_size=batch_size, disable=['tagger', 'parser', 'ner']):
-            line = ' '.join([self.handle_titles(word) for word in doc])
+            line = ' '.join([self.replace_slang(self.handle_titles(word)) for word in doc])
 
             # co-locations - do this before processing names
             if self.params.merge_collocations:
@@ -279,13 +242,8 @@ class PostProcessor:
             line = self.fix_childes_coding(line)
             line = self.fix_spacy_tokenization(line)
             line = self.replace_archaic_words(line) if self.params.replace_archaic_words else line
-            line = self.replace_slang(line) if self.params.replace_slang else line
             line = self.prettify_spacy_contractions(line) if self.params.prettify_spacy_contractions else line
             line = self.distinguish_possessive(line) if self.params.distinguish_possessive else line
-
-            if ' let is ' in line:
-                print(line)
-                raise SystemError('Found disallowed substring in processed transcript')
 
             lines.append(line)
             progress_bar.update()
