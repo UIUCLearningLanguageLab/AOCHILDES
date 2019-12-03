@@ -14,5 +14,5 @@ class Params:
     merge_collocations = attr.ib(default=True)
     replace_archaic_words = attr.ib(default=True)
     replace_slang = attr.ib(default=True)
-    handle_spacy_contractions = attr.ib(default=True)
+    prettify_spacy_contractions = attr.ib(default=False)
     distinguish_possessive = attr.ib(default=False)

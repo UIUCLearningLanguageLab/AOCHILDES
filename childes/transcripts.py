@@ -190,13 +190,16 @@ class PostProcessor:
         return line
 
     @staticmethod
-    def handle_spacy_contractions(line):
+    def prettify_spacy_contractions(line):
         """
         the input is a string from the spacy tokenizer.
         The spacy default tokenizer splits on contractions, meaning that tokens like "'ll" are
         whitespace-separated from tokens like "he".
-        in order to use an SRL tagger, non-English tokens must be converted into English words.
-        for example, "'ll" must be converted into "will".
+
+        this may be useful when using corpus as input to some system expecting valid English tokens.
+        however, some newer tools, like Allen AI NLP toolkit natively handles spacy tokens.
+        e.g. the Allen AI srl tagger can be used without calling this function.
+        in fact, it appears to perform better if this function is not called.
 
         the regex "(\s|^)let" is used so that "let" is matched at beginning of transcript and
         anywhere inside of transcript but not as part of a larger word ending in "let"
@@ -224,10 +227,11 @@ class PostProcessor:
     @staticmethod
     def distinguish_possessive(line):
         """
-        the token "'s" is difficult to handle because it can either be "is" or "us", depending on context.
+        the token "'s" is difficult to handle because it can either be "is" or "us", or possessive,
+        depending on context.
 
         ideally, a possessive marker, like [POSS] should not be added, as that is not how children experience English.
-        hearing a utterance start like "mommy's _", a child does not know if this is a possessive construction,
+        hearing an utterance start like "mommy's _", a child does not know if this is a possessive construction,
         or whether a verb will follow.
         moreover, it is impossible, using substitution rules to perfectly distinguish between the two usages of "'s".
         still, this function is useful when it is desirable to distinguish between the different semantics of
@@ -244,7 +248,7 @@ class PostProcessor:
         # TODO this does not correctly handle case where "'s" is supposed to be "is", as in:
         # TODO  "your mommy's thirty eight" -> "your [NAME] [POSSESSIVE] thirty eight"
 
-        return line
+        raise NotImplementedError('Distinguishing possessive marker would require parsing')
 
     def process(self, transcripts, batch_size=100):
         """
@@ -272,7 +276,7 @@ class PostProcessor:
             line = self.fix_spacy_tokenization(line)
             line = self.replace_archaic_words(line) if self.params.replace_archaic_words else line
             line = self.replace_slang(line) if self.params.replace_slang else line
-            line = self.handle_spacy_contractions(line) if self.params.handle_spacy_contractions else line
+            line = self.prettify_spacy_contractions(line) if self.params.prettify_spacy_contractions else line
             line = self.distinguish_possessive(line) if self.params.distinguish_possessive else line
 
             if ' let is ' in line:
