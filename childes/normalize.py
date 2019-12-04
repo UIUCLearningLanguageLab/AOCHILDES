@@ -88,10 +88,6 @@ w2w = {
 	'potatoe': 'potato',
 	'potatoes': 'potatos',
 
-	# names to be converted to NAME symbol - each sub-word must be title-cased
-
-
-
 	# diminutive
 	'doggy': 'doggie',
 	'puppys': 'puppies',

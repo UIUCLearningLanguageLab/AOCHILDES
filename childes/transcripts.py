@@ -111,7 +111,7 @@ class PostProcessor:
     def normalize(self, w):
         # spelling
         if self.params.normalize_spelling and w.lower_ in w2w:
-            res = w2w[w.lower_]
+            return w2w[w.lower_]
 
         if w.is_title:
             # names
