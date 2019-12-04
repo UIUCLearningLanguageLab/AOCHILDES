@@ -13,8 +13,8 @@ from typing import List, Optional
 from childes import config
 from childes.normalize import w2w
 from childes.params import Params
-from childes.config import names_set, places_set
-from childes.config import NAME_COLLOCATIONS, PLACE_COLLOCATIONS
+from childes.mergers import PersonMerger, PlacesMerger
+
 
 col2dtype = {'id': np.int,
              'speaker_role': str,
@@ -110,27 +110,28 @@ class PostProcessor:
 
     def normalize(self, w):
         # spelling
-        if self.params.normalize_spelling and w.lower() in w2w:
-            w = w2w[w.lower()]
+        if self.params.normalize_spelling and w.lower_ in w2w:
+            res = w2w[w.lower_]
 
-        if w.istitle():
+        if w.is_title:
             # names
-            if w.lower() in names_set and self.params.normalize_names:
-                w = config.Symbols.NAME
+            if w._.is_person and self.params.normalize_persons:
+                res = config.Symbols.NAME
             # places
-            elif w.lower() in places_set and self.params.normalize_places:
-                w = config.Symbols.PLACE
+            elif w._.is_place and self.params.normalize_places:
+                res = config.Symbols.PLACE
+            else:
+                res = w.text
         else:
-            w = w.lower()
+            res = w.lower_
 
-        return w  # don't lowercase here otherwise symbols are affected
+        return res  # don't lowercase here otherwise symbols are affected
 
     @staticmethod
     def fix_childes_coding(line):
-        line = re.sub(r' chi chi ', ' child ', line)
-        line = re.sub(r' chi ', ' child ', line)
-        line = re.sub(r' mot ', ' mother ', line)
-        line = re.sub(r' fat ', ' father ', line)
+        line = re.sub(r' Chi ', f' {config.Symbols.NAME} ', line)
+        line = re.sub(r' Mot ', f' {config.Symbols.NAME} ', line)
+        line = re.sub(r' Fat ', f' {config.Symbols.NAME} ', line)
         return line
 
     @staticmethod
@@ -151,67 +152,6 @@ class PostProcessor:
         line = re.sub(r' oatios', ' oats', line)
         return line
 
-    @staticmethod
-    def prettify_spacy_contractions(line):
-        """
-        the input is a string from the spacy tokenizer.
-        The spacy default tokenizer splits on contractions, meaning that tokens like "'ll" are
-        whitespace-separated from tokens like "he".
-
-        this may be useful when using corpus as input to some system expecting valid English tokens.
-        however, some newer tools, like Allen AI NLP toolkit natively handles spacy tokens.
-        e.g. the Allen AI srl tagger can be used without calling this function.
-        in fact, it appears to perform better if this function is not called.
-
-        the regex "(\s|^)let" is used so that "let" is matched at beginning of transcript and
-        anywhere inside of transcript but not as part of a larger word ending in "let"
-        """
-
-        # 's VERBing -> is VERBing
-        line = re.sub(r'(\s|^)let \'s going to go ', ' let us go ', line)  # happens to end in -ing
-        line = re.sub(r'(\s|^)let \'s bring ', r' let us bring ', line)  # happens to end in -ing
-        line = re.sub(r'(\s|^)let \'s sing ', r' let us sing ', line)  # happens to end in -ing
-        line = re.sub(r' \'s ([A-z]+?)ing ', r' is \1ing ', line)
-
-        # contractions
-        line = re.sub(r'(\s|^)let \'s ', ' let us ', line)
-        line = re.sub(r' \'s got ', ' has got ', line)
-        line = re.sub(r' \'m ', ' am ', line)
-        line = re.sub(r' \'re ', ' are ', line)
-        line = re.sub(r' \'ll ', ' will ', line)
-        line = re.sub(r' \'d ', ' would ', line)
-        line = re.sub(r' \'ve ', ' have ', line)
-        line = re.sub(r' \'em ', ' them ', line)
-        line = re.sub(r' n\'t ', ' not ', line)
-
-        return line
-
-    @staticmethod
-    def distinguish_possessive(line):
-        """
-        the token "'s" is difficult to handle because it can either be "is" or "us", or possessive,
-        depending on context.
-
-        ideally, a possessive marker, like [POSS] should not be added, as that is not how children experience English.
-        hearing an utterance start like "mommy's _", a child does not know if this is a possessive construction,
-        or whether a verb will follow.
-        moreover, it is impossible, using substitution rules to perfectly distinguish between the two usages of "'s".
-        still, this function is useful when it is desirable to distinguish between the different semantics of
-        the possessive "'s" and the contraction of "is".
-        """
-
-        # possessive "'s"
-        line = re.sub(r' \[NAME\] \'s ', ' [NAME] [POSSESSIVE] ', line)
-        line = re.sub(r' \[NAME\] \' ', ' [NAME] [POSSESSIVE] ', line)  # in case a name ends with an "s"
-
-        # all other "'s" should originate from "is"
-        line = re.sub(r' \'s ', ' is ', line)
-
-        # TODO this does not correctly handle case where "'s" is supposed to be "is", as in:
-        # TODO  "your mommy's thirty eight" -> "your [NAME] [POSSESSIVE] thirty eight"
-
-        raise NotImplementedError('Distinguishing possessive marker would require parsing')
-
     def process(self, transcripts, batch_size=100):
         """
         input is a list of unprocessed transcripts (each transcript is a string).
@@ -223,28 +163,21 @@ class PostProcessor:
         progress_bar = pyprind.ProgBar(num_transcripts)
 
         nlp = spacy.load('en_core_web_sm')  # do not put in outer scope; might raise un-necessary OSError instead
+        person_merger = PersonMerger(nlp)
+        places_merger = PlacesMerger(nlp)
+        nlp.add_pipe(person_merger, last=True)
+        nlp.add_pipe(places_merger, last=True)
 
         lines = []
         for doc in nlp.pipe(transcripts, batch_size=batch_size, disable=['tagger', 'parser', 'ner']):
-            line = ' '.join([self.normalize(word.text) for word in doc])
+            line = ' '.join([self.normalize(word) for word in doc])
 
-            # co-locations - # TODO should happen BEFORE normalization - use spacy rule?
-            if self.params.normalize_names:
-                for ws in NAME_COLLOCATIONS:
-                    pattern = ' '.join(ws)
-                    line = re.sub(pattern, config.Symbols.NAME, line, flags=re.IGNORECASE)
-            if self.params.normalize_places:
-                for ws in PLACE_COLLOCATIONS:
-                    pattern = ' '.join(ws)
-                    line = re.sub(pattern, config.Symbols.NAME, line, flags=re.IGNORECASE)
-
-            # regex substitutions
+            # some small fixes
             line = self.fix_childes_coding(line)
             line = self.fix_spacy_tokenization(line)
             line = self.replace_archaic_words(line) if self.params.replace_archaic_words else line
-            line = self.prettify_spacy_contractions(line) if self.params.prettify_spacy_contractions else line
-            line = self.distinguish_possessive(line) if self.params.distinguish_possessive else line
 
+            print(line)
             lines.append(line)
             progress_bar.update()
 
