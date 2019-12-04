@@ -8,9 +8,9 @@ class Params:
     bad_speaker_roles = attr.ib(default=['Target_Child', 'Child'])
     min_utterance_length = attr.ib(default=1)
     punctuation = attr.ib(default=True)
+    exclude_unknown_utterances = attr.ib(default=True)
 
     normalize_persons = attr.ib(default=True)
     normalize_places = attr.ib(default=True)
-
-    replace_archaic_words = attr.ib(default=True)
+    normalize_misc = attr.ib(default=True)
     normalize_spelling = attr.ib(default=True)

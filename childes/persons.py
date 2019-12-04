@@ -1,8 +1,15 @@
 
 
 FICTIONAL = {
+    'toot',
+    'puddle',
+    'little engine',
+    'little bear',
+    'little bird',
+    'red riding hood',
+    'stuart little',
+    'little foot',
     'yogi bear'
-    'winnie pooh',
     'santa claus',
     'nursie nellie',
     'tunky winky',
@@ -62,7 +69,8 @@ FICTIONAL = {
     'leo',
     'goofy',
     'tigger',
-    'minnie',
+    'minnie mouse',
+    'minney mouse',
     'dora',
     'mcdonald',
     'nemo',
@@ -131,7 +139,24 @@ FICTIONAL = {
     'elmer',
     'coco',
     'alouette',
+    'floppy,'
+    'bear'
+    'care bear',
+    'brother bear',
     'winnie_the_pooh',
+    'winnie pooh',
+    'winnie',
+    'pooh'
+    'winnie_pooh',
+    'pooh bear'
+    'winnie_the_pooh',
+    'potato_head',
+    'potatohead',
+    'potato+head',
+    'mister_potatohead',
+    'mister_potato_head',
+    'mr_potatohead',
+    'mister_potato',
     'piglet',
     'otto',
     'noah',
@@ -143,6 +168,8 @@ FICTIONAL = {
     'charlotte',
     'mr_potato_head',
     'snow_white',
+    'snow white',
+    'ivory snow',
     'rafiki',
     'lola',
     'benjamin',
@@ -155,15 +182,21 @@ FICTIONAL = {
     'skywalker',
     'flintstones',
     'topham_hatt'
-}
-
-REAL = {
     'bruno',
     'bruno bear',
     'bangus',
     'bangus bear',
+    'big bird'
+}
+
+NICKNAMES = {
+    'honey',
+}
+
+REAL = {
+    'daisy'
+    'patsy'
     'ernest'
-    'uncle ernest'
     'laura',
     'mama',
     'sarah',
@@ -450,13 +483,16 @@ REAL = {
     'lee',
     'gaby',
     'frannie',
+    'weener',
+    'brown',
+    'baaee',
+    'boo',
     'evan',
     'aaron',
     'nicholas',
     'marissa',
     'lil',
     'awoh',
-    'hunhunh',
     'ruby',
     'sue',
     'ann_marie',
@@ -543,16 +579,6 @@ FAMILY = {
     'granddad',
     'aunt',
     'uncle',
-    'winnie',
-    'winnie_pooh',
-    'winnie_the_pooh',
-    'potato_head',
-    'potatohead',
-    'potato+head',
-    'mister_potatohead',
-    'mister_potato_head',
-    'mr_potatohead',
-    'mister_potato',
     'mommy',
     'momma',
     'mom',

@@ -11,5 +11,6 @@ class Dirs:
 class Symbols:
     NAME = '[NAME]'
     PLACE = '[PLACE]'
+    MISC = '[MISC]'
 
 

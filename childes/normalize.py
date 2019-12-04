@@ -48,6 +48,7 @@ w2w = {
 	'lookee': 'look',
 	'looka': 'look',
 	'lookit': 'look',
+	'look_it': 'look',
 	'mkay': 'okay',
 	'mmkay': 'okay',
 	'mm+kay': 'okay',
@@ -60,6 +61,7 @@ w2w = {
 	'scuse': 'excuse',
 	'play+dough': 'play_doh',
 	'playdoh': 'play_doh',
+	'play_doh': 'play_doh',  # in case actual word is upper-cased
 	'ninight': 'night+night',
 	'whad': 'what',
 	'bandaid': 'band_aid',

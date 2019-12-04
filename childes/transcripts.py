@@ -13,7 +13,7 @@ from typing import List, Optional
 from childes import config
 from childes.normalize import w2w
 from childes.params import Params
-from childes.mergers import PersonMerger, PlacesMerger
+from childes.mergers import PersonMerger, PlacesMerger, MiscMerger
 
 
 col2dtype = {'id': np.int,
@@ -81,8 +81,9 @@ class Transcripts:
 
                 transcript = ''
                 for gloss, utterance_type in zip(rows2['gloss'], rows['type']):
-                    if ignore_regex.findall(gloss):
-                        continue
+                    if self.params.exclude_unknown_utterances:
+                        if ignore_regex.findall(gloss):
+                            continue
 
                     transcript += gloss
                     if self.params.punctuation:
@@ -115,11 +116,13 @@ class PostProcessor:
 
         # persons
         if w._.is_person and self.params.normalize_persons:
-            print(w.lower_)
             res = config.Symbols.NAME
         # places
         elif w._.is_place and self.params.normalize_places:
             res = config.Symbols.PLACE
+        # miscellaneous
+        elif w._.is_misc and self.params.normalize_misc:
+            res = config.Symbols.MISC
         else:
             res = w.text
 
@@ -145,11 +148,6 @@ class PostProcessor:
         line = re.sub(r' let \'s looking', r' let us look', line)
         return line
 
-    @staticmethod
-    def replace_archaic_words(line):
-        line = re.sub(r' oatios', ' oats', line)
-        return line
-
     def process(self, transcripts, batch_size=100):
         """
         input is a list of unprocessed transcripts (each transcript is a string).
@@ -163,8 +161,10 @@ class PostProcessor:
         nlp = spacy.load('en_core_web_sm')  # do not put in outer scope; might raise un-necessary OSError instead
         person_merger = PersonMerger(nlp)
         places_merger = PlacesMerger(nlp)
+        misc_merger = MiscMerger(nlp)
         nlp.add_pipe(person_merger, last=True)
         nlp.add_pipe(places_merger, last=True)
+        nlp.add_pipe(misc_merger, last=True)
 
         lines = []
         for doc in nlp.pipe(transcripts, batch_size=batch_size, disable=['tagger', 'parser', 'ner']):
@@ -173,7 +173,6 @@ class PostProcessor:
             # some small fixes
             line = self.fix_childes_coding(line)
             line = self.fix_spacy_tokenization(line)
-            line = self.replace_archaic_words(line) if self.params.replace_archaic_words else line
 
             lines.append(line)
             progress_bar.update()

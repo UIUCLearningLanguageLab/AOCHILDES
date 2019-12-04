@@ -3,12 +3,11 @@ bad_speaker_roles:
 - Child
 collection_names:
 - Eng-NA
-distinguish_possessive: false
+exclude_unknown_utterances: false
 max_days: 2190
 min_utterance_length: 1
-normalize_names: false
+normalize_misc: false
+normalize_persons: false
+normalize_places: false
 normalize_spelling: false
-normalize_titles: false
-prettify_spacy_contractions: false
 punctuation: true
-replace_archaic_words: false
