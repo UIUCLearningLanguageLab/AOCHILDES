@@ -7,9 +7,10 @@ class Params:
     collection_names = attr.ib(default=['Eng-NA'])
     bad_speaker_roles = attr.ib(default=['Target_Child', 'Child'])
     min_utterance_length = attr.ib(default=1)
-    normalize_names = attr.ib(default=True)
-    normalize_titles = attr.ib(default=False)
     punctuation = attr.ib(default=True)
+
+    normalize_names = attr.ib(default=True)
+    normalize_places = attr.ib(default=True)
 
     replace_archaic_words = attr.ib(default=True)
     normalize_spelling = attr.ib(default=True)

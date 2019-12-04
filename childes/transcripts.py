@@ -13,7 +13,8 @@ from typing import List, Optional
 from childes import config
 from childes.normalize import w2w
 from childes.params import Params
-from childes.config import names_set, NAME_COLLOCATIONS
+from childes.config import names_set, places_set
+from childes.config import NAME_COLLOCATIONS, PLACE_COLLOCATIONS
 
 col2dtype = {'id': np.int,
              'speaker_role': str,
@@ -82,6 +83,7 @@ class Transcripts:
                 for gloss, utterance_type in zip(rows2['gloss'], rows['type']):
                     if ignore_regex.findall(gloss):
                         continue
+
                     transcript += gloss
                     if self.params.punctuation:
                         transcript += punctuation_dict[utterance_type]
@@ -106,33 +108,22 @@ class PostProcessor:
         self.params = params or Params()
         self.verbose = verbose
 
-    def handle_titles(self, word):
+    def normalize(self, w):
+        # spelling
+        if self.params.normalize_spelling and w.lower() in w2w:
+            w = w2w[w.lower()]
 
-        if not word.text.istitle():
-            return word.text.lower()
-
-        # name
-        if word.text.lower() in names_set and self.params.normalize_names:
-            print(word.text)
-            res = config.Symbols.NAME
-
-        # replace titled word
-        elif word.text not in {'I', 'Mother'} and self.params.normalize_titles:
-            res = config.Symbols.TITLED
-
+        if w.istitle():
+            # names
+            if w.lower() in names_set and self.params.normalize_names:
+                w = config.Symbols.NAME
+            # places
+            elif w.lower() in places_set and self.params.normalize_places:
+                w = config.Symbols.PLACE
         else:
-            res = word.text.lower()
+            w = w.lower()
 
-        return res
-
-    def normalize_spelling(self, w):
-        if not self.params.normalize_spelling:
-            return w
-
-        try:
-            return w2w[w]
-        except KeyError:
-            return w
+        return w  # don't lowercase here otherwise symbols are affected
 
     @staticmethod
     def fix_childes_coding(line):
@@ -149,6 +140,7 @@ class PostProcessor:
         line = re.sub(r'guy \'s', 'guys', line)
         line = re.sub(r'mommy\'ll', 'mommy will', line)
         line = re.sub(r'daddy\'ll', 'mommy will', line)
+        line = re.sub(r'this\'ll', 'this will', line)
         line = re.sub(r'cann\'t', 'can not', line)
         line = re.sub(r' let \'s building', r' let us build', line)
         line = re.sub(r' let \'s looking', r' let us look', line)
@@ -234,12 +226,17 @@ class PostProcessor:
 
         lines = []
         for doc in nlp.pipe(transcripts, batch_size=batch_size, disable=['tagger', 'parser', 'ner']):
-            line = ' '.join([self.normalize_spelling(self.handle_titles(word)) for word in doc])
+            line = ' '.join([self.normalize(word.text) for word in doc])
 
-            # co-locations - do this before processing names
+            # co-locations - # TODO should happen BEFORE normalization - use spacy rule?
             if self.params.normalize_names:
-                for w1, w2 in NAME_COLLOCATIONS:
-                    line = re.sub(r'({}) ({})'.format(w1, w2), config.Symbols.NAME, line)
+                for ws in NAME_COLLOCATIONS:
+                    pattern = ' '.join(ws)
+                    line = re.sub(pattern, config.Symbols.NAME, line, flags=re.IGNORECASE)
+            if self.params.normalize_places:
+                for ws in PLACE_COLLOCATIONS:
+                    pattern = ' '.join(ws)
+                    line = re.sub(pattern, config.Symbols.NAME, line, flags=re.IGNORECASE)
 
             # regex substitutions
             line = self.fix_childes_coding(line)
