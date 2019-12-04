@@ -1,7 +1,7 @@
 
 from childes.params import Params
-from childes.transcripts import Transcripts, PostProcessor
-
+from childes.transcripts import Transcripts
+from childes.processor import PostProcessor
 
 params = Params()
 

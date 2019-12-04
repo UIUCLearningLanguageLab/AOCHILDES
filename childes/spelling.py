@@ -43,6 +43,8 @@ w2w = {
 	'meetcha': 'meet you',
 	'outa': 'out of',
 	'knockknock': 'knock knock',
+	'whadoes': 'what does',
+	'whatchamacallit': 'what should we call it',
 
 	# spelling
 	'lookee': 'look',
@@ -76,8 +78,6 @@ w2w = {
 	'earrings': 'ear+rings',
 	'playroom': 'play+room',
 	'playrooms': 'play+rooms',
-	'pj': 'p+j',
-	'pjs': 'p+js',
 	'woofwoof': 'woof woof',
 	'woof+woof': 'woof woof',
 	'woof+woof+woof': 'woof woof woof',
@@ -98,6 +98,9 @@ w2w = {
 	'kittys': 'kitties',
 
 	# contraction
+	'what\'dya': 'what do you',
+	'wha\'dyou': 'what do you',
+	'wha\'does': 'what does',
 	'cann\'t': 'can not',
 	'whyn\'t': 'why do not you',
 	'd\'you': 'do you',

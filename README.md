@@ -57,7 +57,7 @@ However, utterances with the unicode symbol '�' or the token 'xxx' were not ex
 
 ## To-do
 
-* normalize different spellings of same word
+* manually title-case words used for re-tokenization and replacement
 * get information about number of speakers
 * do POS tagging - save _tags.txt file as was done in previous versions
 

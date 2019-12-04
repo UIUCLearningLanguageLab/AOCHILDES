@@ -4,9 +4,9 @@ from collections import Counter
 from childes.params import Params
 from childes.transcripts import Transcripts
 
-TARGET = 'mrs'
-LEFT = 0  # distance to left of target
-RIGHT = 1  # distance to right of target
+TARGET = 'blue'
+LEFT = 1  # distance to left of target
+RIGHT = 0  # distance to right of target
 N = 30
 
 # get words

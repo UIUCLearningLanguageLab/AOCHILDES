@@ -1,20 +1,10 @@
 import pandas as pd
 import numpy as np
 from cached_property import cached_property
-import datetime
-import spacy
-import pyprind
-import attr
-import yaml
 import re
-from pathlib import Path
-from typing import List, Optional
 
 from childes import config
-from childes.normalize import w2w
 from childes.params import Params
-from childes.mergers import PersonMerger, PlacesMerger, MiscMerger
-
 
 col2dtype = {'id': np.int,
              'speaker_role': str,
@@ -104,112 +94,3 @@ class Transcripts:
         return len(self.age_ordered)
 
 
-class PostProcessor:
-    def __init__(self, params=None, verbose=False):
-        self.params = params or Params()
-        self.verbose = verbose
-
-    def normalize(self, w):
-        # spelling
-        if self.params.normalize_spelling and w.lower_ in w2w:
-            return w2w[w.lower_]
-
-        # persons
-        if w._.is_person and self.params.normalize_persons:
-            res = config.Symbols.NAME
-        # places
-        elif w._.is_place and self.params.normalize_places:
-            res = config.Symbols.PLACE
-        # miscellaneous
-        elif w._.is_misc and self.params.normalize_misc:
-            res = config.Symbols.MISC
-        else:
-            res = w.text
-
-        return res  # don't lowercase here otherwise symbols are affected
-
-    @staticmethod
-    def fix_childes_coding(line):
-        line = re.sub(r' Chi ', f' {config.Symbols.NAME} ', line)
-        line = re.sub(r' Mot ', f' {config.Symbols.NAME} ', line)
-        line = re.sub(r' Fat ', f' {config.Symbols.NAME} ', line)
-        return line
-
-    @staticmethod
-    def fix_spacy_tokenization(line):
-        line = re.sub(r'valentine \'s day', 'valentines_day', line, flags=re.IGNORECASE)
-        line = re.sub(r'valentine \'s', 'valentines', line, flags=re.IGNORECASE)
-        line = re.sub(r'guy \'s', 'guys', line, flags=re.IGNORECASE)
-        line = re.sub(r'mommy\'ll', 'mommy will', line, flags=re.IGNORECASE)
-        line = re.sub(r'daddy\'ll', 'mommy will', line, flags=re.IGNORECASE)
-        line = re.sub(r'this\'ll', 'this will', line, flags=re.IGNORECASE)
-        line = re.sub(r'cann\'t', 'can not', line, flags=re.IGNORECASE)
-        line = re.sub(r' let \'s building', r' let us build', line, flags=re.IGNORECASE)
-        line = re.sub(r' let \'s looking', r' let us look', line, flags=re.IGNORECASE)
-        return line
-
-    def process(self, transcripts, batch_size=100):
-        """
-        input is a list of unprocessed transcripts (each transcript is a string).
-        output is a list of processed transcripts
-        """
-
-        num_transcripts = len(transcripts)
-        print('Processor: Processing {} transcripts...'.format(num_transcripts))
-        progress_bar = pyprind.ProgBar(num_transcripts)
-
-        nlp = spacy.load('en_core_web_sm')  # do not put in outer scope; might raise un-necessary OSError instead
-        person_merger = PersonMerger(nlp)
-        places_merger = PlacesMerger(nlp)
-        misc_merger = MiscMerger(nlp)
-        nlp.add_pipe(person_merger, last=True)
-        nlp.add_pipe(places_merger, last=True)
-        nlp.add_pipe(misc_merger, last=True)
-
-        lines = []
-        for doc in nlp.pipe(transcripts, batch_size=batch_size, disable=['tagger', 'parser', 'ner']):
-            line = ' '.join([self.normalize(word) for word in doc])
-
-            # some small fixes
-            line = self.fix_childes_coding(line)
-            line = self.fix_spacy_tokenization(line)
-
-            lines.append(line)
-            progress_bar.update()
-
-        return lines
-
-    def to_file(self,
-                lines: List[str],
-                ages: List[float],
-                output_dir: Optional[str] = None,
-                suffix: str = ''):
-        print('Processor: Writing to disk...')
-        date_str = datetime.datetime.now().strftime('%Y%m%d')
-        corpus_name = 'childes-{}'.format(date_str)
-
-        if output_dir is None:
-            output_path = config.Dirs.corpora
-        else:
-            output_path = Path(output_dir)
-
-        if not output_path.exists():
-            output_path.mkdir()
-
-        params_path = output_path / '{}_{}{}.yaml'.format(corpus_name, 'params', suffix)
-        terms_path = output_path / '{}_{}{}.txt'.format(corpus_name, 'terms', suffix)
-        ages_path = output_path / '{}_{}{}.txt'.format(corpus_name, 'ages', suffix)
-
-        f1 = terms_path.open('w', encoding='utf-8')
-        f2 = ages_path.open('w', encoding='utf-8')
-
-        for line, age in zip(lines, ages):
-            f1.write(line + '\n')
-            f2.write(str(age) + '\n')
-
-        f1.close()
-        f2.close()
-
-        # save params
-        with params_path.open('w', encoding='utf8') as f:
-            yaml.dump(attr.asdict(self.params), f, default_flow_style=False, allow_unicode=True)

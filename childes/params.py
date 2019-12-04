@@ -9,6 +9,7 @@ class Params:
     min_utterance_length = attr.ib(default=1)
     punctuation = attr.ib(default=True)
     exclude_unknown_utterances = attr.ib(default=True)
+    lowercase = attr.ib(default=False)
 
     normalize_persons = attr.ib(default=True)
     normalize_places = attr.ib(default=True)
