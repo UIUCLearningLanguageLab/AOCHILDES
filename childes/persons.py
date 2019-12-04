@@ -3,6 +3,8 @@
 FICTIONAL = {
     'toot',
     'puddle',
+    'sleepy bear',
+    'dopey',
     'little engine',
     'little bear',
     'little bird',
@@ -70,7 +72,11 @@ FICTIONAL = {
     'goofy',
     'tigger',
     'minnie mouse',
+    'minnie_mouse',
     'minney mouse',
+    'mousey_nouse',
+    'bugs',
+    'bugs_bunny',
     'dora',
     'mcdonald',
     'nemo',
@@ -118,6 +124,7 @@ FICTIONAL = {
     'bam_bam',
     'raffi',
     'donald_duck',
+    'donald duck',
     'easter_bunny',
     'scuffy',
     'daffy',
@@ -194,6 +201,8 @@ NICKNAMES = {
 }
 
 REAL = {
+    'will',
+    'gail',
     'daisy'
     'patsy'
     'ernest'

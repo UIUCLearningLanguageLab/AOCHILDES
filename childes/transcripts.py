@@ -137,15 +137,15 @@ class PostProcessor:
 
     @staticmethod
     def fix_spacy_tokenization(line):
-        line = re.sub(r'valentine \'s day', 'valentines_day', line)
-        line = re.sub(r'valentine \'s', 'valentines', line)
-        line = re.sub(r'guy \'s', 'guys', line)
-        line = re.sub(r'mommy\'ll', 'mommy will', line)
-        line = re.sub(r'daddy\'ll', 'mommy will', line)
-        line = re.sub(r'this\'ll', 'this will', line)
-        line = re.sub(r'cann\'t', 'can not', line)
-        line = re.sub(r' let \'s building', r' let us build', line)
-        line = re.sub(r' let \'s looking', r' let us look', line)
+        line = re.sub(r'valentine \'s day', 'valentines_day', line, flags=re.IGNORECASE)
+        line = re.sub(r'valentine \'s', 'valentines', line, flags=re.IGNORECASE)
+        line = re.sub(r'guy \'s', 'guys', line, flags=re.IGNORECASE)
+        line = re.sub(r'mommy\'ll', 'mommy will', line, flags=re.IGNORECASE)
+        line = re.sub(r'daddy\'ll', 'mommy will', line, flags=re.IGNORECASE)
+        line = re.sub(r'this\'ll', 'this will', line, flags=re.IGNORECASE)
+        line = re.sub(r'cann\'t', 'can not', line, flags=re.IGNORECASE)
+        line = re.sub(r' let \'s building', r' let us build', line, flags=re.IGNORECASE)
+        line = re.sub(r' let \'s looking', r' let us look', line, flags=re.IGNORECASE)
         return line
 
     def process(self, transcripts, batch_size=100):

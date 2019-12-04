@@ -13,10 +13,13 @@ CITIES = {
     'providence',
     'cambridge',
     'shenandoah',
+    'boston',
 
 }
 
 STATES = {
+    'texas',
+    'california',
     'vermont',
     'mississippi',
     'mexico',
