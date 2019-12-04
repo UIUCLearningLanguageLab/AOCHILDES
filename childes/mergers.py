@@ -7,16 +7,16 @@ from childes.places import STATES, CITIES, COUNTRIES
 
 # case-sensitive
 persons = set()
-persons.update(REAL)
-persons.update(FICTIONAL)
-persons.update(FAMILY)
+persons.update([w.title() for w in REAL])
+persons.update([w.title() for w in FICTIONAL])
+persons.update([w for w in FAMILY] + [w.title() for w in FAMILY])
 
 
 class PersonMerger(object):
     def __init__(self, nlp):
         Token.set_extension("is_person", default=False)
         self.matcher = PhraseMatcher(nlp.vocab)
-        patterns = [nlp.make_doc(t.title()) for t in persons]
+        patterns = [nlp.make_doc(t) for t in persons]
         self.matcher.add("IS_PERSON", None, *patterns)
 
     def __call__(self, doc):
@@ -35,16 +35,16 @@ class PersonMerger(object):
 
 
 places = set()
-places.update(STATES)
-places.update(CITIES)
-places.update(COUNTRIES)
+places.update([w.title() for w in STATES])
+places.update([w.title() for w in CITIES])
+places.update([w.title() for w in COUNTRIES])
 
 
 class PlacesMerger(object):
     def __init__(self, nlp):
         Token.set_extension("is_place", default=False)
         self.matcher = PhraseMatcher(nlp.vocab)
-        patterns = [nlp.make_doc(t.title()) for t in places]
+        patterns = [nlp.make_doc(t) for t in places]
         self.matcher.add("IS_PLACE", None, *patterns)
 
     def __call__(self, doc):

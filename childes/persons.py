@@ -1,6 +1,7 @@
 
 
 FICTIONAL = {
+    'yogi bear'
     'winnie pooh',
     'santa claus',
     'nursie nellie',
@@ -157,6 +158,12 @@ FICTIONAL = {
 }
 
 REAL = {
+    'bruno',
+    'bruno bear',
+    'bangus',
+    'bangus bear',
+    'ernest'
+    'uncle ernest'
     'laura',
     'mama',
     'sarah',
@@ -532,8 +539,8 @@ REAL = {
 FAMILY = {
     'mom',
     'dad',
-    'grand_mom',
-    'grand_dad',
+    'grandma',
+    'granddad',
     'aunt',
     'uncle',
     'winnie',
@@ -549,6 +556,7 @@ FAMILY = {
     'mommy',
     'momma',
     'mom',
+    'mama',
     'mamma',
     'mumma',
     'mummy',
@@ -563,6 +571,9 @@ FAMILY = {
     'grandma',
     'granma',
     'grandmama',
+    'great+grandma',
+    'Great_Grandma',
+    'Greatgrandma',
     'nonno',
     'gramma',
     'gran',

@@ -113,17 +113,15 @@ class PostProcessor:
         if self.params.normalize_spelling and w.lower_ in w2w:
             return w2w[w.lower_]
 
-        if w.is_title:
-            # names
-            if w._.is_person and self.params.normalize_persons:
-                res = config.Symbols.NAME
-            # places
-            elif w._.is_place and self.params.normalize_places:
-                res = config.Symbols.PLACE
-            else:
-                res = w.text
+        # persons
+        if w._.is_person and self.params.normalize_persons:
+            print(w.lower_)
+            res = config.Symbols.NAME
+        # places
+        elif w._.is_place and self.params.normalize_places:
+            res = config.Symbols.PLACE
         else:
-            res = w.lower_
+            res = w.text
 
         return res  # don't lowercase here otherwise symbols are affected
 
@@ -177,7 +175,6 @@ class PostProcessor:
             line = self.fix_spacy_tokenization(line)
             line = self.replace_archaic_words(line) if self.params.replace_archaic_words else line
 
-            print(line)
             lines.append(line)
             progress_bar.update()
 
