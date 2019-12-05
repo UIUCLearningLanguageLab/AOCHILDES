@@ -38,10 +38,11 @@ In the terminal:
 tr ' ' '\12' <corpora/childes-20191204_terms.txt| sort | uniq -c | sort -nr > corpora/childes-20191204_vocab.txt
 ```
 
-## Excluded utterances
+## Parameters
 
-*  utterances with the unicode symbol '�' are discarded
-*  utterances with the token 'xxx' or 'www' or 'yyy' are discarded
+A variety of parameters can be set, to influence much processing should be performed on the raw transcripts.
+These parameters can be found in `params.py` and should be edited there, directly.
+For example, one can set a parameter determining whether or not all utterances with the unicode symbol '�', 'xxx', and 'yyy' are discarded.
 
 ## Available corpora
 
@@ -52,8 +53,6 @@ Have a look at `items/childes-20180319_params.yaml` for the parameters used to c
 * words were lower-cased
 * contractions were split
 * punctuation was preserved (declaratives, imperatives, and questions)
-
-However, utterances with the unicode symbol '�' or the token 'xxx' were not excluded. 
 
 ## To-do
 
