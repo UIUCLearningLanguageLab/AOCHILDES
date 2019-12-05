@@ -35,7 +35,7 @@ Notice, there are four files associated with each corpus:
 In the terminal:
 
 ```bash
-tr ' ' '\12' <corpora/childes-20191203_terms.txt| sort | uniq -c | sort -nr > corpora/childes-20191203_vocab.txt
+tr ' ' '\12' <corpora/childes-20191204_terms.txt| sort | uniq -c | sort -nr > corpora/childes-20191204_vocab.txt
 ```
 
 ## Excluded utterances
