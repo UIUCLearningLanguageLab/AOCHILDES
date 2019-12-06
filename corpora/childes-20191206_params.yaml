@@ -1,0 +1,15 @@
+bad_speaker_roles:
+- Target_Child
+- Child
+collection_names:
+- Eng-NA
+exclude_ill_formed_utterances: true
+exclude_unknown_utterances: true
+lowercase: false
+max_days: 2190
+min_utterance_length: 1
+normalize_misc: true
+normalize_persons: true
+normalize_places: true
+normalize_spelling: true
+punctuation: true
