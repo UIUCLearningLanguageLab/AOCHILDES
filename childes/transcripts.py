@@ -72,12 +72,13 @@ class Transcripts:
                 transcript = ''
                 for gloss, utterance_type in zip(rows2['gloss'], rows['type']):
                     if self.params.exclude_unknown_utterances:
+
                         if ignore_regex.findall(gloss):
                             continue
 
                     transcript += gloss
                     if self.params.punctuation:
-                        transcript += punctuation_dict[utterance_type]
+                        transcript += f' {punctuation_dict[utterance_type]}'
 
                 res.append(transcript)
                 self._ages.append(age)
