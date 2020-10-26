@@ -3,7 +3,7 @@ import numpy as np
 from cached_property import cached_property
 import re
 
-from childes import config
+from childes import configs
 from childes.params import Params
 
 col2dtype = {'id': np.int,
@@ -43,7 +43,7 @@ class Transcripts:
                            index_col='id',
                            usecols=col2dtype.keys(),
                            dtype=col2dtype)
-               for csv_path in sorted(config.Dirs.original.glob('*.csv'))]
+               for csv_path in sorted(configs.Dirs.original.glob('*.csv'))]
         self.df = pd.DataFrame(pd.concat(dfs))
 
         # drop rows

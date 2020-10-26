@@ -8,7 +8,7 @@ import pyprind
 import spacy
 import yaml
 
-from childes import config
+from childes import configs
 from childes.mergers import PersonMerger, PlacesMerger, MiscMerger
 from childes.params import Params
 from childes.spelling import w2w
@@ -27,13 +27,13 @@ class PostProcessor:
 
         # persons
         if w._.is_person and self.params.normalize_persons:
-            res = config.Symbols.NAME
+            res = configs.Symbols.NAME
         # places
         elif w._.is_place and self.params.normalize_places:
-            res = config.Symbols.PLACE
+            res = configs.Symbols.PLACE
         # miscellaneous
         elif w._.is_misc and self.params.normalize_misc:
-            res = config.Symbols.MISC
+            res = configs.Symbols.MISC
         else:
             if self.params.lowercase:
                 res = w.lower_
@@ -44,9 +44,9 @@ class PostProcessor:
 
     @staticmethod
     def fix_childes_coding(line):
-        line = re.sub(r' Chi ', f' {config.Symbols.NAME} ', line)
-        line = re.sub(r' Mot ', f' {config.Symbols.NAME} ', line)
-        line = re.sub(r' Fat ', f' {config.Symbols.NAME} ', line)
+        line = re.sub(r' Chi ', f' child ', line)
+        line = re.sub(r' Mot ', f' mother ', line)
+        line = re.sub(r' Fat ', f' father ', line)
         return line
 
     def process(self, transcripts, batch_size=100):
@@ -91,7 +91,7 @@ class PostProcessor:
         corpus_name = 'childes-{}'.format(date_str)
 
         if output_dir is None:
-            output_path = config.Dirs.corpora
+            output_path = configs.Dirs.corpora
         else:
             output_path = Path(output_dir)
 
