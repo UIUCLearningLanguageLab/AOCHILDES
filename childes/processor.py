@@ -43,11 +43,17 @@ class PostProcessor:
         return res  # don't lowercase here otherwise symbols are affected
 
     @staticmethod
-    def fix_childes_coding(line):
-        line = re.sub(r'Chi|chi', configs.Symbols.child_name, line)
-        line = re.sub(r'Mot|mot', configs.Symbols.mother_name, line)
-        line = re.sub(r'Fat|fat', configs.Symbols.father_name, line)
-        return line
+    def fix_childes_coding(line: str) -> str:
+        new_words = []
+        for w in line.split():
+            if w == 'chi' or w == 'Chi':
+                w = configs.Symbols.child_name
+            elif w == 'mot' or w == 'Mot':
+                w = configs.Symbols.mother_name
+            elif w == 'fat' or w == 'Fat':
+                w = configs.Symbols.father_name
+            new_words.append(w)
+        return ' '.join(new_words)
 
     def process(self, transcripts, batch_size=100):
         """
@@ -99,7 +105,7 @@ class PostProcessor:
             output_path.mkdir()
 
         params_path = output_path / '{}_{}{}.yaml'.format(corpus_name, 'params', suffix)
-        terms_path = output_path / '{}_{}{}.txt'.format(corpus_name, 'terms', suffix)
+        terms_path = output_path / '{}_{}{}.txt'.format(corpus_name, 'transcripts', suffix)
         ages_path = output_path / '{}_{}{}.txt'.format(corpus_name, 'ages', suffix)
 
         f1 = terms_path.open('w', encoding='utf-8')
