@@ -13,4 +13,8 @@ class Symbols:
     PLACE = '[PLACE]'
     MISC = '[MISC]'
 
+    child_name = '[CHILD_NAME]'
+    mother_name = '[MOTHER_NAME]'
+    father_name = '[FATHER_NAME]'
+
 

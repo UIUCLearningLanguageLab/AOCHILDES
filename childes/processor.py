@@ -44,9 +44,9 @@ class PostProcessor:
 
     @staticmethod
     def fix_childes_coding(line):
-        line = re.sub(r' Chi|chi ', f' child ', line)
-        line = re.sub(r' Mot|mot ', f' mother ', line)
-        line = re.sub(r' Fat|fat ', f' father ', line)
+        line = re.sub(r'Chi|chi', configs.Symbols.child_name, line)
+        line = re.sub(r'Mot|mot', configs.Symbols.mother_name, line)
+        line = re.sub(r'Fat|fat', configs.Symbols.father_name, line)
         return line
 
     def process(self, transcripts, batch_size=100):
