@@ -1,20 +1,13 @@
 # Create-CHILDES-Corpus
 
-Research code for preparing text corpora consisting of child-directed speech.
-Each line in the resulting text file is a transcript.
-Importantly, transcripts are always ordered by age of the target child.
+A Python API for retrieving text data consisting of child-directed speech.
+
+Importantly, age of the target child is preserved in ordering of text data.
 
 ## Usage
 
-### Creating a corpus file
+### Raw transcripts
 
-To create a corpus file:
-
-```bash
-python3 make_corpus.py
-```
-
-To expose API within Python:
 
 ```python
 from childes.transcripts import Transcripts
@@ -22,20 +15,13 @@ from childes.transcripts import Transcripts
 transcripts = Transcripts(sex='m')
 ```
 
-To use an existing corpus, you do not need to install this package. 
-Simply navigate to `/corpora` and download the text file of your choice. 
-Notice, there are four files associated with each corpus:
-* `CORPUS_NAME_params.yaml`: the parameter configuration used to create the corpus
-* `CORPUS_NAME_terms.txt`: line-separated transcripts
-* `CORPUS_NAME_tags.txt`: part-of-speech tags for each transcript provided by `spacy`
-* `CORPUS_NAME_ages.txt`: age of the target-child for each transcript
+### Processed transcripts ready for model training
 
-### Vocab file
+```python
+from childes.dataset import ChildesDataSet
 
-In the terminal:
-
-```bash
-tr ' ' '\12' <corpora/childes-20191204_terms.txt| sort | uniq -c | sort -nr > corpora/childes-20191204_vocab.txt
+dataset = ChildesDataSet()
+train_docs, test_docs = dataset.load_docs(num_test_docs=10)
 ```
 
 ## Parameters
@@ -44,21 +30,11 @@ A variety of parameters can be set, to influence much processing should be perfo
 These parameters can be found in `params.py` and should be edited there, directly.
 For example, one can set a parameter determining whether or not all utterances with the unicode symbol '�', 'xxx', and 'yyy' are discarded.
 
-## Available corpora
+## Legacy corpora
 
-The file `items/childes-20180319_terms.txt` was used by Philip Huebner in his research on training RNNs with age-ordered language input.
+The file `legacy/childes-20180319_transcripts.txt` was used by Philip Huebner in his research on training RNNs with age-ordered language input.
 It was created using only a modest amount of post-processing to preserve as accurately as possible the structure that children actually experience. 
-Have a look at `items/childes-20180319_params.yaml` for the parameters used to create the corpus.
-
-* words were lower-cased
-* contractions were split
-* punctuation was preserved (declaratives, imperatives, and questions)
-
-## To-do
-
-* manually title-case words used for re-tokenization and replacement
-* get information about number of speakers
-* do POS tagging - save _tags.txt file as was done in previous versions
+Have a look at `childes-20180319_params.yaml` for the parameters used to create the corpus.
 
 ## Compatibility
 

@@ -4,7 +4,7 @@ from cached_property import cached_property
 import re
 
 from childes import configs
-from childes.params import Params
+from childes.params import ChildesParams
 
 col2dtype = {'id': np.int,
              'speaker_role': str,
@@ -36,7 +36,7 @@ punctuation_dict = {'imperative': '! ',
 class Transcripts:
 
     def __init__(self, params=None, sex=None):
-        self.params = params or Params()
+        self.params = params or ChildesParams()
 
         # load each utterance as a row in original_transcripts frame
         dfs = [pd.read_csv(csv_path,

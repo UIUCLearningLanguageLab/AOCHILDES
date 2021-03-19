@@ -1,17 +1,13 @@
-import attr
+from typing import List
+from dataclasses import dataclass, field
 
 
-@attr.s
-class Params:
-    max_days = attr.ib(default=365 * 6)
-    collection_names = attr.ib(default=['Eng-NA'])
-    bad_speaker_roles = attr.ib(default=['Target_Child', 'Child'])
-    min_utterance_length = attr.ib(default=1)
-    punctuation = attr.ib(default=True)
-    exclude_unknown_utterances = attr.ib(default=True)
-    lowercase = attr.ib(default=True)
-
-    normalize_persons = attr.ib(default=False)
-    normalize_places = attr.ib(default=False)
-    normalize_misc = attr.ib(default=False)
-    normalize_spelling = attr.ib(default=False)
+@dataclass
+class ChildesParams:
+    max_days: int = field(default=365 * 6)
+    collection_names: List[str] = field(default_factory=lambda: ['Eng-NA'])
+    bad_speaker_roles: List[str] = field(default_factory=lambda: ['Target_Child', 'Child'])
+    min_utterance_length: int = field(default=1)
+    punctuation: bool = field(default=True)
+    exclude_unknown_utterances: bool = field(default=True)
+    lowercase: bool = field(default=True)

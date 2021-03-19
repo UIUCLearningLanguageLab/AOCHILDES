@@ -1,3 +1,2 @@
 include README.md
-include src/corpora/*.txt
-include src/original_transcripts/*.csv
+include original_transcripts/*.csv
