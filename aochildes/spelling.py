@@ -112,6 +112,12 @@ w2w = {
 	'\'cause': 'because',
 	's\'more': 'some more',
 	'y\'wanna': 'you want to',
+	'mommy\'ll': 'mommy will' ,
+	'Mommy\'ll': 'Mommy will' ,
+	'daddy\'ll': 'daddy will' ,
+	'Daddy\'ll': 'Daddy will' ,
+	'this\'ll':  'this will' ,
+	'This\'ll':  'This will' ,
 
 	# underscore
 	'have_to': 'have to',

@@ -1,8 +1,8 @@
 import math
 from collections import Counter
 
-from childes.params import ChildesParams
-from childes.transcripts import Transcripts
+from aochildes.params import ChildesParams
+from aochildes.transcripts import Transcripts
 
 TARGET = 'blue'
 LEFT = 1  # distance to left of target

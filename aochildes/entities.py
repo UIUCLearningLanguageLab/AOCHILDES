@@ -1,7 +1,7 @@
 
-from childes.persons import REAL, FICTIONAL, FAMILY, NICKNAMES, PETS
-from childes.places import STATES, CITIES, COUNTRIES
-from childes.misc import PRODUCTS, SONG, BOOKS_AND_MOVIES
+from aochildes.persons import REAL, FICTIONAL, FAMILY, NICKNAMES, PETS
+from aochildes.places import STATES, CITIES, COUNTRIES
+from aochildes.misc import PRODUCTS, SONG, BOOKS_AND_MOVIES
 
 # TODO make PAI for retrieving entities
 

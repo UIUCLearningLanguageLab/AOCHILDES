@@ -1,8 +1,7 @@
-# Create-CHILDES-Corpus
+# AO-CHILDES
 
-A Python API for retrieving text data consisting of child-directed speech.
-
-Importantly, age of the target child is preserved in ordering of text data.
+Python API for retrieving American-English child-directed speech transcripts,
+ ordered by the age of the target child.
 
 ## Usage
 
@@ -10,7 +9,7 @@ Importantly, age of the target child is preserved in ordering of text data.
 
 
 ```python
-from childes.transcripts import Transcripts
+from aochildes.transcripts import Transcripts
 
 transcripts = Transcripts(sex='m')
 ```
@@ -18,7 +17,7 @@ transcripts = Transcripts(sex='m')
 ### Processed transcripts ready for model training
 
 ```python
-from childes.dataset import ChildesDataSet
+from aochildes.dataset import ChildesDataSet
 
 dataset = ChildesDataSet()
 train_docs, test_docs = dataset.load_docs(num_test_docs=10)

@@ -10,4 +10,6 @@ class ChildesParams:
     min_utterance_length: int = field(default=1)
     punctuation: bool = field(default=True)
     exclude_unknown_utterances: bool = field(default=True)
-    lowercase: bool = field(default=True)
+
+    normalize_spelling: bool = field(default=True)
+    normalize_compounds: bool = field(default=True)  # convert "+" and "-" to "_"

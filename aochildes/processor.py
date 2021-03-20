@@ -4,30 +4,15 @@ from typing import List, Optional
 import pyprind
 
 
-from childes import configs
-from childes.params import ChildesParams
-from childes.spelling import w2w
-from childes.tokenization import special_cases
+from aochildes import configs
+from aochildes.params import ChildesParams
+from aochildes.spelling import w2w
 
 
 class PostProcessor:
     def __init__(self, params=None, verbose=False):
         self.params = params or ChildesParams()
         self.verbose = verbose
-
-    def normalize(self, w: str):
-        # spelling
-        if self.params.normalize_spelling and w.lower() in w2w:
-            return w2w[w.lower()]
-
-        # case
-        else:
-            if self.params.lowercase:
-                res = w.lower()
-            else:
-                res = w
-
-        return res  # don't lowercase here otherwise symbols are affected
 
     @staticmethod
     def fix_childes_coding(line: str) -> str:
@@ -56,9 +41,20 @@ class PostProcessor:
 
         lines = []
         for doc in transcripts:
-            line = ' '.join([self.normalize(word) for word in doc])
+            words = []
+            for w in doc.split():
+                # always lower-case
+                w = w.lower()
+                # fix spelling
+                if self.params.normalize_spelling and w in w2w:
+                    w = w2w[w.lower()]
+                # normalize compounds
+                if self.params.normalize_compounds:
+                    w = w.replace('+', '_').replace('-', '_')
 
-            # TODO special_cases tokenization rules
+                words.append(w)
+
+            line = ' '.join(words)
 
             # some small fixes
             line = self.fix_childes_coding(line)

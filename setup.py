@@ -1,6 +1,6 @@
 from setuptools import setup
 
-from childes import __name__, __version__
+from aochildes import __name__, __version__
 
 setup(
     name=__name__,
@@ -13,9 +13,9 @@ setup(
                       'pyprind',
                       'sortedcontainers',
                       ],
-    url='https://github.com/UIUCLearningLanguageLab/CreateCHILDESCorpus',
+    url='https://github.com/UIUCLearningLanguageLab/AOCHILDES',
     license='',
     author='Philip Huebner',
     author_email='info@philhuebner.com',
-    description='API for retrieving text from American-English CHILDES database'
+    description='Retrieve text from the American-English CHILDES database'
 )

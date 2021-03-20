@@ -3,8 +3,8 @@ import numpy as np
 from cached_property import cached_property
 import re
 
-from childes import configs
-from childes.params import ChildesParams
+from aochildes import configs
+from aochildes.params import ChildesParams
 
 col2dtype = {'id': np.int,
              'speaker_role': str,

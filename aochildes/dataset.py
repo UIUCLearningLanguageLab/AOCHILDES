@@ -3,9 +3,9 @@ from typing import Set, List, Optional, Tuple
 from functools import reduce
 from operator import iconcat
 
-from childes.params import ChildesParams
-from childes.transcripts import Transcripts
-from childes.processor import PostProcessor
+from aochildes.params import ChildesParams
+from aochildes.transcripts import Transcripts
+from aochildes.processor import PostProcessor
 
 
 def split_into_sentences(tokens: List[str],
@@ -41,15 +41,13 @@ class ChildesDataSet:
                  ):
 
         if params is None:
-            params = ChildesParams
+            params = ChildesParams()
 
         self.transcripts = Transcripts(params)
-        self.proc = PostProcessor(params)
+        self.processor = PostProcessor(params)
 
     def load_tokens(self):
-        raise NotImplementedError  # TODO use this, eventually, after removing preppy dependency in childesrnnlm
-
-    # TODO test
+        raise NotImplementedError  # TODO use this as input to preppy
 
     def load_docs(self,
                   shuffle_docs: Optional[bool] = False,
@@ -60,13 +58,16 @@ class ChildesDataSet:
                   remove_symbols: Optional[List[str]] = None,
                   ) -> Tuple[List[str], List[str]]:
 
-        docs = self.proc.process(self.transcripts.age_ordered)
+        docs = self.processor.process(self.transcripts.age_ordered)
         num_docs = len(docs)
         print(f'Loaded {num_docs} transcripts')
 
         # shuffle at sentence-level (as opposed to document-level)
         # this remove clustering of same-age utterances within documents
         if shuffle_sentences:
+
+            # TODO test
+
             random.seed(shuffle_seed)
             print('WARNING: Shuffling sentences')
             tokens = tokens_from_docs(docs)
