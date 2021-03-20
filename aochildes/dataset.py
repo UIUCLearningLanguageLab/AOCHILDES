@@ -4,8 +4,8 @@ from functools import reduce
 from operator import iconcat
 
 from aochildes.params import ChildesParams
-from aochildes.transcripts import Transcripts
-from aochildes.processor import PostProcessor
+from aochildes.pipeline import Pipeline
+from aochildes.helpers import Transcript
 
 
 def tokens_from_transcripts(transcripts: List[str],
@@ -13,6 +13,17 @@ def tokens_from_transcripts(transcripts: List[str],
     tokenized_transcripts = [d.split() for d in transcripts]
     tokens = reduce(iconcat, tokenized_transcripts, [])  # flatten list of lists
     return tokens
+
+
+def split_into_sentences(tokens: List[str],
+                         ) -> List[List[str]]:
+
+    res = [[]]
+    for n, w in enumerate(tokens):
+        res[-1].append(w)
+        if w.endswith('.') or w.endswith('?') or w.endswith('!') and n < len(tokens) - 1:  # prevent  empty list at end
+            res.append([])
+    return res
 
 
 class ChildesDataSet:
@@ -23,20 +34,17 @@ class ChildesDataSet:
         if params is None:
             params = ChildesParams()
 
-        self.transcripts = Transcripts(params)
-        self.processor = PostProcessor(params)
-
-    def load_processed_transcripts(self,
-                                   ) -> List[str]:
-
-        res = self.processor.process(self.transcripts.age_ordered)
-        print(f'Loaded {len(res)} processed transcripts')
-
-        return res
+        self.pipeline = Pipeline(params)
+        self.transcripts: List[Transcript] = self.pipeline.load_age_ordered_transcripts()
 
     def load_tokens(self) -> List[str]:
-        ts = self.load_processed_transcripts()
-        res = tokens_from_transcripts(ts)
+        res = tokens_from_transcripts([t.text for t in self.transcripts])
+        return res
+
+    def load_sentences(self) -> List[str]:
+        res = []
+        for t in self.transcripts:
+            res.extend(t.sentences)
         return res
 
     def load_text(self) -> str:

@@ -1,39 +1,15 @@
 import pandas as pd
-import numpy as np
-from cached_property import cached_property
 import re
+from typing import List
+import pyprind
 
 from aochildes import configs
+from aochildes.helpers import Transcript, col2dtype, punctuation_dict
 from aochildes.params import ChildesParams
-
-col2dtype = {'id': np.int,
-             'speaker_role': str,
-             'gloss': str,
-             'type': str,
-             'num_tokens': np.int,
-             'transcript_id': np.int,
-             'target_child_age': np.float,
-             'target_child_sex': str,
-             'collection_name': str}
-
-# make sure to add spaces after each utterance boundary marker
-punctuation_dict = {'imperative': '! ',
-                    'imperative_emphatic': '! ',
-                    'question exclamation': '! ',
-                    'declarative': '. ',
-                    'interruption': '. ',
-                    'self interruption': '. ',
-                    'quotation next line': '. ',
-                    'quotation precedes': '. ',
-                    'broken for coding': '. ',
-                    'question': '? ',
-                    'self interruption question': '? ',
-                    'interruption question': '? ',
-                    'trail off question': '? ',
-                    'trail off': '. '}
+from aochildes.spelling import w2w
 
 
-class Transcripts:
+class Pipeline:
 
     def __init__(self, params=None, sex=None):
         self.params = params or ChildesParams()
@@ -58,10 +34,36 @@ class Transcripts:
             self.df.drop(self.df[self.df['target_child_sex'] != sex].index, inplace=True)
             print('Transcripts: Utterances after  filter by sex: {:>8,}'.format(len(self.df)))
 
-        self._ages = []
+    def process(self,
+                sentence: str,
+                ) -> str:
 
-    @cached_property
-    def age_ordered(self):
+        words = []
+        for w in sentence.split():
+            # always lower-case
+            w = w.lower()
+            # fix spelling
+            if self.params.normalize_spelling and w in w2w:
+                w = w2w[w.lower()]
+            # split compounds
+            if self.params.split_compounds:
+                w = w.replace('+', ' ').replace('-', ' ').replace('_', ' ')
+            # normalize speaker codes
+            if w == 'chi' or w == 'Chi':
+                w = 'child'
+            elif w == 'mot' or w == 'Mot':
+                w = 'mother'
+            elif w == 'fat' or w == 'Fat':
+                w = 'father'
+
+            words.append(w)
+
+        return ' '.join(words)
+
+    def load_age_ordered_transcripts(self) -> List[Transcript]:
+
+        print('Preparing AOCHILDES transcripts...')
+        pbar = pyprind.ProgBar(len(self.df.groupby('target_child_age')), stream=1)
 
         ignore_regex = re.compile(r'(�|www|xxx|yyy)')
 
@@ -69,29 +71,23 @@ class Transcripts:
         for age, rows in self.df.groupby('target_child_age'):
             for transcript_id, rows2 in rows.groupby('transcript_id'):
 
-                transcript = ''
+                sentences = []
                 for gloss, utterance_type in zip(rows2['gloss'], rows['type']):
-                    if self.params.exclude_unknown_utterances:
 
+                    # exclude bad sentence
+                    if self.params.exclude_unknown_utterances:
                         if ignore_regex.findall(gloss):
                             continue
 
-                    transcript += gloss
+                    # add utterance boundary marker
                     if self.params.punctuation:
-                        transcript += f' {punctuation_dict[utterance_type]}'
+                        gloss += f' {punctuation_dict[utterance_type]}'
 
-                res.append(transcript)
-                self._ages.append(age)
+                    processed_sentence = self.process(gloss)
+                    sentences.append(processed_sentence)
+
+                res.append(Transcript(sentences, age))
+
+            pbar.update()
 
         return res
-
-    @cached_property
-    def ages(self):
-        _ = self.age_ordered
-        return self._ages
-
-    @property
-    def num_transcripts(self):
-        return len(self.age_ordered)
-
-

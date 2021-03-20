@@ -6,7 +6,7 @@ import math
 from collections import Counter
 
 from aochildes.params import ChildesParams
-from aochildes.transcripts import Transcripts
+from aochildes.pipeline import Pipeline
 
 TARGET = 'dr'
 LEFT = 0  # distance to left of target
@@ -15,8 +15,8 @@ N = 30
 
 # get words
 params = ChildesParams()
-transcripts = Transcripts(params)
-words = [w.lower() for t in transcripts.age_ordered for w in t.split()]
+transcripts = Pipeline(params)
+words = [w.lower() for t in transcripts.load_age_ordered_transcripts for w in t.split()]
 
 
 def update(span, d):

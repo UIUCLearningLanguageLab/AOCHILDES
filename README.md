@@ -9,7 +9,7 @@ Python API for retrieving American-English child-directed speech transcripts,
 
 
 ```python
-from aochildes.transcripts import Transcripts
+from aochildes.pipeline import Pipeline
 
 transcripts = Transcripts(sex='m')
 ```
