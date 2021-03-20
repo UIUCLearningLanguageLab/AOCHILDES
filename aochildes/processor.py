@@ -1,10 +1,9 @@
 
-from typing import List, Optional
-
+from typing import List
+import string
 import pyprind
 
 
-from aochildes import configs
 from aochildes.params import ChildesParams
 from aochildes.spelling import w2w
 
@@ -13,19 +12,6 @@ class PostProcessor:
     def __init__(self, params=None, verbose=False):
         self.params = params or ChildesParams()
         self.verbose = verbose
-
-    @staticmethod
-    def fix_childes_coding(line: str) -> str:
-        new_words = []
-        for w in line.split():
-            if w == 'chi' or w == 'Chi':
-                w = configs.Symbols.child_name
-            elif w == 'mot' or w == 'Mot':
-                w = configs.Symbols.mother_name
-            elif w == 'fat' or w == 'Fat':
-                w = configs.Symbols.father_name
-            new_words.append(w)
-        return ' '.join(new_words)
 
     def process(self,
                 transcripts: List[str],
@@ -51,14 +37,17 @@ class PostProcessor:
                 # normalize compounds
                 if self.params.normalize_compounds:
                     w = w.replace('+', '_').replace('-', '_')
+                # normalize speaker codes
+                if w == 'chi' or w == 'Chi':
+                    w = 'child'
+                elif w == 'mot' or w == 'Mot':
+                    w = 'mother'
+                elif w == 'fat' or w == 'Fat':
+                    w = 'father'
 
                 words.append(w)
 
             line = ' '.join(words)
-
-            # some small fixes
-            line = self.fix_childes_coding(line)
-
             lines.append(line)
             progress_bar.update()
 

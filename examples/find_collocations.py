@@ -13,7 +13,7 @@ N = 30
 params = ChildesParams()
 transcripts = Transcripts(params)
 texts = transcripts.age_ordered
-words = [w.lower() for t in texts for w in t.chunk_sentences()]
+words = [w.lower() for t in texts for w in t.split()]
 
 
 def update(span, d):
