@@ -33,9 +33,9 @@ class PostProcessor:
                 # fix spelling
                 if self.params.normalize_spelling and w in w2w:
                     w = w2w[w.lower()]
-                # normalize compounds
-                if self.params.normalize_compounds:
-                    w = w.replace('+', '_').replace('-', '_')
+                # split compounds
+                if self.params.split_compounds:
+                    w = w.replace('+', ' ').replace('-', ' ').replace('_', ' ')
                 # normalize speaker codes
                 if w == 'chi' or w == 'Chi':
                     w = 'child'
