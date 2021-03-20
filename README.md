@@ -23,6 +23,16 @@ dataset = ChildesDataSet()
 train_docs, test_docs = dataset.load_docs(num_test_docs=10)
 ```
 
+### List entities
+
+Retrieve sets of entities, like fictional characters mentioned during child-language interactions (e.g. book reading):
+
+```python
+from aochildes.persons import FICTIONAL
+
+print(FICTIONAL)
+```
+
 ## Parameters
 
 A variety of parameters can be set, to influence much processing should be performed on the raw transcripts.
