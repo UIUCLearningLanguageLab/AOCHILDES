@@ -1,6 +1,5 @@
 
 from typing import List
-import string
 import pyprind
 
 
