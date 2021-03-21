@@ -1,6 +1,25 @@
+string2w = {
+	'coca cola': 'cocacola',
+	'g_i joe': 'gijoe',
 
+}
 
-w2w = {
+w2string = {
+
+	# probe words used by Philip Huebner
+	'c_d': 'cd',
+	'd_v_d': 'dvd',
+	'p+j': 'pj',
+	'p_j': 'pj',
+	't+shirt': 'shirt',
+	't_shirt': 'shirt',
+	'dump+truck': 'dumptruck',
+	'dump+trucks': 'dumptrucks',
+	'head+phones': 'headphones',
+	'coca_cola': 'cocacola',
+	'coca+cola': 'cocacola',
+	'g_i_joe': 'gijoe',
+	'm_and_m': 'm&m',
 
 	# split into pieces
 	'everytime': 'every time',
@@ -61,31 +80,29 @@ w2w = {
 	'doin': 'doing',
 	'aroun': 'around',
 	'scuse': 'excuse',
-	'play+dough': 'play_doh',
-	'playdoh': 'play_doh',
-	'play_doh': 'play_doh',  # in case actual word is upper-cased
-	'ninight': 'night+night',
+	'play+dough': 'playdoh',
+	'playdoh': 'playdoh',
+	'play_doh': 'playdoh',  # in case actual word is upper-cased
+	'ninight': 'night night',
 	'whad': 'what',
 	'bandaid': 'band_aid',
-	'dumptruck': 'dump+truck',
-	'dumptrucks': 'dump+trucks',
 	'babys': 'babies',
 	'alrighty': 'alright',
 	'alrigthy': 'alright',
 	'grocerys': 'groceries',
-	'seatbelt': 'seat+belt',
-	'earring': 'ear+ring',
-	'earrings': 'ear+rings',
-	'playroom': 'play+room',
-	'playrooms': 'play+rooms',
+	'seatbelt': 'seat belt',
+	'earring': 'ear ring',
+	'earrings': 'ear rings',
+	'playroom': 'play room',
+	'playrooms': 'play rooms',
 	'woofwoof': 'woof woof',
 	'woof+woof': 'woof woof',
 	'woof+woof+woof': 'woof woof woof',
 	'woof_woof': 'woof woof',
 	'woof_woof_woof': 'woof woof woof',
 	'woof_woof_woof_woof': 'woof woof woof woof',
-	'snowman': 'snow+man',
-	'snow_man': 'snow+man',
+	'snowman': 'snow man',
+	'snow_man': 'snow man',
 	'dere': 'there',
 	'potatoe': 'potato',
 	'potatoes': 'potatos',

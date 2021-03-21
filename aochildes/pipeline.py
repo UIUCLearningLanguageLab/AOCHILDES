@@ -6,7 +6,7 @@ import pyprind
 from aochildes import configs
 from aochildes.helpers import Transcript, col2dtype, punctuation_dict
 from aochildes.params import ChildesParams
-from aochildes.spelling import w2w
+from aochildes.spelling import w2string, string2w
 
 
 class Pipeline:
@@ -43,8 +43,8 @@ class Pipeline:
             # always lower-case
             w = w.lower()
             # fix spelling
-            if self.params.normalize_spelling and w in w2w:
-                w = w2w[w.lower()]
+            if self.params.normalize_spelling and w in w2string:
+                w = w2string[w.lower()]
             # split compounds
             if self.params.split_compounds:  # leave hyphens, because they are in probe words: t-v, yo-yo
                 w = w.replace('+', ' ').replace('_', ' ')
@@ -78,6 +78,12 @@ class Pipeline:
                     if self.params.exclude_unknown_utterances:
                         if ignore_regex.findall(gloss):
                             continue
+
+                    # merge words
+                    for string in string2w:
+                        if string in gloss:
+                            print(f'Replacing "{string}" with "{string2w[string]}"')
+                        gloss = gloss.replace(string, string2w[string])
 
                     # add utterance boundary marker
                     if self.params.punctuation:
