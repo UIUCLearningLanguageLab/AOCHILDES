@@ -46,8 +46,8 @@ class Pipeline:
             if self.params.normalize_spelling and w in w2w:
                 w = w2w[w.lower()]
             # split compounds
-            if self.params.split_compounds:
-                w = w.replace('+', ' ').replace('-', ' ').replace('_', ' ')
+            if self.params.split_compounds:  # leave hyphens, because they are in probe words: t-v, yo-yo
+                w = w.replace('+', ' ').replace('_', ' ')
             # normalize speaker codes
             if w == 'chi' or w == 'Chi':
                 w = 'child'
