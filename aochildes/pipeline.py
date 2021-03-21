@@ -23,16 +23,16 @@ class Pipeline:
         self.df = pd.DataFrame(pd.concat(dfs))
 
         # drop rows
-        print('Transcripts: Utterances before dropping rows: {:>8,}'.format(len(self.df)))
+        print('Utterances before dropping rows: {:>8,}'.format(len(self.df)))
         self.df.drop(self.df[self.df['target_child_age'] > self.params.max_days].index, inplace=True)
         self.df.drop(self.df[self.df['num_tokens'] < self.params.min_utterance_length].index, inplace=True)
         self.df.drop(self.df[self.df['speaker_role'].isin(self.params.bad_speaker_roles)].index, inplace=True)
         self.df.drop(self.df[~self.df['collection_name'].isin(self.params.collection_names)].index, inplace=True)
-        print('Transcripts: Utterances after  dropping rows: {:>8,}'.format(len(self.df)))
+        print('Utterances after  dropping rows: {:>8,}'.format(len(self.df)))
 
         if sex:
             self.df.drop(self.df[self.df['target_child_sex'] != sex].index, inplace=True)
-            print('Transcripts: Utterances after  filter by sex: {:>8,}'.format(len(self.df)))
+            print('Utterances after filtering by sex: {:>8,}'.format(len(self.df)))
 
     def process(self,
                 sentence: str,

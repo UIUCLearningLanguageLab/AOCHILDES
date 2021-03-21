@@ -1,6 +1,7 @@
 
 
 FICTIONAL = {
+    'p+j'
     'pink eddie',
     'gonga',
     'koala',

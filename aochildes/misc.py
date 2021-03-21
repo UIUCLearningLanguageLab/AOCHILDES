@@ -1,14 +1,15 @@
 
 
-SONG = {'doo',
-		'dee',
-		'deedee',
-		'dadada',
-		'da',
-		'la_dee_da_dee_dum',
-		'ee_yay_ee_yay_oh',
-		'oompapa',
-		}
+SONG = {
+	'doo',
+	'dee',
+	'deedee',
+	'dadada',
+	'da',
+	'la_dee_da_dee_dum',
+	'ee_yay_ee_yay_oh',
+	'oompapa',
+}
 
 PRODUCTS = {
 	'oatios',
@@ -20,11 +21,12 @@ PRODUCTS = {
 }
 
 BOOKS_AND_MOVIES = {
+	'pajama time',
 	'smurfs',
 	'lion king',
 	'sesame street',
 	'sesame_street',
-	'blue\'s clues',  # doesn't work because "S" is title-cased
+	'blue\'s clues',
 	'star wars',
 	'planet_x',
 	'The_Great_Cat_Chase',

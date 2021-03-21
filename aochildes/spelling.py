@@ -9,8 +9,6 @@ w2string = {
 	# probe words used by Philip Huebner
 	'c_d': 'cd',
 	'd_v_d': 'dvd',
-	'p+j': 'pj',
-	'p_j': 'pj',
 	't+shirt': 'shirt',
 	't_shirt': 'shirt',
 	'dump+truck': 'dumptruck',
