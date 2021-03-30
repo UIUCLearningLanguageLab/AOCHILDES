@@ -60,7 +60,9 @@ class Pipeline:
 
         return ' '.join(words)
 
-    def load_age_ordered_transcripts(self) -> List[Transcript]:
+    def load_age_ordered_transcripts(self,
+                                     verbose: bool = False,
+                                     ) -> List[Transcript]:
 
         print('Preparing AOCHILDES transcripts...')
         pbar = pyprind.ProgBar(len(self.df.groupby('target_child_age')), stream=1)
@@ -82,8 +84,9 @@ class Pipeline:
                     # merge words
                     for string in string2w:
                         if string in gloss:
-                            print(f'Replacing "{string}" with "{string2w[string]}"')
-                        gloss = gloss.replace(string, string2w[string])
+                            if verbose:
+                                print(f'Replacing "{string}" with "{string2w[string]}"')
+                            gloss = gloss.replace(string, string2w[string])
 
                     # add utterance boundary marker
                     if self.params.punctuation:

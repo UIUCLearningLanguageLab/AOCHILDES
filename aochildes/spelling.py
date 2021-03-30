@@ -1,6 +1,7 @@
 string2w = {
 	'coca cola': 'cocacola',
 	'g_i joe': 'gijoe',
+	'don\'t cha': 'don\'t you',
 
 }
 
