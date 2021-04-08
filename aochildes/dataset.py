@@ -37,6 +37,10 @@ class ChildesDataSet:
         self.pipeline = Pipeline(params)
         self.transcripts: List[Transcript] = self.pipeline.load_age_ordered_transcripts()
 
+    def load_transcripts(self) -> List[str]:
+        res = [t.text for t in self.transcripts]
+        return res
+
     def load_tokens(self) -> List[str]:
         res = tokens_from_transcripts([t.text for t in self.transcripts])
         return res
