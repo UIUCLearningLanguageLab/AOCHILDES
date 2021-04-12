@@ -1,11 +1,11 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 from aochildes import __name__, __version__
 
 setup(
     name=__name__,
     version=__version__,
-    packages=[__name__],
+    packages=find_packages(include=[__name__, 'original_transcripts']),
     include_package_data=True,
     install_requires=[
         'pandas',
