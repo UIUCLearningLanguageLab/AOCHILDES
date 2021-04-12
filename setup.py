@@ -6,6 +6,7 @@ setup(
     name=__name__,
     version=__version__,
     packages=find_packages(),
+    package_data={'': ['original_transcripts/*.csv']},
     include_package_data=True,
     install_requires=[
         'pandas',

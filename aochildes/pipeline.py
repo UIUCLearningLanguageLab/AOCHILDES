@@ -14,6 +14,10 @@ class Pipeline:
     def __init__(self, params=None, sex=None):
         self.params = params or ChildesParams()
 
+        print(f'Looking for transcripts in {configs.Dirs.transcripts}')
+        if not configs.Dirs.transcripts.exists():
+            raise FileNotFoundError('Did not find transcripts. Were they installed?')
+
         # load each utterance as a row in original_transcripts frame
         dfs = [pd.read_csv(csv_path,
                            index_col='id',

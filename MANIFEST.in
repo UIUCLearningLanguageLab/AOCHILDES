@@ -1,2 +1,3 @@
 include README.md
 include original_transcripts/*.csv
+recursive-include original_transcripts/*.csv
