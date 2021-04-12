@@ -19,7 +19,7 @@ class Pipeline:
                            index_col='id',
                            usecols=col2dtype.keys(),
                            dtype=col2dtype)
-               for csv_path in sorted(configs.Dirs.original.glob('*.csv'))]
+               for csv_path in sorted(configs.Dirs.transcripts.glob('*.csv'))]
         self.df = pd.DataFrame(pd.concat(dfs))
 
         # drop rows

@@ -5,7 +5,7 @@ from aochildes import __name__, __version__
 setup(
     name=__name__,
     version=__version__,
-    packages=find_packages(include=[__name__, 'original_transcripts']),
+    packages=find_packages(),
     include_package_data=True,
     install_requires=[
         'pandas',
