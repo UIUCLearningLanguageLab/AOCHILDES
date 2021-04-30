@@ -20,7 +20,7 @@ transcripts = Transcripts(sex='m')
 from aochildes.dataset import ChildesDataSet
 
 dataset = ChildesDataSet()
-train_docs, test_docs = dataset.load_docs(num_test_docs=10)
+transcripts: List[str] = dataset.load_transcripts(num_test_docs=10)
 ```
 
 ### List entities
