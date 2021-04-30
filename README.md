@@ -14,12 +14,12 @@ from aochildes.pipeline import Pipeline
 transcripts = Transcripts(sex='m')
 ```
 
-### Processed transcripts ready for model training
+### Processed transcripts, ordered by age of target child
 
 ```python
 from aochildes.dataset import ChildesDataSet
 
-transcripts: List[str] = ChildesDataSet().load_transcripts(num_test_docs=10)
+transcripts: List[str] = ChildesDataSet().load_transcripts()
 ```
 
 ### List entities
