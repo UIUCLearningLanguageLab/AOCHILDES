@@ -19,8 +19,7 @@ transcripts = Transcripts(sex='m')
 ```python
 from aochildes.dataset import ChildesDataSet
 
-dataset = ChildesDataSet()
-transcripts: List[str] = dataset.load_transcripts(num_test_docs=10)
+transcripts: List[str] = ChildesDataSet().load_transcripts(num_test_docs=10)
 ```
 
 ### List entities
