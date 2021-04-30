@@ -5,21 +5,21 @@ Python API for retrieving American-English child-directed speech transcripts,
 
 ## Usage
 
-### Raw transcripts
-
-
-```python
-from aochildes.pipeline import Pipeline
-
-transcripts = Transcripts(sex='m')
-```
-
 ### Processed transcripts, ordered by age of target child
 
 ```python
 from aochildes.dataset import ChildesDataSet
 
-transcripts: List[str] = ChildesDataSet().load_transcripts()
+transcripts = ChildesDataSet().load_transcripts()
+```
+
+### Filter male vs. female
+
+
+```python
+from aochildes.dataset import ChildesDataSet
+
+transcripts = ChildesDataSet(sex='male').load_transcripts()  # excludes many transcripts not annotated with sex
 ```
 
 ### List entities

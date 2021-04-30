@@ -29,12 +29,13 @@ def split_into_sentences(tokens: List[str],
 class ChildesDataSet:
     def __init__(self,
                  params: Optional[ChildesParams] = None,
+                 sex: Optional[str] = None,
                  ):
 
         if params is None:
             params = ChildesParams()
 
-        self.pipeline = Pipeline(params)
+        self.pipeline = Pipeline(params, sex)
         self.transcripts: List[Transcript] = self.pipeline.load_age_ordered_transcripts()
 
     def load_transcripts(self) -> List[str]:

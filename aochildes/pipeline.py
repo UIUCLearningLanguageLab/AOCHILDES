@@ -1,6 +1,6 @@
 import pandas as pd
 import re
-from typing import List
+from typing import List, Optional
 import pyprind
 
 from aochildes import configs
@@ -11,7 +11,14 @@ from aochildes.spelling import w2string, string2w
 
 class Pipeline:
 
-    def __init__(self, params=None, sex=None):
+    def __init__(self, params=None,
+                 sex: Optional[str] = None,
+                 ) -> None:
+
+        if sex is not None:
+            if sex not in {'male', 'female'}:
+                raise AttributeError('Invalid arg to sex. Must be in [male, female]')
+
         self.params = params or ChildesParams()
 
         print(f'Looking for transcripts in {configs.Dirs.transcripts}')
@@ -36,7 +43,7 @@ class Pipeline:
 
         if sex:
             self.df.drop(self.df[self.df['target_child_sex'] != sex].index, inplace=True)
-            print('Utterances after filtering by sex: {:>8,}'.format(len(self.df)))
+            print('Utterances for sex={:<13}: {:>8,}'.format(sex, len(self.df)))
 
     def process(self,
                 sentence: str,
