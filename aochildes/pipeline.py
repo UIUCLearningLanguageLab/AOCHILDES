@@ -101,7 +101,18 @@ class Pipeline:
 
                     # add utterance boundary marker
                     if self.params.punctuation:
-                        gloss += f' {punctuation_dict[utterance_type]}'
+                        # consistent question marking
+                        if (gloss.startswith('what') and not gloss.startswith('what a ')) or \
+                                gloss.startswith('where') or \
+                                gloss.startswith('how') or \
+                                gloss.startswith('who') or \
+                                gloss.startswith('when') or \
+                                gloss.startswith('you wanna') or \
+                                gloss.startswith('do you') or \
+                                gloss.startswith('can you'):
+                            gloss += ' ?'
+                        else:
+                            gloss += f' {punctuation_dict[utterance_type]}'
 
                     processed_sentence = self.process(gloss)
                     sentences.append(processed_sentence)
