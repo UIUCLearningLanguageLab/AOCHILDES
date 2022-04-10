@@ -5,7 +5,7 @@ import pyprind
 
 from aochildes import configs
 from aochildes.helpers import Transcript, col2dtype, punctuation_dict
-from aochildes.params import ChildesParams
+from aochildes.params import AOChildesParams
 from aochildes.spelling import w2string, string2w
 
 
@@ -19,7 +19,7 @@ class Pipeline:
             if sex not in {'male', 'female'}:
                 raise AttributeError('Invalid arg to sex. Must be in [male, female]')
 
-        self.params = params or ChildesParams()
+        self.params = params or AOChildesParams()
 
         print(f'Looking for transcripts in {configs.Dirs.transcripts}')
         if not configs.Dirs.transcripts.exists():

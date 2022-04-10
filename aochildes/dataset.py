@@ -3,7 +3,7 @@ from typing import Set, List, Optional, Tuple
 from functools import reduce
 from operator import iconcat
 
-from aochildes.params import ChildesParams
+from aochildes.params import AOChildesParams
 from aochildes.pipeline import Pipeline
 from aochildes.helpers import Transcript
 
@@ -26,14 +26,14 @@ def split_into_sentences(tokens: List[str],
     return res
 
 
-class ChildesDataSet:
+class AOChildesDataSet:
     def __init__(self,
-                 params: Optional[ChildesParams] = None,
+                 params: Optional[AOChildesParams] = None,
                  sex: Optional[str] = None,
                  ):
 
         if params is None:
-            params = ChildesParams()
+            params = AOChildesParams()
 
         self.pipeline = Pipeline(params, sex)
         self.transcripts: List[Transcript] = self.pipeline.load_age_ordered_transcripts()

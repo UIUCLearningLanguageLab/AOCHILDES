@@ -1,8 +1,8 @@
 from collections import Counter
 
-from aochildes.dataset import ChildesDataSet
+from aochildes.dataset import AOChildesDataSet
 
-data = ChildesDataSet()
+data = AOChildesDataSet()
 
 words = []
 for _, row in data.pipeline.df.iterrows():
