@@ -87,6 +87,9 @@ class Pipeline:
                 sentences = []
                 for gloss, utterance_type in zip(rows2['gloss'], rows['type']):
 
+                    # Cast gloss to string to avoid 'nan' being cast to float
+                    gloss = str(gloss)
+
                     # exclude bad sentence
                     if self.params.exclude_unknown_utterances:
                         if ignore_regex.findall(gloss):
